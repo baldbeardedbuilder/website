@@ -64,5 +64,10 @@
     "typescript": "^5.9.3",
     "yaml": "^2.9.0",
     "youtubei.js": "^17.2.0"
+  },
+  "pnpm": {
+    "overrides": {
+      "fast-xml-parser": "5.7.0"
+    }
   }
 }
