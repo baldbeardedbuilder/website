@@ -1,0 +1,34 @@
+---
+import Base from '../layouts/Base.astro';
+import { VISIBLE_TOPICS } from '../config/site';
+import { itemsInTopic } from '../lib/content';
+
+const topics = await Promise.all(
+  VISIBLE_TOPICS.map(async (topic) => ({ topic, items: await itemsInTopic(topic.slug) }))
+);
+---
+
+<Base title="Topics" description="Browse articles and videos by developer topic." active="topics">
+  <main id="main" class="subpage">
+    <section class="page-hero topic-stage">
+      <div class="page-ghost" aria-hidden="true">PICK ONE.</div>
+      <div class="page-hero-grid">
+        <h1>Choose a rabbit hole.</h1>
+        <div class="page-intro">
+          <p>Start with the thing you need to fix, understand, or finally stop searching for.</p>
+        </div>
+      </div>
+    </section>
+    <section class="topics-directory-wrap">
+      <div class="topic-directory">
+        {topics.map(({ topic, items }) => (
+          <a href={`/${topic.slug}/`}>
+            <span class="topic-meta">{items.length} {items.length === 1 ? 'piece' : 'pieces'}</span>
+            <strong>{topic.title}</strong>
+            <p>{topic.blurb}</p>
+          </a>
+        ))}
+      </div>
+    </section>
+  </main>
+</Base>

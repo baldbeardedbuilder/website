@@ -1,131 +1,83 @@
 ---
-/*
-  Every video, in one place.
-
-  This exists because most videos have no page on this site and probably never will. A
-  video earns a page when there is something written to go with it, per decision 22 and
-  amendment 47, and on day one nothing is. That leaves the catalogue with nowhere to be
-  listed, and a catalogue nobody can browse is a catalogue that may as well not exist.
-
-  So this is a finished thing in its own right rather than an index of pages. Every row
-  goes somewhere real: to YouTube when there is no page, to the page when there is. As
-  video pages are published the rows quietly start pointing at this site instead, and nothing
-  here has to change for that to happen.
-
-  Long form and shorts are separated because they are different things to sit down with,
-  not because one is worth more. A list of eighty things where a fifty second short sits
-  between two half hour builds is a list nobody can scan.
-*/
 import Base from '../layouts/Base.astro';
-import FeedItem from '../components/FeedItem.astro';
 import Drip from '../components/Drip.astro';
+import FeedItem from '../components/FeedItem.astro';
+import PageHero from '../components/PageHero.astro';
 import { allItems, isVideoKind } from '../lib/content';
-import { EXTERNAL } from '../config/site';
 
-const videos = (await allItems()).filter((i) => isVideoKind(i.kind));
-const long = videos.filter((v) => v.kind === 'video');
-const shorts = videos.filter((v) => v.kind === 'short');
+const videos = (await allItems()).filter((item) => isVideoKind(item.kind));
+const long = videos.filter((video) => video.kind === 'video');
+const shorts = videos.filter((video) => video.kind === 'short');
+const featured = videos[0];
 
-/*
-  Eighty rows with nothing between them is a ledger, not an archive. A year is the only
-  grouping the catalogue actually has, since a video carries no reading time and no
-  summary to sort on, and it is the one somebody scanning for "the thing from a couple of
-  years back" is already using in their head.
-*/
 function byYear(items: typeof videos) {
   const groups = new Map<number, typeof videos>();
   for (const item of items) {
     const year = item.date.getUTCFullYear();
-    const bucket = groups.get(year);
-    if (bucket) bucket.push(item);
-    else groups.set(year, [item]);
+    groups.set(year, [...(groups.get(year) ?? []), item]);
   }
-  return [...groups.entries()].sort((a, b) => b[0] - a[0]);
+  return [...groups.entries()].sort((left, right) => right[0] - left[0]);
 }
-
-const longYears = byYear(long);
-const shortYears = byYear(shorts);
 ---
 
-<Base
-  title="Every video"
-  description="Every video I have made, long form and shorts, newest first."
-  active="videos"
->
-  <main id="main">
-    <div class="shell">
-      <header class="pagehead">
-        <span class="path">videos</span>
-        <h1>Everything I have filmed</h1>
-        <p class="lede">
-          Live builds, walkthroughs and the short answers to the questions I get asked
-          most. Newest first. Most of these open on YouTube, which is where they live.
-        </p>
+<Base title="Videos" description="Every video I have made, long form and shorts, newest first." active="videos">
+  <main id="main" class="subpage">
+    <PageHero
+      ghost="WATCH."
+      title="Build it with me."
+      accent="Pauses included."
+      description="Real code, the occasional wrong turn, and enough context to know when the shiny pattern is the wrong one."
+      stats={[
+        { label: 'Long form', value: `${long.length} builds + lessons` },
+        { label: 'Short form', value: `${shorts.length} quick answers` }
+      ]}
+    />
+    <section class="archive">
+      <header class="archive-head">
+        <h2>Everything I have filmed.</h2>
+        <p>Long builds and short answers live together here, but not mixed willy nilly.</p>
       </header>
-
-      {
-        long.length > 0 && (
-          <Fragment>
-            <div class="rule major">
-              <h2>Long form</h2>
-            </div>
-            {longYears.map(([year, rows]) => (
-              <Fragment>
-                <div class="rule year">
-                  <h3>{year}</h3>
-                  <span>{rows.length} {rows.length === 1 ? 'video' : 'videos'}</span>
-                </div>
-                <div class="feed">
-                  {rows.map((item) => (
-                    <FeedItem item={item} level={4} />
-                  ))}
-                </div>
-              </Fragment>
-            ))}
-          </Fragment>
-        )
-      }
-
-      {
-        shorts.length > 0 && (
-          <Fragment>
-            <div class="rule major">
-              <h2>Shorts</h2>
-            </div>
-            {shortYears.map(([year, rows]) => (
-              <Fragment>
-                <div class="rule year">
-                  <h3>{year}</h3>
-                  <span>{rows.length} {rows.length === 1 ? 'short' : 'shorts'}</span>
-                </div>
-                <div class="feed">
-                  {rows.map((item) => (
-                    <FeedItem item={item} level={4} />
-                  ))}
-                </div>
-              </Fragment>
-            ))}
-          </Fragment>
-        )
-      }
-
-      {
-        videos.length === 0 && (
-          <div class="note">
-            <p>The catalogue has not synced yet. Everything is on YouTube in the meantime.</p>
-            <p>
-              <a class="btn" href={EXTERNAL.youtube} rel="noopener">
-                Watch on YouTube
-              </a>
-            </p>
+      {featured && (
+        <a
+          class="archive-feature"
+          href={featured.href}
+          target={featured.offsite ? '_blank' : undefined}
+          rel={featured.offsite ? 'noopener noreferrer' : undefined}
+        >
+          <div class="feature-visual">
+            {featured.thumbnail && <img src={featured.thumbnail} alt="" width="1280" height="720" />}
           </div>
-        )
-      }
-
-      <div class="below">
-        <div class="rule major" id="drip"><h2>The .NET Drip</h2></div>
-        <Drip uid="videos" />
-      </div>
-    </div>
+          <div class="feature-copy">
+            <span>Newest / {featured.topic} / {featured.length}</span>
+            <h2>{featured.title}</h2>
+            {featured.description && <p>{featured.description}</p>}
+            <strong>Watch the video &rarr;</strong>
+          </div>
+        </a>
+      )}
+      {long.length > 0 && (
+        <>
+          <div class="year-divider"><h2>Long form</h2><span>Newest first</span></div>
+          {byYear(long.filter((item) => item !== featured)).map(([year, rows]) => (
+            <section class="archive-year">
+              <h3>{year}</h3>
+              <div class="archive-list">{rows.map((item) => <FeedItem item={item} level={4} />)}</div>
+            </section>
+          ))}
+        </>
+      )}
+      {shorts.length > 0 && (
+        <>
+          <div class="year-divider"><h2>Shorts</h2><span>Small answers, fast</span></div>
+          {byYear(shorts.filter((item) => item !== featured)).map(([year, rows]) => (
+            <section class="archive-year">
+              <h3>{year}</h3>
+              <div class="archive-list">{rows.map((item) => <FeedItem item={item} level={4} />)}</div>
+            </section>
+          ))}
+        </>
+      )}
+    </section>
+    <Drip uid="videos" />
   </main>
 </Base>

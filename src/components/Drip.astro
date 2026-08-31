@@ -24,36 +24,33 @@ const { uid } = Astro.props;
 const inputId = `drip-${uid}`;
 ---
 
-<div class="drip">
-  <div>
-    <p class="promise">Every Sunday. One .NET tip, and the links that were actually worth reading.</p>
-    <p>
-      No fluff, no "10 tips to 10x your productivity." One thing worth knowing, plus
-      whatever I hit that week that made me stop and read it twice. Unsubscribe whenever,
-      no hard feelings.
-    </p>
+<section class="drip" aria-labelledby={`drip-title-${uid}`}>
+  <div class="drip-word" aria-hidden="true">DRIP.</div>
+  <div class="drip-copy">
+    <span>The .NET Drip</span>
+    <h2 id={`drip-title-${uid}`}>A little .NET in your inbox.</h2>
+    <p>One useful tip, a few links worth your time, and the occasional war story. No inbox flood.</p>
   </div>
-  <div>
-    <form
-      class="drip-form"
-      name="net-drip"
-      method="POST"
-      action="/?subscribed=true#drip"
-      data-netlify="true"
-      netlify-honeypot="bot-field"
-    >
-      <input type="hidden" name="form-name" value="net-drip" />
-      <input type="hidden" name="utm_source" value="baldbeardedbuilder" />
-      <p class="skip">
-        <label>Leave this empty if you are a person <input name="bot-field" tabindex="-1" /></label>
-      </p>
-      <label class="skip" for={inputId}>Email address</label>
+  <form
+    class="drip-form"
+    name="net-drip"
+    method="POST"
+    action="/?subscribed=true#drip"
+    data-netlify="true"
+    netlify-honeypot="bot-field"
+  >
+    <input type="hidden" name="form-name" value="net-drip" />
+    <input type="hidden" name="utm_source" value="baldbeardedbuilder" />
+    <p class="skip">
+      <label>Leave this empty if you are a person <input name="bot-field" tabindex="-1" /></label>
+    </p>
+    <label for={inputId}>Email address</label>
+    <div>
       <input id={inputId} name="email" type="email" required placeholder="developer@example.com" />
-      <button class="btn primary" type="submit">Subscribe</button>
-    </form>
-    <p class="fine">
-      Subscribe for free &middot;
-      <a href={EXTERNAL.drip}>read the archive</a>
+      <button type="submit">Get The Drip</button>
+    </div>
+    <p class="form-message">
+      Free to join. Unsubscribe whenever. <a href={EXTERNAL.drip}>Read the archive.</a>
     </p>
-  </div>
-</div>
+  </form>
+</section>

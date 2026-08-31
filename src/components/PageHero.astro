@@ -1,0 +1,29 @@
+---
+interface Stat {
+  label: string;
+  value: string;
+}
+
+interface Props {
+  ghost: string;
+  title: string;
+  accent?: string;
+  description: string;
+  stats?: Stat[];
+}
+
+const { ghost, title, accent, description, stats = [] } = Astro.props;
+---
+
+<section class="page-hero">
+  <div class="page-ghost" aria-hidden="true">{ghost}</div>
+  <div class="page-hero-grid">
+    <h1>{title} {accent && <em>{accent}</em>}</h1>
+    <div class="page-intro">
+      {stats.map((stat) => (
+        <div class="page-stat"><span>{stat.label}</span><strong>{stat.value}</strong></div>
+      ))}
+      <p>{description}</p>
+    </div>
+  </div>
+</section>

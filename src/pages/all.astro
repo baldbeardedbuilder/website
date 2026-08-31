@@ -1,37 +1,24 @@
 ---
-/*
-  Every published article and video, newest first.
-
-  Topic pages are intentionally narrow, while the two homepage archive links promise the
-  whole catalogue. Keeping this as a real page makes those links useful without pretending
-  one topic owns work filed somewhere else.
-*/
 import Base from '../layouts/Base.astro';
 import FeedItem from '../components/FeedItem.astro';
+import PageHero from '../components/PageHero.astro';
 import { allItems } from '../lib/content';
 
 const items = await allItems();
 ---
 
-<Base
-  title="Everything I've made"
-  description="Every article and video I have published, newest first."
-  active="all"
->
-  <main id="main">
-    <div class="shell">
-      <header class="pagehead">
-        <span class="path">all</span>
-        <h1>Everything I've made</h1>
-        <p class="lede">
-          Every article, video and short in one place, newest first.
-        </p>
-      </header>
-
-      <div class="feed">
-        <h2 class="vh">Every article, video and short</h2>
-        {items.map((item) => <FeedItem item={item} />)}
-      </div>
-    </div>
+<Base title="Everything I've made" description="Every article and video I have published, newest first." active="all">
+  <main id="main" class="subpage">
+    <PageHero
+      ghost="ALL."
+      title="Everything"
+      accent="in one place."
+      description="Articles, full videos, and shorts together. Newest first, with no mystery sorting."
+      stats={[{ label: 'In the archive', value: `${items.length} pieces` }]}
+    />
+    <section class="archive">
+      <header class="archive-head"><h2>Straight off the workbench.</h2><p>Every format, one list.</p></header>
+      <div class="archive-list">{items.map((item) => <FeedItem item={item} />)}</div>
+    </section>
   </main>
 </Base>

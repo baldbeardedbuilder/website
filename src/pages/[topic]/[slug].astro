@@ -1,27 +1,20 @@
 ---
-/*
-  Article and video detail, both served from the topic first URL.
-
-  A video only reaches this template when it has a video_pages row, which is what decision
-  22 and amendment 47 mean by no transcript no page. Without a row there is no page and
-  the catalogue links straight to YouTube, so this template never has to render an apology
-  for content that does not exist yet.
-*/
 import { getCollection, render } from 'astro:content';
 import Base from '../../layouts/Base.astro';
+import FeedItem from '../../components/FeedItem.astro';
 import VideoEmbed from '../../components/VideoEmbed.astro';
-import { topicBySlug } from '../../config/site';
-import { isVideoKind, itemKindLabel, pagedItems, type Item } from '../../lib/content';
 import LikeButton from '../../components/islands/LikeButton';
 import CommentThread from '../../components/islands/CommentThread';
 import ShareMenu from '../../components/ShareMenu.astro';
+import { topicBySlug } from '../../config/site';
+import { isVideoKind, itemKindLabel, pagedItems, type Item } from '../../lib/content';
 import { bakedLike } from '../../lib/likes';
 import { bakedReplies } from '../../lib/comments';
 import { videoTranscripts } from '../../lib/video-transcripts';
 
 export async function getStaticPaths() {
   const [items, blog] = await Promise.all([pagedItems(), getCollection('blog')]);
-  const posts = new Map(blog.map((p) => [p.id, p]));
+  const posts = new Map(blog.map((post) => [post.id, post]));
   return items.map((item) => ({
     params: { topic: item.topic, slug: item.slug },
     props: { item, post: item.kind === 'article' ? posts.get(item.key.slice(5)) : undefined }
@@ -30,24 +23,25 @@ export async function getStaticPaths() {
 
 type Post = Awaited<ReturnType<typeof getCollection<'blog'>>>[number];
 const { item, post } = Astro.props as { item: Item; post?: Post };
-
-/* Non null on this template by construction: getStaticPaths only serves paged items. */
 const pageUrl = item.url!;
-
 const topic = topicBySlug(item.topic)!;
 const Content = post ? (await render(post)).Content : null;
+const video = isVideoKind(item.kind);
 
 const dateLabel = item.date.toLocaleDateString('en-US', {
   year: 'numeric',
   month: 'short',
   day: 'numeric'
 });
-
 const alsoFiled = item.alsoFiled.map((slug) => topicBySlug(slug)).filter(Boolean);
-
-const transcript = isVideoKind(item.kind)
-  ? (await videoTranscripts()).get(item.key.slice(7))
-  : undefined;
+const transcript = video ? (await videoTranscripts()).get(item.key.slice(7)) : undefined;
+const related = (await pagedItems())
+  .filter((candidate) => candidate.key !== item.key && (
+    candidate.topic === item.topic ||
+    candidate.alsoFiled.includes(item.topic) ||
+    item.alsoFiled.includes(candidate.topic)
+  ))
+  .slice(0, 3);
 
 function timestamp(seconds: number): string {
   const whole = Math.floor(seconds);
@@ -70,9 +64,6 @@ const transcriptHint = transcript
     ? `${transcript.topicCount} ${transcript.topicCount === 1 ? 'topic' : 'topics'}`
     : `${transcript.paragraphCount} paragraphs`
   : '';
-
-/* Baked at build time and honestly a little stale, per conflict 6. The island reconciles
-   it against the live count the moment it hydrates. */
 const likes = await bakedLike('content', item.key);
 const replies = await bakedReplies('content', item.key);
 ---
@@ -80,60 +71,46 @@ const replies = await bakedReplies('content', item.key);
 <Base
   title={item.title}
   description={item.description || `${itemKindLabel(item.kind)} by Michael Jolley.`}
-  active={item.topic}
+  active={video ? 'videos' : 'articles'}
   image={item.thumbnail ?? undefined}
   noindex={item.draft}
   canonical={post?.data.canonicalUrl}
 >
-  <main id="main">
-    <div class="shell read">
-      {/*
-        Decision 119. Ten page types carried this rail and the one people actually read
-        did not, so its metadata was scattered across a breadcrumb, an unstyled stat
-        line and a chip block at the bottom of the article. The rail is the one place
-        that says what a piece is, and it matches dev-disasters/[slug].astro.
-      */}
-      <aside class="rail">
+  <main
+    id="main"
+    class:list={['detail-page', { 'video-detail': video }]}
+    data-pagefind-body
+    data-pagefind-meta={`kind:${item.kind}`}
+    data-pagefind-filter={`topic:${item.topic}`}
+  >
+    <header class="story-head">
+      <div class="story-head-inner">
+        <span class="signal-label" data-pagefind-filter={`kind:${item.kind}`}>
+          {itemKindLabel(item.kind)} / {topic.title}
+        </span>
+        <h1>{item.title}</h1>
+        {item.description && <p class="lede">{item.description}</p>}
+        <div class="story-byline">
+          <span>Michael Jolley</span>
+          <time datetime={item.date.toISOString()}>{dateLabel}</time>
+          <span>{item.length}</span>
+        </div>
+      </div>
+    </header>
+    <div class="detail-shell">
+      <aside class="detail-rail" aria-label="About this piece">
         <dl>
-          <div>
-            <dt>Topic</dt>
-            <dd><a href={`/${topic.slug}/`}>{topic.slug}</a></dd>
-          </div>
-          <div>
-            <dt>Published</dt>
-            <dd><time datetime={item.date.toISOString()}>{dateLabel}</time></dd>
-          </div>
-          <div>
-            <dt>{isVideoKind(item.kind) ? 'Run time' : 'Read time'}</dt>
-            <dd>{item.length}</dd>
-          </div>
-          {
-            /*
-              Views are not in decision 119's list because the mockup's article had none.
-              They are real data on a video and the stat line was the only place carrying
-              them, so they move here rather than being dropped on the way.
-            */
-            item.views !== null && (
-              <div>
-                <dt>Views</dt>
-                <dd>{item.views.toLocaleString('en-US')}</dd>
-              </div>
-            )
-          }
-          {
-            alsoFiled.length > 0 && (
-              <div>
-                <dt>Also filed</dt>
-                <dd>
-                  {alsoFiled.map((t) => (
-                    <a href={`/${t!.slug}/`}>{t!.slug}</a>
-                  ))}
-                </dd>
-              </div>
-            )
-          }
+          <div><dt>Topic</dt><dd><a href={`/${topic.slug}/`}>{topic.title}</a></dd></div>
+          <div><dt>Published</dt><dd><time datetime={item.date.toISOString()}>{dateLabel}</time></dd></div>
+          <div><dt>{video ? 'Run time' : 'Read time'}</dt><dd>{item.length}</dd></div>
+          {item.views !== null && <div><dt>Views</dt><dd>{item.views.toLocaleString('en-US')}</dd></div>}
+          {alsoFiled.length > 0 && (
+            <div>
+              <dt>Also filed</dt>
+              <dd>{alsoFiled.map((filed) => <a href={`/${filed!.slug}/`}>{filed!.title}</a>)}</dd>
+            </div>
+          )}
         </dl>
-
         <div class="rail-acts">
           <LikeButton
             client:visible
@@ -144,111 +121,80 @@ const replies = await bakedReplies('content', item.key);
           />
           <ShareMenu path={pageUrl} title={item.title} kind="content" targetKey={item.key} />
         </div>
-
-        {/*
-          Navigation to a section further down this page, not a control, so it wears no
-          border, background or radius. // is how a C# reader already spells a comment.
-        */}
-        <a class="jump replies" href="#comments">
-          <span class="cmark">//</span> {replies === 1 ? '1 reply' : `${replies} replies`}
-        </a>
-
+        <a class="jump replies" href="#comments">{replies === 1 ? '1 reply' : `${replies} replies`}</a>
         <a class="fine" href={`/report/?type=${item.kind}&target=${encodeURIComponent(pageUrl)}`}>
-          Report a problem with this page
+          Report a problem
         </a>
       </aside>
 
-      {/*
-        One filter per element. Pagefind reads the whole attribute value as a single
-        "name:value" pair, so putting two pairs in one attribute silently produces one
-        filter named topic whose values are strings like "csharp, kind:video".
-      */}
-      <article
-        data-pagefind-body
-        data-pagefind-meta={`kind:${item.kind}`}
-        data-pagefind-filter={`topic:${item.topic}`}
-      >
-        <header class="pagehead">
-          <span class="path" data-pagefind-filter={`kind:${item.kind}`}>
-            <a href={`/${topic.slug}/`}>{topic.slug}</a><span class="sep">/</span><b>{item.slug}</b>
-          </span>
-          <h1>{item.title}</h1>
-          {item.description && <p class="lede">{item.description}</p>}
-        </header>
-
-        {
-          isVideoKind(item.kind) && item.external && (
+      <article class="story">
+        {video && item.external && (
+          <div class="story-video">
             <VideoEmbed id={item.key.slice(7)} title={item.title} href={item.external} />
-          )
-        }
+          </div>
+        )}
 
         {Content && <div class="prose"><Content /></div>}
 
-        {
-          transcript && (
-            <details class="transcript">
-              <summary>
-                Transcript
-                <span class="hint">{transcriptHint}</span>
-              </summary>
-              <div class="tbody">
-                {transcript.chapters.map((chapter) => (
-                  <section class="tchapter">
-                    {chapter.title && (
-                      <header class="tchapter-head">
-                        <h2>{chapter.title}</h2>
-                        {chapter.start !== null && (
-                          <a
-                            class="t"
-                            href={videoAt(item.external!, chapter.start)}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            aria-label={`Watch ${chapter.title} on YouTube at ${timestamp(chapter.start)}`}
-                          >
-                            {timestamp(chapter.start)}
-                          </a>
+        {transcript && (
+          <details class="transcript">
+            <summary>Transcript <span class="hint">{transcriptHint}</span></summary>
+            <div class="tbody">
+              {transcript.chapters.map((chapter) => (
+                <section class="tchapter">
+                  {chapter.title && (
+                    <header class="tchapter-head">
+                      <h2>{chapter.title}</h2>
+                      {chapter.start !== null && (
+                        <a
+                          class="t"
+                          href={videoAt(item.external!, chapter.start)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          aria-label={`Watch ${chapter.title} on YouTube at ${timestamp(chapter.start)}`}
+                        >
+                          {timestamp(chapter.start)}
+                        </a>
+                      )}
+                    </header>
+                  )}
+                  <div class="tblocks">
+                    {chapter.blocks.map((block) => (
+                      <div class="tline">
+                        {!transcript.soloSpeaker && block.speakerChanged && (
+                          <div class="tmeta"><span class="speaker">{block.speaker}</span></div>
                         )}
-                      </header>
-                    )}
-                    <div class="tblocks">
-                      {chapter.blocks.map((block) => (
-                        <div class="tline">
-                          {!transcript.soloSpeaker && block.speakerChanged && (
-                            <div class="tmeta">
-                              <span class="speaker">{block.speaker}</span>
-                            </div>
-                          )}
-                          <p>{block.text}</p>
-                        </div>
-                      ))}
-                    </div>
-                  </section>
-                ))}
-              </div>
-            </details>
-          )
-        }
-
-        {
-          isVideoKind(item.kind) && (
-            <div class="note">
-              <p>
-                <a class="btn" href={item.external!} rel="noopener">
-                  Watch on YouTube
-                </a>
-              </p>
+                        <p>{block.text}</p>
+                      </div>
+                    ))}
+                  </div>
+                </section>
+              ))}
             </div>
-          )
-        }
+          </details>
+        )}
 
+        {video && (
+          <p class="watch-youtube">
+            <a class="button primary" href={item.external!} target="_blank" rel="noopener noreferrer">
+              Watch on YouTube
+            </a>
+          </p>
+        )}
       </article>
     </div>
 
-    {/*
-      The thread hydrates on visible, which on an article means it costs nothing until
-      somebody reaches the end of what they came for. The reply count is baked, so a
-      reader with JavaScript off still gets told whether there is a conversation here.
-    */}
+    {related.length > 0 && (
+      <section class="related-content">
+        <header class="section-header">
+          <span>Keep going</span>
+          <h2>Related pieces.</h2>
+          <p>More from the same corner of the workbench.</p>
+        </header>
+        <div class="archive-list">{related.map((candidate) => <FeedItem item={candidate} />)}</div>
+      </section>
+    )}
+
     <section class="comments" id="comments">
       <CommentThread
         client:visible
@@ -258,8 +204,8 @@ const replies = await bakedReplies('content', item.key);
         pageUrl={pageUrl}
       />
       <noscript>
-        <div class="shell">
-          <aside class="rail"><p class="eyebrow">{replies} {replies === 1 ? 'reply' : 'replies'}</p></aside>
+        <div class="detail-shell">
+          <aside class="detail-rail"><p>{replies} {replies === 1 ? 'reply' : 'replies'}</p></aside>
           <div><p class="note">Replies need JavaScript. The rest of this page does not.</p></div>
         </div>
       </noscript>

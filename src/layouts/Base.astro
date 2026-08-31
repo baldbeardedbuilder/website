@@ -1,21 +1,18 @@
 ---
 import '../styles/fonts.generated.css';
-import '../styles/themes.css';
 import '../styles/app.css';
+import '../styles/type-stage.css';
 
 import Masthead from '../components/Masthead.astro';
 import SiteFooter from '../components/SiteFooter.astro';
 import { SITE } from '../config/site';
-import { THEMES, DEFAULT_DARK, DEFAULT_LIGHT, THEME_STORAGE_KEY } from '../lib/themes.generated';
 
 interface Props {
   title: string;
   description?: string;
-  /** Topic slug, or "dd" for dev disasters. Drives the current nav marker. */
   active?: string;
   image?: string;
   noindex?: boolean;
-  /** Set on pages whose canonical lives elsewhere, for example a syndicated article. */
   canonical?: string;
 }
 
@@ -31,18 +28,10 @@ const {
 const pageTitle = title === SITE.name ? title : `${title} | ${SITE.name}`;
 const canonicalUrl = canonical ?? new URL(Astro.url.pathname, Astro.site).href;
 const socialImage = new URL(image, Astro.site).href;
-
-/*
-  The picker renders client side, so between first paint and hydration the button would
-  otherwise show whichever theme the server guessed. This map lets the no FOUC script
-  correct the label and the swatch in the same tick it sets data-theme. It is serialized
-  from the generated list, so it cannot drift from the picker.
-*/
-const themeNames = Object.fromEntries(THEMES.map((t) => [t.id, t.name]));
 ---
 
 <!doctype html>
-<html lang="en" data-theme={DEFAULT_DARK}>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -51,27 +40,7 @@ const themeNames = Object.fromEntries(THEMES.map((t) => [t.id, t.name]));
     <link rel="canonical" href={canonicalUrl} />
     {noindex && <meta name="robots" content="noindex, nofollow" />}
 
-    <script is:inline define:vars={{ themeNames, DEFAULT_DARK, DEFAULT_LIGHT, THEME_STORAGE_KEY }}>
-      (function () {
-        var t;
-        try {
-          t = localStorage.getItem(THEME_STORAGE_KEY);
-        } catch (e) {
-          /* private mode */
-        }
-        if (!t || !themeNames[t]) {
-          t = matchMedia('(prefers-color-scheme: light)').matches ? DEFAULT_LIGHT : DEFAULT_DARK;
-        }
-        document.documentElement.setAttribute('data-theme', t);
-        document.documentElement.classList.add('js');
-        document.addEventListener('DOMContentLoaded', function () {
-          var label = document.querySelector('.themer-btn .themer-label');
-          var swatch = document.querySelector('.themer-btn .swatch');
-          if (label) label.textContent = themeNames[t];
-          if (swatch) swatch.setAttribute('data-theme', t);
-        });
-      })();
-    </script>
+    <script is:inline>document.documentElement.classList.add('js');</script>
 
     <link rel="icon" href="/images/icons/bbb.svg" type="image/svg+xml" />
     {/*
@@ -81,14 +50,14 @@ const themeNames = Object.fromEntries(THEMES.map((t) => [t.id, t.name]));
     */}
     <link
       rel="preload"
-      href="/fonts/atkinson-hyperlegible-next-latin-wght-normal.woff2"
+      href="/fonts/chivo-latin-wght-normal.woff2"
       as="font"
       type="font/woff2"
       crossorigin
     />
     <link
       rel="preload"
-      href="/fonts/fraunces-latin-full-normal.woff2"
+      href="/fonts/archivo-black-latin-400-normal.woff2"
       as="font"
       type="font/woff2"
       crossorigin

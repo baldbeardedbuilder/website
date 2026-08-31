@@ -1,102 +1,66 @@
 ---
 import Base from '../layouts/Base.astro';
-import { EXTERNAL } from '../config/site';
+import Drip from '../components/Drip.astro';
 ---
 
 <Base
   title="About Michael Jolley"
-  description="Twenty years of .NET, taught the way I learned it: out loud, on camera, mistakes included."
+  description="Michael Jolley is a longtime software developer and teacher sharing honest lessons about .NET, Windows, and developer tools."
+  active="about"
 >
-  <main id="main">
-    <div class="shell read">
-      <aside class="rail">
-        <dl>
-          <div><dt>Job</dt><dd><a href="https://github.com/microsoft/PowerToys" target="_blank">MS PowerToys</a></dd></div>
-          <div><dt>Writing code since</dt><dd>1999</dd></div>
-          <div><dt>Lives in</dt><dd>Alabama</dd></div>
-          <div><dt>Ships code at</dt><dd><a href={EXTERNAL.github}>GitHub</a></dd></div>
-        </dl>
-        <span class="fine">Say hi. I answer everything.</span>
-      </aside>
-
-      <article data-pagefind-body data-pagefind-filter="kind:page">
-        <header class="storyhead">
-          <span class="path">about</span>
-          <h1>I'm Michael, and I <span class="squiggle"><span>break things on camera.</span></span></h1>
-          <p class="lede">
-            Twenty years of .NET and I still say "oh geez, what the heck?!" out loud at my own
-            code at least once a week. That reaction is basically the whole curriculum.
-          </p>
-        </header>
-
-        <div class="prose about-body">
-          <p>
-            I teach C#, ASP.NET Core, and Windows development. Not the polished conference
-            talk version where everything compiles on the first try, but the meat and
-            potatoes version, where you find out the hard way that the sample in the docs
-            quietly assumed you had one instance running.
-          </p>
-          <p>
-            Most of what I know I learned by getting it wrong first, usually in front of
-            somebody. So that's how I teach it. Every article and video here starts from
-            the thing that broke, walks through why it broke, and ends with what I'd
-            actually do on Monday.
-          </p>
-
-          <h2>What you'll find here</h2>
-          <p>
-            Articles when something needs to be read slowly with code in front of you.
-            Videos when it needs to be watched, because some bugs only make sense when you
-            see the debugger step into the wrong branch. Every Sunday I send
-            <a target="_blank" href={EXTERNAL.drip}>The .NET Drip</a>, one .NET tip plus a short pile of
-            links that were actually worth reading that week.
-          </p>
-
-          <h2>The honest part</h2>
-          <p>
-            I'll always tell you when not to use the thing I just showed you. A pattern
-            that saves one team six months will cost another team a year, and pretending
-            otherwise is how we all ended up maintaining a repository wrapper around a
-            repository.
-          </p>
-
-          <div class="callout">
-            <span class="tag">When not to listen to me</span>
-            <p>
-              I write mostly for teams of three to thirty on line of business software. If
-              you're doing high frequency trading or writing a game engine, take everything
-              here as a starting point and measure it yourself.
-            </p>
-          </div>
-
-          <h2>Why dev disasters</h2>
-          <p>
-            The best engineering conversation I've ever had started with somebody admitting
-            they took production down. Not the talk, not the blog post. The admission. It
-            turns out you learn faster in a room where being wrong out loud is normal, so I
-            built <a href="/dev-disasters/">a place for that</a>.
-          </p>
-          <p>
-            Tell me yours. Anonymously if you want. I'll never name you, your company, or
-            the coworker who wrote the regex.
-          </p>
+  <main id="main" class="subpage about-page">
+    <section class="about-stage about-hero">
+      <div class="page-ghost" aria-hidden="true">HELLO.</div>
+      <div class="about-stage-inner">
+        <div>
+          <span class="signal-label">Michael Jolley / Bald Bearded Builder</span>
+          <h1>I teach the way I learned: out loud.</h1>
+          <p>Real code, honest tradeoffs, and the mistakes that make the lesson stick.</p>
         </div>
+        <img src="/images/type-stage/laugh.webp" alt="Michael Jolley laughing" width="1600" height="1139" fetchpriority="high" />
+      </div>
+    </section>
 
-        <div class="hero-actions about-acts">
-          <a class="btn primary" href={EXTERNAL.drip}>Get The Drip</a>
-          <a class="btn" href="/dev-disasters/">Read dev disasters</a>
-          <a class="btn" href="/submit/">Tell me yours</a>
+    <section class="about-story">
+      <div class="story-kicker">
+        <span>Since 1999</span>
+        <strong>20+ years writing C#</strong>
+      </div>
+      <div class="story-copy">
+        <h2>I am Michael. Most folks know me as the Bald Bearded Builder.</h2>
+        <p>I have spent more than two decades building software, leading developer communities, and teaching people how the pieces fit together. These days I spend most of my time with .NET, Windows, and the tools that help us get useful work done.</p>
+        <p>I do not pretend every demo works on the first try. If something breaks, we look at why. If a pattern has a cost, we talk about it. The polished answer is useful, but the road to that answer is usually where the lesson lives.</p>
+        <blockquote>
+          <p>Good teaching does not hide the mess. It gives you enough context to clean up your own.</p>
+        </blockquote>
+      </div>
+    </section>
+
+    <section class="about-principles">
+      <header class="section-header light">
+        <span>What you will find here</span>
+        <h2>The meat and potatoes.</h2>
+      </header>
+      <div class="principle-grid">
+        <article><span>01</span><h3>Build the real thing.</h3><p>Examples should survive contact with an actual project, not just a perfect ten line sample.</p></article>
+        <article><span>02</span><h3>Explain the tradeoff.</h3><p>A tool is only useful when you know when to reach for it and when to leave it in the drawer.</p></article>
+        <article><span>03</span><h3>Learn together.</h3><p>I know a lot. I do not know everything. That makes the conversation better.</p></article>
+      </div>
+    </section>
+
+    <section class="about-now">
+      <img src="/images/type-stage/shirt.webp" alt="Michael Jolley wearing a Bald Bearded Builder shirt" width="1600" height="1139" loading="lazy" />
+      <div>
+        <span class="signal-label">Right now</span>
+        <h2>Still building. Still learning.</h2>
+        <p>I publish practical articles, full video walkthroughs, and quick answers for developers working through .NET and Windows problems. When I find a useful edge case or trip over a sharp one, it usually ends up here.</p>
+        <div class="about-actions">
+          <a class="button primary" href="/all/">See everything I've made</a>
+          <a class="text-link" href="/uses/">See the tools I use &rarr;</a>
         </div>
-      </article>
-    </div>
+      </div>
+    </section>
+
+    <Drip uid="about" />
   </main>
 </Base>
-
-<style>
-  .about-body {
-    margin-top: 2rem;
-  }
-  .about-acts {
-    margin-top: 2.5rem;
-  }
-</style>

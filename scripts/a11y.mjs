@@ -2,9 +2,8 @@
   Accessibility gate.
 
   WCAG 2.2 AA is a decision, not an aspiration, so it is checked by a script that fails
-  the build rather than by remembering to look. Every page archetype is audited, under a
-  dark theme and a light theme, at a phone width and a desktop width, because contrast
-  and reflow failures only show up in some of those combinations.
+  the build rather than by remembering to look. Every page archetype is audited in the
+  fixed Type Stage palette at phone and desktop widths.
 
   Run it against a built dist. `pnpm a11y` serves dist and does the rest.
 */
@@ -20,7 +19,10 @@ import { provenanceSuffix } from './lib/provenance.mjs';
    a line here, which is the point. */
 const PAGES = [
   ['home', '/'],
+  ['all content', '/all/'],
+  ['articles', '/articles/'],
   ['videos', '/videos/'],
+  ['topics', '/topics/'],
   ['topic index', '/csharp/'],
   ['topic filtered', '/csharp/articles/'],
   /*
@@ -94,9 +96,7 @@ const VIEWPORTS = [
   ['desktop', { width: 1280, height: 900 }]
 ];
 
-/* One dark and one light. hotdog-stand is the harshest palette the generator emits, so
-   it is the one most likely to expose a contrast rule the guard missed. */
-const THEMES = ['bbb-dark', 'bbb-light', 'hotdog-stand'];
+const THEMES = ['type-stage'];
 
 /*
   The 31 July unexplained failure, now explained.

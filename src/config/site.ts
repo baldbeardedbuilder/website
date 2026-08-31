@@ -138,6 +138,7 @@ export const RESERVED_SLUGS = [
   '404',
   'about',
   'all',
+  'articles',
   'blog',
   'builders',
   'conduct',
@@ -152,6 +153,7 @@ export const RESERVED_SLUGS = [
   'sitemap-index.xml',
   'submit',
   'terms',
+  'topics',
   'uses',
   'videos'
 ] as const;

@@ -1,49 +1,33 @@
 ---
-import Wordmark from './Wordmark.astro';
+import Mark from './Mark.astro';
 import { SITE, EXTERNAL } from '../config/site';
 ---
 
-<footer class="foot">
-  <div class="shell">
-    <div class="foot-grid">
-      <div>
-        <Wordmark />
-        <p class="tagline">{SITE.tagline}</p>
-      </div>
-      <nav aria-labelledby="foot-learn">
-        <h2 id="foot-learn">Learn</h2>
-        <ul>
-          <li><a href="/csharp/">C#</a></li>
-          <li><a href="/aspnetcore/">ASP.NET Core</a></li>
-          <li><a href="/data/">Data and EF Core</a></li>
-          <li><a href="/windows/">Windows</a></li>
-          <li><a href="/videos/">Every video</a></li>
-        </ul>
-      </nav>
-      <nav aria-labelledby="foot-community">
-        <h2 id="foot-community">Community</h2>
-        <ul>
-          <li><a href="/dev-disasters/">dev disasters</a></li>
-          <li><a href="/submit/">Tell your story</a></li>
-          <li><a href="/account/">Your account</a></li>
-          <li><a href="/conduct/">Code of conduct</a></li>
-          <li><a href="/report/">Report a problem</a></li>
-          <li><a href="/privacy/">Privacy</a></li>
-          <li><a href="/terms/">Terms</a></li>
-        </ul>
-      </nav>
-      <nav aria-labelledby="foot-elsewhere">
-        <h2 id="foot-elsewhere">Elsewhere</h2>
-        <ul>
-          <li><a href="/about/">About Michael</a></li>
-          <li><a href="/uses/">Uses</a></li>
-          <li><a href="/search/">Search</a></li>
-          <li><a target="_blank" href={EXTERNAL.drip}>The .NET Drip</a></li>
-          <li><a target="_blank" href={EXTERNAL.youtube}>YouTube</a></li>
-          <li><a target="_blank" href={EXTERNAL.twitch}>Twitch</a></li>
-          <li><a target="_blank" href={EXTERNAL.github}>GitHub</a></li>
-        </ul>
-      </nav>
+<footer class="site-footer">
+  <div class="footer-brand">
+    <Mark />
+    <div>
+      <strong>{SITE.name}</strong>
+      <p>{SITE.tagline}</p>
     </div>
+  </div>
+  <nav aria-label="Footer navigation">
+    <a href="/videos/">Videos</a>
+    <a href="/articles/">Articles</a>
+    <a href="/topics/">Topics</a>
+    <a href="/about/">About</a>
+    <a href="/uses/">Uses</a>
+    <a href="/search/">Search</a>
+    <a href="/account/">Account</a>
+    <a href="/conduct/">Conduct</a>
+    <a href="/privacy/">Privacy</a>
+    <a href="/terms/">Terms</a>
+    <a target="_blank" rel="noopener" href={EXTERNAL.youtube}>YouTube</a>
+    <a target="_blank" rel="noopener" href={EXTERNAL.github}>GitHub</a>
+    <a target="_blank" rel="noopener" href={EXTERNAL.drip}>The .NET Drip</a>
+  </nav>
+  <div class="footer-fine">
+    <span>&copy; {new Date().getUTCFullYear()} Michael Jolley</span>
+    <span>Built in public. Mistakes included.</span>
   </div>
 </footer>
