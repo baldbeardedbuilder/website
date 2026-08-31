@@ -1,6 +1,51 @@
 ---
 import Mark from './Mark.astro';
 import { SITE, EXTERNAL } from '../config/site';
+
+interface FooterGroup {
+  label: string;
+  links: Array<{
+    label: string;
+    href: string;
+    external?: boolean;
+  }>;
+}
+
+const groups: FooterGroup[] = [
+  {
+    label: 'Learn',
+    links: [
+      { label: 'Videos', href: '/videos/' },
+      { label: 'Articles', href: '/articles/' },
+      { label: 'Topics', href: '/topics/' }
+    ]
+  },
+  {
+    label: 'Michael',
+    links: [
+      { label: 'About', href: '/about/' },
+      { label: 'Uses', href: '/uses/' },
+      { label: 'Search', href: '/search/' }
+    ]
+  },
+  {
+    label: 'Elsewhere',
+    links: [
+      { label: 'YouTube', href: EXTERNAL.youtube, external: true },
+      { label: 'GitHub', href: EXTERNAL.github, external: true },
+      { label: 'The .NET Drip', href: EXTERNAL.drip, external: true }
+    ]
+  },
+  {
+    label: 'Housekeeping',
+    links: [
+      { label: 'Account', href: '/account/' },
+      { label: 'Conduct', href: '/conduct/' },
+      { label: 'Privacy', href: '/privacy/' },
+      { label: 'Terms', href: '/terms/' }
+    ]
+  }
+];
 ---
 
 <footer class="site-footer">
@@ -11,20 +56,28 @@ import { SITE, EXTERNAL } from '../config/site';
       <p>{SITE.tagline}</p>
     </div>
   </div>
-  <nav aria-label="Footer navigation">
-    <a href="/videos/">Videos</a>
-    <a href="/articles/">Articles</a>
-    <a href="/topics/">Topics</a>
-    <a href="/about/">About</a>
-    <a href="/uses/">Uses</a>
-    <a href="/search/">Search</a>
-    <a href="/account/">Account</a>
-    <a href="/conduct/">Conduct</a>
-    <a href="/privacy/">Privacy</a>
-    <a href="/terms/">Terms</a>
-    <a target="_blank" rel="noopener" href={EXTERNAL.youtube}>YouTube</a>
-    <a target="_blank" rel="noopener" href={EXTERNAL.github}>GitHub</a>
-    <a target="_blank" rel="noopener" href={EXTERNAL.drip}>The .NET Drip</a>
+  <nav class="footer-links" aria-label="Footer navigation">
+    {groups.map((group) => {
+      const id = `footer-${group.label.toLowerCase()}`;
+      return (
+        <section class="footer-column" aria-labelledby={id}>
+          <h2 id={id}>{group.label}</h2>
+          <ul>
+            {group.links.map((link) => (
+              <li>
+                <a
+                  href={link.href}
+                  target={link.external ? '_blank' : undefined}
+                  rel={link.external ? 'noopener' : undefined}
+                >
+                  {link.label}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </section>
+      );
+    })}
   </nav>
   <div class="footer-fine">
     <span>&copy; {new Date().getUTCFullYear()} Michael Jolley</span>
