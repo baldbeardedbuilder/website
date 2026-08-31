@@ -80,3 +80,28 @@ test('content pages distribute backgrounds evenly in stable key order', () => {
   assert.match(images.get('content:00'), /ograph_1\.png$/);
   assert.match(images.get('content:05'), /ograph_6\.png$/);
 });
+
+test('content title layers keep product names and versions together', () => {
+  const cases = [
+    [
+      'Tame Configuration in ASP.NET Core with IValidateOptions',
+      ['Tame Configuration in', 'ASP.NET Core with IValidateOptions']
+    ],
+    [
+      'Avoid These EF Core Mistakes Today',
+      ['Avoid These', 'EF Core Mistakes Today']
+    ],
+    [
+      'Working with Entity Framework Migrations',
+      ['Working with', 'Entity Framework Migrations']
+    ],
+    [
+      'Remembering SQL Server 2000 Today',
+      ['Remembering SQL Server 2000', 'Today']
+    ]
+  ];
+
+  for (const [title, [main, ending]] of cases) {
+    assert.deepEqual(splitSocialTitle(title), { main, ending });
+  }
+});
