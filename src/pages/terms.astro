@@ -2,11 +2,11 @@
 /*
   Terms.
 
-  Written to match what the site does now and what it still keeps from retired accounts,
-  submissions, and comments.
+  Written to match the site people can use today. Historical data belongs on the privacy
+  page rather than in the rules for reading this one.
 
   Not written by a lawyer. See the note at the foot, which is deliberately on the page
-  rather than only in a comment.
+  rather than only in the source.
 */
 import Base from '../layouts/Base.astro';
 import { SITE } from '../config/site';
@@ -20,14 +20,15 @@ const lastChanged = new Date(SITE.termsUpdated).toLocaleDateString('en-GB', {
 
 <Base
   title="Terms"
-  description="What you agree to by using the site, what happens to stories already sent in, and who owns what."
+  description="Who owns the work here, how you may use it, and where your judgment still matters."
 >
   <main id="main">
     <div class="shell read">
       <aside class="rail">
         <dl>
           <div><dt>Who runs this</dt><dd><a href="/about/">Michael Jolley</a></dd></div>
-          <div><dt>Your words</dt><dd>Stay yours</dd></div>
+          <div><dt>Site content</dt><dd>Mine unless credited</dd></div>
+          <div><dt>Source code</dt><dd>MIT licensed</dd></div>
           <div><dt>The rules</dt><dd><a href="/conduct/">Code of conduct</a></dd></div>
           <div><dt>Last changed</dt><dd>{lastChanged}</dd></div>
         </dl>
@@ -37,13 +38,13 @@ const lastChanged = new Date(SITE.termsUpdated).toLocaleDateString('en-GB', {
         <header class="storyhead">
           <span class="path">terms</span>
           <h1>
-            Your words stay yours.
-            <span class="squiggle"><span>Everything else is detail.</span></span>
+            Use what helps.
+            <span class="squiggle"><span>Make your own call.</span></span>
           </h1>
           <p class="lede">
             This is a personal site run by one person. There is no company behind it, no
-            support desk, and no small print designed to catch you out. What follows is the
-            arrangement, written the way I would explain it out loud.
+            support desk, and no fine print designed to catch you out. These are the rules I
+            would explain out loud.
           </p>
         </header>
 
@@ -51,86 +52,43 @@ const lastChanged = new Date(SITE.termsUpdated).toLocaleDateString('en-GB', {
           <div class="callout">
             <span class="tag">The short version</span>
             <p>
-              You keep the copyright in anything you write here. You give me permission to
-              publish it. You can ask for it to come down and I will take it down. Be decent,
-              which is covered properly in the <a href="/conduct/">code of conduct</a>.
+              The work here is shared to help you think and build. Read it, link to it, and
+              quote a short passage with credit. Ask before republishing the whole thing.
             </p>
           </div>
 
           <h2>Who owns what</h2>
           <p>
-            The articles, videos, and dev disaster write ups that I produce are mine. Read
-            them, quote them, link them, argue with them. If you want to republish something
-            whole, ask, and the answer is usually yes.
+            Unless a page credits somebody else, the articles, videos, images, transcripts,
+            and site copy are mine. Work credited to somebody else stays theirs.
           </p>
           <p>
-            Stories sent in while submissions were open, and comments left before that
-            feature was retired, are yours. You keep the copyright. What you gave me is
-            permission, not ownership: permission to publish it on this site, to edit it for
-            length and clarity, to talk about it in a video, and to keep it up while it is
-            still relevant. That permission is not exclusive, so the same story is still
-            yours to tell anywhere else, including somewhere that pays you for it.
-          </p>
-          <p>
-            The one thing I will not do is change what a story means. Trimming a paragraph is
-            editing. Changing the outcome, the cause, or how it felt is not, and if a story
-            needs that much work I will ask you rather than do it.
+            The source code for this site is available under the MIT License. That license
+            covers the software. It does not turn the published content into open source
+            material.
           </p>
 
-          <h2>Taking something down</h2>
+          <h2>Using the work</h2>
           <p>
-            Email me and it comes down. You do not need a reason, and I am not going to
-            negotiate about it. This is in the consent you tick when you send a story in,
-            and it is the term I would least want somebody to discover was missing.
+            Sharing a link is always welcome. Quoting a short section with a clear credit and
+            link back is fine too. If you want to republish a full article, transcript, image,
+            or collection, ask first. The answer is often yes.
           </p>
           <p>
-            Older comments are no longer shown on the site. Deleting your account turns them
-            into tombstones so the stored discussion history stays consistent.
-          </p>
-
-          <h2>What you promise about a story</h2>
-          <p>
-            Two things, and you tick both before it sends. That it happened to you or you
-            were there for it, and that you have taken out anything identifying your
-            employer, your coworkers, or a customer.
-          </p>
-          <p>
-            That second one matters more than it looks. This site exists because people can
-            admit to breaking things without it costing them, and the fastest way to end that
-            is one story where somebody works out which outage it was. I check every
-            submission for it as well, but I only know what I can spot from outside.
-          </p>
-          <p>
-            Do not send me something covered by an agreement you signed. I have no way of
-            knowing, and it is your name on that agreement rather than mine.
+            Do not use my name, face, logo, or work to suggest I endorse a product, service,
+            or opinion unless I actually said I do.
           </p>
 
-          <h2>Stories already in the queue</h2>
+          <h2>Accuracy and advice</h2>
           <p>
-            It goes into a queue only I can see. A title and a web address get drafted for it
-            automatically, then I read it, fix the title if the machine got it wrong, check it
-            for anything identifying, and file it under a severity. Nothing publishes without
-            me reading it first.
+            I try to make the work practical and accurate, but software changes and I get
+            things wrong. Check versions, read the official documentation, and test the idea
+            somewhere safe before it gets near production.
           </p>
           <p>
-            If story notifications were on, the site may email you when the story publishes
-            and if it reaches the front page. Publishing anonymously keeps your name and
-            handle off the page and off the source.
-          </p>
-          <p>
-            I do not have to publish anything, and not publishing a story is not a judgement
-            about you or about the story. Most of the time it is that I already have three
-            that are too similar.
-          </p>
-
-          <h2>Retired accounts</h2>
-          <p>
-            Accounts, sign in, public profiles, and story submissions are no longer active.
-            No new account data is created.
-          </p>
-          <p>
-            If you had an account, the <a href="/privacy/#retired-accounts">privacy page</a>
-            explains what remains and how to have it deleted.
+            Nothing here creates a client, employment, financial, legal, or other professional
+            relationship. It is experience shared in public, not a substitute for advice from
+            somebody who knows your situation.
           </p>
 
           <h2>Where this site sends you</h2>
@@ -142,10 +100,8 @@ const lastChanged = new Date(SITE.termsUpdated).toLocaleDateString('en-GB', {
           <h2>The part every site has</h2>
           <p>
             The site is provided as it is. I run it carefully, but I am one person, and it can
-            be down, wrong, or briefly very strange. Everything published here is somebody's
-            experience rather than professional advice, and a dev disaster is a story about
-            what went wrong rather than instructions for your production database. Read it,
-            learn from it, and make your own call.
+            be down, wrong, or briefly very strange. Use what helps, verify what matters, and
+            make your own call.
           </p>
           <p>
             If something here causes you a loss, I am sorry, and I cannot be liable for it,
@@ -153,10 +109,16 @@ const lastChanged = new Date(SITE.termsUpdated).toLocaleDateString('en-GB', {
             law wins.
           </p>
 
+          <h2>Privacy</h2>
+          <p>
+            The <a href="/privacy/">privacy page</a> explains what the site stores, why it is
+            stored, and how to ask for it to be removed.
+          </p>
+
           <h2>Changing these terms</h2>
           <p>
             The date is in the sidebar and it only moves when something actually changed. A
-            change never applies backwards to a story you already sent under the old wording.
+            change applies from that date forward.
           </p>
 
           <div class="callout">

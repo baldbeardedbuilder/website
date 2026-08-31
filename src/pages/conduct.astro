@@ -2,39 +2,32 @@
 import Base from '../layouts/Base.astro';
 import { SITE } from '../config/site';
 
-/*
-  The severity vocabulary earns its keep one more time here. The consequences really are
-  tiered, so the same four badges that classify a disaster classify what happens when
-  somebody breaks the rule. Note the class is sev-warn while the id is warning.
-*/
 const consequences = [
   {
     sev: 'hint',
     label: 'Hint',
-    what: 'I edit or remove it',
+    what: 'I point it out',
     detail:
-      'Usually a first offence, usually somebody having a bad day. You get a note explaining what I removed and why.'
+      'Most problems are misunderstandings or somebody having a rough day. A clear note is usually enough.'
   },
   {
     sev: 'info',
     label: 'Info',
     what: 'I ask you to stop',
-    detail:
-      'A direct message, from me, not a bot. Most of these end here.'
+    detail: 'A direct message from me, not a bot. Most problems end here.'
   },
   {
     sev: 'warn',
     label: 'Warning',
-    what: 'I remove the contribution',
-    detail:
-      'The published piece comes down. I will tell you what happened and why.'
+    what: 'I remove you from the space',
+    detail: 'You lose access to the place where it happened. I will tell you why when I can.'
   },
   {
     sev: 'error',
     label: 'Error',
-    what: 'I take it outside the site',
+    what: 'I take it further',
     detail:
-      'For harassment, threats, or doxxing, removing the contribution is the first step and not the last one.'
+      'Threats, stalking, or publishing private information may go to platform moderators or law enforcement.'
   }
 ];
 
@@ -47,13 +40,13 @@ const lastChanged = new Date(SITE.conductUpdated).toLocaleDateString('en-GB', {
 
 <Base
   title="Code of conduct"
-  description="One rule: somebody just told you about the worst day of their career. Treat it like it cost them something."
+  description="How people are expected to treat one another in the spaces Michael runs."
 >
   <main id="main">
     <div class="shell read">
       <aside class="rail">
         <dl>
-          <div><dt>Applies to</dt><dd>Published contributions and reports</dd></div>
+          <div><dt>Applies to</dt><dd>Spaces I run and direct contact</dd></div>
           <div><dt>Enforced by</dt><dd><a href="/about/">Michael Jolley</a></dd></div>
           <div><dt>Last changed</dt><dd>{lastChanged}</dd></div>
         </dl>
@@ -67,9 +60,8 @@ const lastChanged = new Date(SITE.conductUpdated).toLocaleDateString('en-GB', {
             <span class="squiggle"><span>reading your worst commit.</span></span>
           </h1>
           <p class="lede">
-            This whole site runs on people admitting they broke something. That only works
-            if admitting it is safe. So there is exactly one rule, and then some detail
-            about what it means.
+            This site points to a few places where people build and learn together. Those
+            places only work when nobody has to brace for cruelty before joining in.
           </p>
         </header>
 
@@ -77,56 +69,53 @@ const lastChanged = new Date(SITE.conductUpdated).toLocaleDateString('en-GB', {
           <div class="callout">
             <span class="tag">The rule</span>
             <p>
-              Somebody just told you about the worst day of their career. Treat it like that
-              cost them something, because it did.
+              Treat people like people. Critique the idea, code, or decision without treating
+              the person as the problem.
             </p>
           </div>
 
           <h2>What that looks like in practice</h2>
           <p>
-            Write like you'd speak to a teammate sitting beside you. Honest is useful. Cruel
-            is not, and the difference is whether you're trying to help or trying to win.
+            Be curious before you are certain. Ask about the constraints, explain the tradeoff
+            you see, and leave room for context you do not have.
           </p>
           <p>
-            If one of your older contributions is here, the useful part is the detail that
-            would have prevented it. That's what somebody else can use when production gets
-            weird.
+            Disagreement is welcome. Say what you think, show your work, and let the other
+            person make their own call. Winning the exchange is not the goal.
           </p>
           <p>
-            Assume the person had less information than you have now. Every disaster on
-            this site looks obvious in hindsight. That's what makes it a disaster and not a
-            mystery.
+            Respect names, pronouns, experience, privacy, and boundaries. Give credit when
+            somebody else's work helped you.
           </p>
 
-          <h2>What gets you removed</h2>
+          <h2>What does not belong here</h2>
           <p>
-            Harassment, slurs, sexual content, and threats. Nothing clever to say about
-            these, they're just out.
+            Harassment, slurs, threats, stalking, intimidation, or unwanted sexual attention.
+            Nothing clever to say about these. They are out.
           </p>
           <p>
-            Identifying somebody. Don't name the company, the coworker, the customer, or
-            the intern. If you can work out who a story is about, keep it to yourself. If
-            you post it, you're gone.
+            Publishing private information about somebody else. That includes addresses,
+            phone numbers, private messages, and anything shared in confidence.
           </p>
           <p>
-            Dunking. Telling somebody their outage was their own fault is both useless and
-            usually true, which is exactly why it isn't worth saying.
+            Sustained disruption. Honest criticism is useful. Following somebody around,
+            piling on, or making it impossible for everyone else to participate is not.
           </p>
           <p>
-            Selling things. Your product may genuinely have prevented that outage. Say so
-            once, disclose that it's yours, and move on. Turn a report into a pitch and it's
-            spam.
-          </p>
-          <p>
-            Feeding a story to a language model and pasting the output. I can tell,
-            everybody can tell, and it wastes the one thing this place has, which is that a
-            real person was there.
+            Spam and disguised advertising. A useful link is fine. Turning every exchange
+            into a sales pitch is not.
           </p>
 
-          <h2>What happens when somebody breaks it</h2>
+          <h2>Where this applies</h2>
           <p>
-            There's no committee. It's me. Here's the ladder, and I'll tell you which rung
-            you're on rather than leaving you to guess.
+            This covers the spaces I control and direct contact connected to them. Behavior
+            elsewhere may matter when it creates a real safety problem here.
+          </p>
+
+          <h2>What happens when somebody breaks the rule</h2>
+          <p>
+            There is no committee. It is me. I usually start small, but this is not a promise
+            to walk through every step when somebody is in danger.
           </p>
         </div>
 
@@ -147,9 +136,8 @@ const lastChanged = new Date(SITE.conductUpdated).toLocaleDateString('en-GB', {
         <div class="prose conduct-tail">
           <h2>If I get it wrong</h2>
           <p>
-            Reply to the email. I've reversed moderation calls before and I'll do it again.
-            What I won't do is relitigate a removal in public, because that turns somebody's
-            bad week into a spectacle.
+            Use the report form or email me. I have reversed moderation calls before and I
+            will do it again. I will not argue about somebody's safety in public.
           </p>
 
           <h2>If it's about me</h2>

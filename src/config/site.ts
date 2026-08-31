@@ -220,10 +220,11 @@ export const SITE = {
     'Bringing smiles to the syntax, because laughter is the best error handler.',
   url: 'https://baldbeardedbuilder.com',
   /** Shown on the code of conduct. Bump it whenever the rules actually change. */
-  conductUpdated: '2026-02-02',
-  /** Shown on the privacy and terms pages. Bump both when either actually changes. */
+  conductUpdated: '2026-08-31',
+  /** Shown on the privacy page. */
   privacyUpdated: '2026-08-03',
-  termsUpdated: '2026-08-03',
+  /** Shown on the terms page. */
+  termsUpdated: '2026-08-31',
   /*
     Two role addresses, deliberately not one.
 
