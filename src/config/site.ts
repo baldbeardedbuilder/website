@@ -241,6 +241,12 @@ export const SITE = {
   privacyEmail: 'privacy@baldbeardedbuilder.com'
 } as const;
 
+export const SOCIAL_IMAGES = {
+  home: 'https://res.cloudinary.com/dk3rdh3yo/image/upload/v1788212079/ograph/home_gphtyx.png',
+  about: 'https://res.cloudinary.com/dk3rdh3yo/image/upload/v1788212081/ograph/about_jfnh7z.png',
+  misc: 'https://res.cloudinary.com/dk3rdh3yo/image/upload/v1788212080/ograph/misc_coebzy.png'
+} as const;
+
 export const EXTERNAL = {
   drip: 'https://dotnetdrip.com',
   youtube: 'https://youtube.com/@baldbeardedbuilder',

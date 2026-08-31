@@ -5,7 +5,7 @@ import '../styles/type-stage.css';
 
 import Masthead from '../components/Masthead.astro';
 import SiteFooter from '../components/SiteFooter.astro';
-import { SITE } from '../config/site';
+import { SITE, SOCIAL_IMAGES } from '../config/site';
 
 interface Props {
   title: string;
@@ -20,7 +20,7 @@ const {
   title,
   description = SITE.tagline,
   active,
-  image = '/images/social.png',
+  image = SOCIAL_IMAGES.misc,
   noindex = false,
   canonical
 } = Astro.props;
@@ -69,8 +69,11 @@ const socialImage = new URL(image, Astro.site).href;
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonicalUrl} />
     <meta property="og:image" content={socialImage} />
+    <meta property="og:image:alt" content={pageTitle} />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:creator" content="@baldbeardedbuildr" />
+    <meta name="twitter:image" content={socialImage} />
+    <meta name="twitter:image:alt" content={pageTitle} />
 
     <link rel="alternate" type="application/rss+xml" title={SITE.name} href="/rss.xml" />
     <slot name="head" />

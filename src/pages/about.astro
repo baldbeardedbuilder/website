@@ -1,12 +1,14 @@
 ---
 import Base from '../layouts/Base.astro';
 import Drip from '../components/Drip.astro';
+import { SOCIAL_IMAGES } from '../config/site';
 ---
 
 <Base
   title="About Michael Jolley"
   description="Michael Jolley is a longtime software developer and teacher sharing honest lessons about .NET, Windows, and developer tools."
   active="about"
+  image={SOCIAL_IMAGES.about}
 >
   <main id="main" class="subpage about-page">
     <section class="about-stage about-hero">

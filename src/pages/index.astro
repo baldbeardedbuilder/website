@@ -2,7 +2,7 @@
 import Base from '../layouts/Base.astro';
 import Drip from '../components/Drip.astro';
 import FeedItem from '../components/FeedItem.astro';
-import { SITE, VISIBLE_TOPICS } from '../config/site';
+import { SITE, SOCIAL_IMAGES, VISIBLE_TOPICS } from '../config/site';
 import { allItems, isVideoKind, itemKindLabel, itemsInTopic, type Item } from '../lib/content';
 import { starterItems } from '../lib/starters';
 
@@ -56,7 +56,7 @@ const heroPortraits = [
 ];
 ---
 
-<Base title={SITE.name} description={SITE.tagline}>
+<Base title={SITE.name} description={SITE.tagline} image={SOCIAL_IMAGES.home}>
   <Fragment slot="head">
     <script is:inline define:vars={{ heroPortraits, heroSizes }}>
       (() => {
