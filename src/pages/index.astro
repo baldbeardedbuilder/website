@@ -31,6 +31,13 @@ const topicCounts = await Promise.all(
 
 const latest = items.slice(0, 6);
 const opensYouTube = (item: Item) => isVideoKind(item.kind) && item.offsite;
+const heroPortraits = [
+  '/images/type-stage/point.webp',
+  '/images/type-stage/think.webp',
+  '/images/type-stage/shrug.webp',
+  '/images/type-stage/shirt.webp',
+  '/images/type-stage/laugh.webp'
+];
 ---
 
 <Base title={SITE.name} description={SITE.tagline}>
@@ -45,12 +52,37 @@ const opensYouTube = (item: Item) => isVideoKind(item.kind) && item.offsite;
       </div>
       <img
         class="hero-person"
-        src="/images/type-stage/point.webp"
-        alt="Michael Jolley pointing toward the latest lesson"
+        src={heroPortraits[0]}
+        alt="Michael Jolley, the Bald Bearded Builder"
         width="1600"
         height="1139"
         fetchpriority="high"
       />
+      <script is:inline define:vars={{ heroPortraits }}>
+        (() => {
+          const image = document.querySelector('.hero-person');
+          if (!(image instanceof HTMLImageElement)) return;
+
+          const storageKey = 'bbb:hero-portrait';
+          let previous = null;
+
+          try {
+            previous = sessionStorage.getItem(storageKey);
+          } catch {
+            /* The portrait can still rotate when storage is unavailable. */
+          }
+
+          const available = heroPortraits.filter((portrait) => portrait !== previous);
+          const selected = available[Math.floor(Math.random() * available.length)] ?? heroPortraits[0];
+
+          image.src = selected;
+          try {
+            sessionStorage.setItem(storageKey, selected);
+          } catch {
+            /* A private tab may forget which portrait it just showed. */
+          }
+        })();
+      </script>
       {hero && (
         <a
           class="hero-latest"
