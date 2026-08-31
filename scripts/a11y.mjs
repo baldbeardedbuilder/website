@@ -160,6 +160,40 @@ for (const [vpName, viewport] of VIEWPORTS) {
     await page.evaluate(() => document.fonts.ready);
 
     /*
+      Vite can briefly show its own error overlay while the on demand route finishes
+      compiling. Give that one clean retry, then report Vite's message instead of asking
+      axe to grade the overlay as if it were the site.
+    */
+    const viteError = () =>
+      page.evaluate(() => {
+        const root = document.querySelector('vite-error-overlay')?.shadowRoot;
+        if (!root) return null;
+
+        const message = root.getElementById('message-content')?.textContent?.trim();
+        const stack = root.getElementById('stack-content')?.textContent?.trim();
+        return [message, stack?.split('\n').slice(0, 8).join('\n')]
+          .filter(Boolean)
+          .join('\n');
+      });
+
+    let devError = await viteError();
+    if (devError) {
+      const retry = await page.reload({ waitUntil: 'load' });
+      if (!retry || retry.status() !== 200) {
+        failures.push(`${label} ${url} returned ${retry ? retry.status() : 'no response'} on retry`);
+        continue;
+      }
+
+      await page.waitForTimeout(600);
+      await page.evaluate(() => document.fonts.ready);
+      devError = await viteError();
+      if (devError) {
+        failures.push(`${label} [${vpName}] Vite failed to render the route after a retry:\n${devError}`);
+        continue;
+      }
+    }
+
+    /*
       Find every disclosure on the page and tag it, so its contents can be audited.
 
       Found while adding the share menu. A closed disclosure is display: none, so axe walks

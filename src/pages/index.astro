@@ -31,16 +31,68 @@ const topicCounts = await Promise.all(
 
 const latest = items.slice(0, 6);
 const opensYouTube = (item: Item) => isVideoKind(item.kind) && item.offsite;
+const heroSizes = '(max-width: 48rem) 90vw, (max-width: 68rem) 68vw, 55vw';
 const heroPortraits = [
-  '/images/type-stage/point.webp',
-  '/images/type-stage/think.webp',
-  '/images/type-stage/shrug.webp',
-  '/images/type-stage/shirt.webp',
-  '/images/type-stage/laugh.webp'
+  {
+    src: '/images/type-stage/point.webp',
+    srcset: '/images/type-stage/point-800.webp 800w, /images/type-stage/point.webp 1600w'
+  },
+  {
+    src: '/images/type-stage/think.webp',
+    srcset: '/images/type-stage/think-800.webp 800w, /images/type-stage/think.webp 1600w'
+  },
+  {
+    src: '/images/type-stage/shrug.webp',
+    srcset: '/images/type-stage/shrug-800.webp 800w, /images/type-stage/shrug.webp 1600w'
+  },
+  {
+    src: '/images/type-stage/shirt.webp',
+    srcset: '/images/type-stage/shirt-800.webp 800w, /images/type-stage/shirt.webp 1600w'
+  },
+  {
+    src: '/images/type-stage/laugh.webp',
+    srcset: '/images/type-stage/laugh-800.webp 800w, /images/type-stage/laugh.webp 1544w'
+  }
 ];
 ---
 
 <Base title={SITE.name} description={SITE.tagline}>
+  <Fragment slot="head">
+    <script is:inline define:vars={{ heroPortraits, heroSizes }}>
+      (() => {
+        const storageKey = 'bbb:hero-portrait';
+        let previous = null;
+
+        try {
+          previous = sessionStorage.getItem(storageKey);
+        } catch {
+          /* The portrait can still rotate when storage is unavailable. */
+        }
+
+        const available = heroPortraits.filter((portrait) => portrait.src !== previous);
+        const selected = available[Math.floor(Math.random() * available.length)] ?? heroPortraits[0];
+        const root = document.documentElement;
+        root.dataset.heroPortraitSrc = selected.src;
+        root.dataset.heroPortraitSrcset = selected.srcset;
+
+        const preload = document.createElement('link');
+        preload.rel = 'preload';
+        preload.as = 'image';
+        preload.href = selected.src;
+        preload.setAttribute('imagesrcset', selected.srcset);
+        preload.setAttribute('imagesizes', heroSizes);
+        preload.setAttribute('fetchpriority', 'high');
+        document.head.append(preload);
+
+        try {
+          sessionStorage.setItem(storageKey, selected.src);
+        } catch {
+          /* A private tab may forget which portrait it just showed. */
+        }
+      })();
+    </script>
+  </Fragment>
+
   <main id="main">
     <section class="hero">
       <div class="hero-type" aria-hidden="true"><span>BUILD</span><span>BETTER</span></div>
@@ -52,35 +104,24 @@ const heroPortraits = [
       </div>
       <img
         class="hero-person"
-        src={heroPortraits[0]}
+        src={heroPortraits[0].src}
+        srcset={heroPortraits[0].srcset}
+        sizes={heroSizes}
         alt="Michael Jolley, the Bald Bearded Builder"
         width="1600"
         height="1139"
         fetchpriority="high"
       />
-      <script is:inline define:vars={{ heroPortraits }}>
+      <script is:inline>
         (() => {
           const image = document.querySelector('.hero-person');
           if (!(image instanceof HTMLImageElement)) return;
 
-          const storageKey = 'bbb:hero-portrait';
-          let previous = null;
+          const root = document.documentElement;
+          if (!root.dataset.heroPortraitSrc || !root.dataset.heroPortraitSrcset) return;
 
-          try {
-            previous = sessionStorage.getItem(storageKey);
-          } catch {
-            /* The portrait can still rotate when storage is unavailable. */
-          }
-
-          const available = heroPortraits.filter((portrait) => portrait !== previous);
-          const selected = available[Math.floor(Math.random() * available.length)] ?? heroPortraits[0];
-
-          image.src = selected;
-          try {
-            sessionStorage.setItem(storageKey, selected);
-          } catch {
-            /* A private tab may forget which portrait it just showed. */
-          }
+          image.src = root.dataset.heroPortraitSrc;
+          image.srcset = root.dataset.heroPortraitSrcset;
         })();
       </script>
       {hero && (
