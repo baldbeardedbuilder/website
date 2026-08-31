@@ -8,19 +8,41 @@ import ShareMenu from '../../components/ShareMenu.astro';
 import { topicBySlug } from '../../config/site';
 import { isVideoKind, itemKindLabel, pagedItems, type Item } from '../../lib/content';
 import { bakedLike } from '../../lib/likes';
+import { assignContentSocialImages } from '../../lib/social-images';
 import { videoTranscripts } from '../../lib/video-transcripts';
 
 export async function getStaticPaths() {
   const [items, blog] = await Promise.all([pagedItems(), getCollection('blog')]);
   const posts = new Map(blog.map((post) => [post.id, post]));
-  return items.map((item) => ({
-    params: { topic: item.topic, slug: item.slug },
-    props: { item, post: item.kind === 'article' ? posts.get(item.key.slice(5)) : undefined }
-  }));
+  const socialImages = assignContentSocialImages(
+    items.map((item) => ({
+      key: item.key,
+      title: item.title,
+      topics: [item.topic, ...item.alsoFiled].map((slug) => {
+        const topic = topicBySlug(slug);
+        if (!topic) throw new Error(`No configured topic for "${slug}" on ${item.key}.`);
+        return topic.title;
+      })
+    }))
+  );
+
+  return items.map((item) => {
+    const socialImage = socialImages.get(item.key);
+    if (!socialImage) throw new Error(`No social image generated for ${item.key}.`);
+
+    return {
+      params: { topic: item.topic, slug: item.slug },
+      props: {
+        item,
+        socialImage,
+        post: item.kind === 'article' ? posts.get(item.key.slice(5)) : undefined
+      }
+    };
+  });
 }
 
 type Post = Awaited<ReturnType<typeof getCollection<'blog'>>>[number];
-const { item, post } = Astro.props as { item: Item; post?: Post };
+const { item, post, socialImage } = Astro.props as { item: Item; post?: Post; socialImage: string };
 const pageUrl = item.url!;
 const topic = topicBySlug(item.topic)!;
 const Content = post ? (await render(post)).Content : null;
@@ -69,7 +91,7 @@ const likes = await bakedLike('content', item.key);
   title={item.title}
   description={item.description || `${itemKindLabel(item.kind)} about ${topic.title}.`}
   active={video ? 'videos' : 'articles'}
-  image={item.thumbnail ?? undefined}
+  image={socialImage}
   noindex={item.draft}
   canonical={post?.data.canonicalUrl}
 >
