@@ -247,6 +247,7 @@ export const EXTERNAL = {
   youtube: 'https://youtube.com/@baldbeardedbuilder',
   twitch: 'https://twitch.tv/baldbeardedbuilder',
   github: 'https://github.com/michaeljolley',
+  repository: 'https://github.com/baldbeardedbuilder/website',
   bluesky: 'https://bsky.app/profile/baldbeardedbuilder.com',
 	x: 'https://x.com/michaeljolley',
 	linkedin: 'https://linkedin.com/in/michaelwjolley',

@@ -45,12 +45,11 @@ const inputId = `drip-${uid}`;
       <label>Leave this empty if you are a person <input name="bot-field" tabindex="-1" /></label>
     </p>
     <label for={inputId}>Email address</label>
-    <div>
+    <div class="drip-input-row">
       <input id={inputId} name="email" type="email" required placeholder="developer@example.com" />
       <button type="submit">Get The Drip</button>
     </div>
-    <p class="form-message">
-      Free to join. Unsubscribe whenever. <a href={EXTERNAL.drip}>Read the archive.</a>
-    </p>
+    <p class="form-message">Free to join. Unsubscribe whenever.</p>
+    <p class="drip-archive"><a href={EXTERNAL.drip}>Read the archive.</a></p>
   </form>
 </section>
