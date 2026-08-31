@@ -6,9 +6,8 @@ import { THEMES, THEME_STORAGE_KEY } from '../lib/themes.generated';
 
   It appears in the masthead of every single page, and a Preact island put roughly 19 KB
   of framework on all of them for what is, in the end, a disclosure button that sets one
-  attribute. Preact still earns its place on the pages that need real state, comments and
-  likes and the submit form, but not here. This version ships the whole menu as HTML and
-  wires it up with about a kilobyte of inline script.
+  attribute. Preact still earns its place on the like controls, but not here. This version
+  ships the whole menu as HTML and wires it up with about a kilobyte of inline script.
 */
 
 const SWATCH_VARS = ['--bg', '--accent', '--sev-error', '--sev-warn', '--sev-info'];

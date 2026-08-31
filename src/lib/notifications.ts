@@ -8,11 +8,8 @@
 */
 
 import type { SupabaseClient } from '@supabase/supabase-js';
-import { allDisasters } from './disasters';
-import { itemByKey } from './content';
 import { mailDeliveryEnabled, sendMail, type Mail } from './mail';
 import {
-  absolute,
   backoffMinutes,
   renderNotification,
   MAX_ATTEMPTS,
@@ -35,51 +32,10 @@ interface OutboxRow {
   claim_token: string;
 }
 
-async function urlForComment(kind: string, key: string): Promise<string | null> {
-  if (kind === 'disaster') {
-    const found = allDisasters().find((disaster) => String(disaster.id) === key);
-    return found ? absolute(`${found.url}#comments`) : null;
-  }
-
-  const item = await itemByKey(key);
-  return item?.url ? absolute(`${item.url}#comments`) : null;
-}
-
 async function currentEventPayload(
   db: SupabaseClient<Database>,
   row: OutboxRow
 ): Promise<Record<string, unknown> | null> {
-  if (row.kind === 'comment_reply') {
-    const commentId = String(row.payload.comment_id ?? '');
-    if (!commentId) return null;
-
-    const { data: comment, error } = await db
-      .from('comments')
-      .select('status, parent_id, target_kind, target_key, body_markdown')
-      .eq('id', commentId)
-      .maybeSingle();
-
-    if (error) {
-      throw new Error(`Could not verify comment for email row ${row.id}: ${error.code}`);
-    }
-    if (
-      !comment ||
-      comment.status !== 'visible' ||
-      comment.parent_id !== String(row.payload.parent_id ?? '') ||
-      comment.target_kind !== row.payload.target_kind ||
-      comment.target_key !== row.payload.target_key
-    ) {
-      return null;
-    }
-
-    return {
-      ...row.payload,
-      target_kind: comment.target_kind,
-      target_key: comment.target_key,
-      excerpt: comment.body_markdown.slice(0, 280)
-    };
-  }
-
   const disasterId = Number(row.payload.disaster_id);
   if (!Number.isSafeInteger(disasterId)) return null;
 
@@ -172,9 +128,18 @@ export async function drain(now = new Date()): Promise<DrainResult> {
     const row = raw as unknown as OutboxRow;
     result.considered++;
 
+    if (row.kind === 'comment_reply') {
+      await updateClaim(db, row, {
+        sent_at: nowIso,
+        last_error: 'skipped: comments retired'
+      });
+      result.skipped++;
+      continue;
+    }
+
     const { data: prefs, error: prefsError } = await db
       .from('notification_prefs')
-      .select('story_published, story_featured, comment_reply, unsubscribe_token')
+      .select('story_published, story_featured, unsubscribe_token')
       .eq('profile_id', row.profile_id)
       .maybeSingle();
 
@@ -185,9 +150,7 @@ export async function drain(now = new Date()): Promise<DrainResult> {
     const wants = prefs
       ? row.kind === 'story_published'
         ? prefs.story_published
-        : row.kind === 'story_featured'
-          ? prefs.story_featured
-          : prefs.comment_reply
+        : prefs.story_featured
       : false;
 
     if (!prefs || !wants) {
@@ -224,15 +187,7 @@ export async function drain(now = new Date()): Promise<DrainResult> {
       continue;
     }
 
-    const commentUrl =
-      row.kind === 'comment_reply'
-        ? await urlForComment(
-            String(payload.target_kind ?? ''),
-            String(payload.target_key ?? '')
-          )
-        : null;
-
-    const built = renderNotification(row.kind, payload, prefs.unsubscribe_token, commentUrl);
+    const built = renderNotification(row.kind, payload, prefs.unsubscribe_token);
     if (!built) {
       await updateClaim(db, row, {
         sent_at: nowIso,

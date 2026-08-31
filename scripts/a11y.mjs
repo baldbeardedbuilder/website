@@ -78,12 +78,9 @@ if (!PAGES.some(([label]) => label === 'article')) {
 */
 const ON_DEMAND = [
   ['report', '/report/'],
-  ['report prefilled', '/report/?type=comment&ref=00000000-0000-4000-8000-000000000000&target=%2Fcsharp%2F'],
+  ['report prefilled', '/report/?type=content&target=%2Fcsharp%2F'],
   ['report sent', '/report/?sent=1'],
   ['report refused', '/report/?sent=slow'],
-  ['submit', '/submit/'],
-  ['submit sent', '/submit/?sent=1'],
-  ['submit refused', '/submit/?sent=consent'],
   ['unsubscribe missing token', '/unsubscribe/'],
   [
     'unsubscribe confirmation',
@@ -380,9 +377,7 @@ for (const [vpName, viewport] of VIEWPORTS) {
       The defect it was written for shipped on both pages. `.field input:focus` had no
       exclusion for radios and checkboxes, so clicking an option drew a 2px square around a
       13px dot floating inside a much larger rounded chip, and it fired on :focus rather
-      than :focus-visible so a mouse click drew it. It was doing the same to the consent
-      checkboxes on submit, on top of the correct .consent rule fifteen lines away, which
-      nobody had noticed because nobody was looking at that control.
+      than :focus-visible so a mouse click drew it.
 
       Removing the ring outright was the literal request and would have failed 2.4.7, so
       what is asserted is that it moved rather than that it went away.
@@ -491,11 +486,11 @@ if (disclosuresOpened === 0) {
   process.exit(1);
 }
 
-if (focusChecked.size < 2) {
+if (focusChecked.size < 1) {
   /*
-    Fail closed, same reasoning as the disclosures above. Both /report/ and /submit/ carry
-    these controls, so anything under two means a selector stopped matching and the focus
-    checks quietly measured nothing while still reporting clean.
+    Fail closed, same reasoning as the disclosures above. /report/ carries these controls,
+    so zero means a selector stopped matching and the focus checks quietly measured nothing
+    while still reporting clean.
   */
   console.error(
     `focus rings were only checked on ${focusChecked.size} page(s): ${[...focusChecked].join(', ') || 'none'}.`

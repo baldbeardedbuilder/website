@@ -5,8 +5,7 @@
   That is not a nicety: the moment somebody needs this page is a bad moment, and a form
   that quietly needs a working script bundle is a form that fails exactly then.
 
-  Anybody can file one, signed in or not. Requiring an account to report somebody would
-  mean the people least able to make an account are the least able to ask for help.
+  Anybody can file one. Reporting has no account requirement.
 */
 
 import type { APIRoute } from 'astro';
@@ -85,7 +84,7 @@ export const POST: APIRoute = async (context) => {
     target_ref: targetRef,
     reason: why.slice(0, 5000),
     details: details || null,
-    reporter_id: context.locals.profile?.id ?? null,
+    reporter_id: null,
     reporter_hash: hashed
   });
 

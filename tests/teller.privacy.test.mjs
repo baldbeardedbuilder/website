@@ -145,6 +145,7 @@ test('no page draws a byline of its own', () => {
 test('the byline component refuses to name an unresolved teller', () => {
   const c = read(path.join('src', 'components', 'Teller.astro'));
   assert.match(c, /shown === 'handle'/, 'the component no longer branches on a resolved handle');
+  assert.doesNotMatch(c, /\/builders\//, 'retired profile pages are linked from a byline');
   assert.match(
     c,
     /shown === 'anonymous'/,
@@ -229,17 +230,3 @@ test('a story cannot lose its author without becoming anonymous', () => {
       'a named teller and cannot name one.'
   );
 });
-
-test('the privacy checkbox says the name comes off', () => {
-  const copy = read(path.join('src', 'pages', 'account.astro'));
-  const label = copy.match(/Hide my profile\.[\s\S]{0,240}?<\/label>/);
-  assert.ok(label, 'the hide profile label is gone or reworded past recognition');
-  assert.match(
-    label[0],
-    /your name comes off/,
-    'the label promises the stories stay without saying the byline goes. Under the ruling ' +
-      'both happen, and copy that describes a different system is how this branch has ' +
-      'lost time repeatedly.'
-  );
-});
-

@@ -43,7 +43,6 @@ const pages = new Set([
   '/privacy/',
   '/report/',
   '/search/',
-  '/submit/',
   '/terms/',
   '/uses/',
   '/videos/',

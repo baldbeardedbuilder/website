@@ -28,24 +28,3 @@ interface ImportMetaEnv {
 interface ImportMeta {
   readonly env: ImportMetaEnv;
 }
-
-declare namespace App {
-  interface Locals {
-    /**
-     * The signed in reader's profile, or null. Always null on prerendered routes,
-     * because a page built once and served from a CDN cannot know who is reading it.
-     */
-    profile: {
-      id: string;
-      handle: string;
-      display_name: string | null;
-      avatar_url: string | null;
-      is_private: boolean;
-      /** When the GitHub account was made. Feeds the new account hold on comments. */
-      github_created_at: string | null;
-      /** When the profile was made here. The hold's fallback for providers that do not say. */
-      created_at: string | null;
-    } | null;
-    userId: string | null;
-  }
-}

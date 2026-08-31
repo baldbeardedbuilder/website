@@ -1,6 +1,6 @@
 /*
-  Email is one feature with several locks. These assertions keep the migration, account
-  controls, unsubscribe route, production guard and schedule from drifting apart.
+  Email is one feature with several locks. These assertions keep the migration, stored
+  preferences, unsubscribe route, production guard and schedule from drifting apart.
 */
 
 import { test } from 'node:test';
@@ -19,18 +19,13 @@ test('the queue migration and unsubscribe route are active together', () => {
   assert.equal(exists('src', 'pages', '_unwired', 'unsubscribe.astro'), false);
 });
 
-test('account settings expose active notifications and preserve the retired reply preference', () => {
-  const page = read('src', 'pages', 'account.astro');
+test('retired account preferences stay stored without exposing account settings', () => {
   const account = read('src', 'lib', 'account.ts');
 
-  for (const field of ['story_published', 'story_featured']) {
-    assert.ok(page.includes(field), `account.astro is missing ${field}`);
+  for (const field of ['story_published', 'story_featured', 'comment_reply']) {
     assert.ok(account.includes(field), `account.ts does not persist ${field}`);
   }
-  assert.equal(page.includes('comment_reply'), false);
-  assert.ok(account.includes('comment_reply'), 'account.ts no longer preserves the legacy reply preference');
-  assert.ok(page.includes('saveNotificationPrefs'));
-  assert.ok(page.includes('account.email'), 'the destination address is not shown');
+  assert.equal(exists('src', 'pages', 'account.astro'), false);
 });
 
 test('delivery requires the explicit flag and API key', () => {
@@ -87,10 +82,10 @@ test('browser unsubscribe confirms while RFC one-click POST is immediate', () =>
   assert.ok(page.includes('unsubscribe_by_token'));
 });
 
-test('the drain rechecks queued content before sending captured copy', () => {
+test('the drain rechecks queued stories and skips retired reply notifications', () => {
   const notifications = read('src', 'lib', 'notifications.ts');
 
   assert.match(notifications, /\.from\('disasters'\)[\s\S]*?disaster\.status !== 'published'/);
-  assert.match(notifications, /\.from\('comments'\)[\s\S]*?comment\.status !== 'visible'/);
-  assert.ok(notifications.includes('comment.body_markdown.slice(0, 280)'));
+  assert.doesNotMatch(notifications, /\.from\('comments'\)/);
+  assert.ok(notifications.includes("last_error: 'skipped: comments retired'"));
 });

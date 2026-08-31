@@ -64,8 +64,7 @@ test('a published story email links to the story and offers the right opt out', 
   const mail = renderNotification(
     'story_published',
     { slug: 'the-raccoon-in-the-server-room-was-not-a-metaphor', line: 'It was a raccoon.' },
-    TOKEN,
-    null
+    TOKEN
   );
 
   assert.ok(mail);
@@ -76,8 +75,8 @@ test('a published story email links to the story and offers the right opt out', 
 });
 
 test('a featured story email is not the published one wearing a different subject', () => {
-  const published = renderNotification('story_published', { slug: 'x', line: 'y' }, TOKEN, null);
-  const featured = renderNotification('story_featured', { slug: 'x', line: 'y' }, TOKEN, null);
+  const published = renderNotification('story_published', { slug: 'x', line: 'y' }, TOKEN);
+  const featured = renderNotification('story_featured', { slug: 'x', line: 'y' }, TOKEN);
 
   assert.ok(published && featured);
   assert.notEqual(published.subject, featured.subject);
@@ -89,8 +88,7 @@ test('a story published and featured together produces one message that says bot
   const mail = renderNotification(
     'story_featured',
     { slug: 'x', line: 'y', published_together: true },
-    TOKEN,
-    null
+    TOKEN
   );
 
   assert.ok(mail);
@@ -99,44 +97,30 @@ test('a story published and featured together produces one message that says bot
 });
 
 test('a story with no slug renders nothing rather than a broken link', () => {
-  assert.equal(renderNotification('story_published', { line: 'no slug here' }, TOKEN, null), null);
+  assert.equal(renderNotification('story_published', { line: 'no slug here' }, TOKEN), null);
 });
 
-test('a reply with no resolvable page renders nothing', () => {
-  assert.equal(renderNotification('comment_reply', { excerpt: 'hello' }, TOKEN, null), null);
-});
-
-test('a reply excerpt cannot inject markup into the HTML version', () => {
-  const mail = renderNotification(
-    'comment_reply',
-    { excerpt: '<img src=x onerror="alert(1)"> & "quoted"' },
-    TOKEN,
-    'https://baldbeardedbuilder.com/csharp/something/#comments'
-  );
-
-  assert.ok(mail);
-  assert.ok(!mail.html.includes('<img'), 'the excerpt is text, not markup');
-  assert.match(mail.html, /&lt;img/);
-  assert.match(mail.html, /&amp;/);
+test('retired reply notifications render nothing even when an old row resolves', () => {
+  assert.equal(renderNotification('comment_reply', { excerpt: 'hello' }, TOKEN), null);
 });
 
 test('every email says how to stop getting it', () => {
   const cases = [
-    renderNotification('story_published', { slug: 'a', line: 'b' }, TOKEN, null),
-    renderNotification('story_featured', { slug: 'a', line: 'b' }, TOKEN, null),
-    renderNotification('comment_reply', { excerpt: 'hi' }, TOKEN, 'https://example.com/x/#comments')
+    renderNotification('story_published', { slug: 'a', line: 'b' }, TOKEN),
+    renderNotification('story_featured', { slug: 'a', line: 'b' }, TOKEN)
   ];
 
   for (const mail of cases) {
     assert.ok(mail);
     assert.match(mail.text, /Turn this one off:/);
-    assert.match(mail.text, /All your email settings:/);
+    assert.match(mail.text, /Account data and email help:/);
+    assert.doesNotMatch(mail.text, /\/account\//);
     assert.ok(mail.text.includes(mail.unsubscribeUrl));
   }
 });
 
 test('the text and the HTML say the same things', () => {
-  const mail = renderNotification('story_featured', { slug: 'a', line: 'A line.' }, TOKEN, null);
+  const mail = renderNotification('story_featured', { slug: 'a', line: 'A line.' }, TOKEN);
   assert.ok(mail);
 
   /*
@@ -159,7 +143,7 @@ test('the text and the HTML say the same things', () => {
 });
 
 test('HTML email is image free and carries the site visual signature', () => {
-  const mail = renderNotification('story_published', { slug: 'a', line: 'b' }, TOKEN, null);
+  const mail = renderNotification('story_published', { slug: 'a', line: 'b' }, TOKEN);
   assert.ok(mail);
   assert.doesNotMatch(mail.html, /<img/i);
   assert.match(mail.html, /bbb \/ notification/i);

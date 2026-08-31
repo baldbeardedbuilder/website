@@ -20,21 +20,21 @@ const consequences = [
     label: 'Info',
     what: 'I ask you to stop',
     detail:
-      'A direct message, from me, not a bot. Nothing happens to your account. Most of these end here.'
+      'A direct message, from me, not a bot. Most of these end here.'
   },
   {
     sev: 'warn',
     label: 'Warning',
-    what: 'You lose posting access for a while',
+    what: 'I remove the contribution',
     detail:
-      'Seven days, then thirty. You can still read everything and your stories stay up.'
+      'The published piece comes down. I will tell you what happened and why.'
   },
   {
     sev: 'error',
     label: 'Error',
-    what: 'You are done here',
+    what: 'I take it outside the site',
     detail:
-      'Account closed, contributions removed. For harassment, threats, or doxxing, this is the first step and not the last one.'
+      'For harassment, threats, or doxxing, removing the contribution is the first step and not the last one.'
   }
 ];
 
@@ -53,7 +53,7 @@ const lastChanged = new Date(SITE.conductUpdated).toLocaleDateString('en-GB', {
     <div class="shell read">
       <aside class="rail">
         <dl>
-          <div><dt>Applies to</dt><dd>Dev disasters and profiles</dd></div>
+          <div><dt>Applies to</dt><dd>Published contributions and reports</dd></div>
           <div><dt>Enforced by</dt><dd><a href="/about/">Michael Jolley</a></dd></div>
           <div><dt>Last changed</dt><dd>{lastChanged}</dd></div>
         </dl>
@@ -88,8 +88,9 @@ const lastChanged = new Date(SITE.conductUpdated).toLocaleDateString('en-GB', {
             is not, and the difference is whether you're trying to help or trying to win.
           </p>
           <p>
-            If you send your version, include the detail that would have prevented it.
-            That's the part somebody else can use the next time production gets weird.
+            If one of your older contributions is here, the useful part is the detail that
+            would have prevented it. That's what somebody else can use when production gets
+            weird.
           </p>
           <p>
             Assume the person had less information than you have now. Every disaster on
@@ -113,8 +114,8 @@ const lastChanged = new Date(SITE.conductUpdated).toLocaleDateString('en-GB', {
           </p>
           <p>
             Selling things. Your product may genuinely have prevented that outage. Say so
-            once, disclose that it's yours, and move on. Turn every profile link and story
-            into a pitch and it's spam.
+            once, disclose that it's yours, and move on. Turn a report into a pitch and it's
+            spam.
           </p>
           <p>
             Feeding a story to a language model and pasting the output. I can tell,

@@ -9,8 +9,9 @@
   involve an address even though it never stores one.
 
   If a claim here stops matching the code, the code wins and this page is wrong. The
-  places to check are src/lib/reader.ts for the like token and the address hash,
-  src/lib/account.ts for deletion, src/components/VideoEmbed.astro for the thumbnail, and
+  places to check are src/lib/reader.ts for the like token and the address hash, the
+  Supabase migrations for retained account data, src/lib/notifications.ts for queued
+  story email, src/components/VideoEmbed.astro for the thumbnail, and
   src/layouts/Base.astro for the fonts.
 */
 import Base from '../layouts/Base.astro';
@@ -43,10 +44,10 @@ const held = [
   },
   {
     tag: 'Auth',
-    what: 'Basic profile details from the sign-in provider you choose',
-    when: 'You sign in',
-    why: 'To identify your submissions and support your account',
-    gone: 'Delete your account and it goes with it'
+    what: 'Basic profile details from the retired sign in system',
+    when: 'You created an account',
+    why: 'To support profiles and submissions while those features were active',
+    gone: 'Email the privacy inbox and I will delete it'
   },
   {
     tag: 'Words',
@@ -57,17 +58,17 @@ const held = [
   },
   {
     tag: 'Email',
-    what: 'Your email address, as your auth source supplied it',
-    when: 'You sign in',
-    why: 'To send the story notifications you control',
-    gone: 'Delete your account and it goes with it'
+    what: 'The email address your auth source supplied',
+    when: 'You created an account',
+    why: 'To finish notifications for stories already in the publication queue',
+    gone: 'Email the privacy inbox and I will delete it'
   },
   {
     tag: 'Twitch',
     what: 'Your Twitch user id',
-    when: 'You link Twitch, which is optional',
+    when: 'You linked Twitch through the retired account page',
     why: 'To match you to stream history for badges, by id rather than by name',
-    gone: 'Unlink it, or delete your account'
+    gone: 'Email the privacy inbox and I will delete it'
   }
 ];
 ---
@@ -95,8 +96,9 @@ const held = [
           </h1>
           <p class="lede">
             Reading needs no account, no cookie banner and no consent dialog, because
-            reading sets nothing that needs consenting to. Everything below is about what
-            happens when you do something, and there is a short list of somethings.
+            reading sets nothing that needs consenting to. Accounts and sign in have been
+            retired. Everything below covers the small amount of data the site still uses,
+            plus what remains from older accounts.
           </p>
         </header>
 
@@ -104,8 +106,8 @@ const held = [
           <div class="callout">
             <span class="tag">The short version</span>
             <p>
-              I keep the least I can get away with, I never sell it, and every piece of it
-              has a way out that you control rather than one that requires emailing me.
+              I keep the least I can get away with and I never sell it. If an old account
+              record is still here, email me and I will remove it.
             </p>
           </div>
 
@@ -154,7 +156,7 @@ const held = [
           <p>
             Fonts are served from this site, not from Google. There is no analytics script,
             no advertising network, no session recorder, and no tag manager. The site sets
-            no cookie at all until you like something or sign in.
+            no cookie at all until you like something.
           </p>
           <p>
             The exception, and it is a real one: video thumbnails are served by Google from
@@ -166,17 +168,16 @@ const held = [
             where their rules apply and mine stop.
           </p>
           <p>
-            Signing in sends you to the auth provider you chose, and linking Twitch sends 
-						you to Twitch. Both see that you came from here. The pages are hosted by
-						Netlify and the database is Supabase, both of whom process requests on my
-						behalf and neither of whom get anything to use for themselves.
+            The pages are hosted by Netlify and the database is Supabase. Both process
+            requests on my behalf, and neither gets that data to use for themselves.
           </p>
 
-          <h2>Deleting your account</h2>
+          <h2 id="retired-accounts">Retired accounts</h2>
           <p>
-            It is a button on <a href="/account/">your account page</a>, it works
-            immediately, and it does not route through me. It removes your account, your
-            handle, your badges, your address and any Twitch link.
+            The account, sign in, profile, and submission pages have been removed. If you
+            had an account, <a href={`mailto:${SITE.privacyEmail}`}>email the privacy inbox</a>
+            and I will delete the account record, handle, badges, auth details, and Twitch
+            link.
           </p>
           <p>
             Two things survive it, and you should know which before you press it. Comments
@@ -190,40 +191,37 @@ const held = [
 
           <h2>Email</h2>
           <p>
-            This site can send two account notifications: when a dev disaster you sent is
-            published, and when it reaches the front page. Both start on. Each has its own
-            switch on <a href="/account/#email-notifications">your account page</a>, and every
+            No new account notification settings are created. A story already in the
+            publication queue may still send the notification its author asked for. Every
             message has a link that turns off that type without asking you to sign in.
           </p>
           <p>
             The delivery queue stores your account id and the details needed to write the
             message, but not your email address. The address is read from your auth account
-            at send time and handed to Resend, the delivery provider. Delete the account and
-            its queued messages are deleted with it. The site sends no welcome email, digest
-            or marketing email from that account address.
+            at send time and handed to Resend, the delivery provider. When I delete the
+            account data, its queued messages go with it. The site sends no welcome email,
+            digest, or marketing email from that address.
           </p>
           <p>
             The .NET Drip is the one exception and it is opt in. Its signup box sits on the
             front page and a handful of others, and it is the only thing here that asks you
             to type an address. If you use it, that address goes onto the Drip list, which
-						is a newsletter I send from somewhere else. It is not joined to your account,
-						signing in does not put you on it, having an account does not put you on it,
-						and every issue carries its own unsubscribe link.
+						is a newsletter I send from somewhere else. It was never joined to the old
+						account system, and every issue carries its own unsubscribe link.
           </p>
 
           <h2>Where you live</h2>
           <p>
             If you are in the UK, the EU, or somewhere with similar law, you have rights to
-            see what I hold, correct it, take it elsewhere and have it deleted. Most of that
-            is a button here already. For anything a button does not cover,
-            <a href={`mailto:${SITE.privacyEmail}`}>email the privacy inbox</a> and I will do
+            see what I hold, correct it, take it elsewhere and have it deleted.
+            <a href={`mailto:${SITE.privacyEmail}`}>Email the privacy inbox</a> and I will do
             it by hand.
           </p>
 
           <h2>Children</h2>
           <p>
-            This is a site about professional software. It is not aimed at children
-            and accounts are not intended for anyone under 16.
+            This is a site about professional software. It is not aimed at children. The
+            retired account system was not intended for anyone under 16.
           </p>
 
           <h2>When this changes</h2>
@@ -235,7 +233,7 @@ const held = [
         </div>
 
         <div class="hero-actions privacy-acts">
-          <a class="btn primary" href="/account/">Your account</a>
+          <a class="btn primary" href={`mailto:${SITE.privacyEmail}`}>Delete old account data</a>
           <a class="btn" href="/terms/">Terms</a>
         </div>
       </article>

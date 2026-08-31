@@ -99,16 +99,3 @@ test('a failed delete says delete rather than save', () => {
   assert.match(deleteFn, /error: 'That did not delete\.'/);
   assert.doesNotMatch(deleteFn, /error: 'That did not save\.'/);
 });
-
-test('the thread tells an error apart from an announcement', () => {
-  /*
-    One notice string served both "posted, waiting on a look" and "that did not delete",
-    which drew a failure as the same quiet caption as a success. The tone travels with the
-    words now, and only the error takes role="alert" and the error treatment.
-  */
-  const src = read('src', 'components', 'islands', 'CommentThread.tsx');
-
-  assert.match(src, /notice\.bad \? 'notice c-notice bad'/, 'the error notice lost its own class');
-  assert.match(src, /role=\{notice\.bad \? 'alert' : 'status'\}/, 'an error no longer announces itself');
-  assert.match(read('src', 'styles', 'app.css'), /\.notice\.bad \{/, 'the error treatment is not in the stylesheet');
-});
