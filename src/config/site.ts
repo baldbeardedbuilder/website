@@ -146,7 +146,6 @@ export const RESERVED_SLUGS = [
   'images',
   'kitchen-sink',
   'privacy',
-  'report',
   'rss.xml',
   'search',
   'settings',
@@ -222,7 +221,7 @@ export const SITE = {
   /** Shown on the code of conduct. Bump it whenever the rules actually change. */
   conductUpdated: '2026-08-31',
   /** Shown on the privacy page. */
-  privacyUpdated: '2026-08-03',
+  privacyUpdated: '2026-08-31',
   /** Shown on the terms page. */
   termsUpdated: '2026-08-31',
   /*
@@ -251,7 +250,7 @@ export const EXTERNAL = {
   bluesky: 'https://bsky.app/profile/baldbeardedbuilder.com',
 	x: 'https://x.com/michaeljolley',
 	linkedin: 'https://linkedin.com/in/michaelwjolley',
-	discord: 'https://discord.gg/4TKgK4TGQA'
+	discord: 'https://bbb.dev/discord'
 } as const;
 
 /**

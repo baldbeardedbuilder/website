@@ -18,11 +18,13 @@ const retiredRoutes = [
   ['src', 'pages', 'auth', 'signout.ts'],
   ['src', 'pages', 'auth', 'link', '[provider].ts'],
   ['src', 'pages', 'api', 'disasters.ts'],
+  ['src', 'pages', 'api', 'report.ts'],
+  ['src', 'pages', 'report.astro'],
   ['src', 'components', 'SubmissionList.astro'],
   ['src', 'components', 'islands', 'CommentThread.tsx']
 ];
 
-test('account, login, profile, and account-only submission routes stay retired', () => {
+test('retired account, submission, and report routes stay retired', () => {
   for (const route of retiredRoutes) {
     assert.equal(exists(...route), false, `${route.join('/')} is active again`);
   }
@@ -36,12 +38,10 @@ test('shared navigation and bylines do not link to retired account routes', () =
   assert.doesNotMatch(teller, /\/builders\//);
 });
 
-test('anonymous interactions never attach retired account ids', () => {
+test('anonymous likes never attach retired account ids', () => {
   const like = read('src', 'pages', 'api', 'like.ts');
-  const report = read('src', 'pages', 'api', 'report.ts');
 
   assert.match(like, /toggleLike\(kind, key, token, ip, null\)/);
-  assert.match(report, /reporter_id: null/);
 });
 
 test('retired comment mutations return gone instead of asking for a sign in', () => {

@@ -41,7 +41,6 @@ const pages = new Set([
   '/conduct/',
   '/dev-disasters/',
   '/privacy/',
-  '/report/',
   '/search/',
   '/terms/',
   '/uses/',
@@ -160,7 +159,7 @@ test('the legacy posts aliases measured on production are all still covered', ()
 test('no taxonomy URL collides with a reserved top level path', () => {
   const reserved = new Set([
     '404', 'about', 'blog', 'builders', 'conduct', 'dev-disasters', 'images',
-    'kitchen-sink', 'privacy', 'report', 'rss.xml', 'search', 'settings',
+    'kitchen-sink', 'privacy', 'rss.xml', 'search', 'settings',
     'sitemap-index.xml', 'submit', 'terms', 'uses', 'videos'
   ]);
   const clashes = Object.values(taxonomy.entries)

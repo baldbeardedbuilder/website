@@ -24,10 +24,6 @@ import { rehypeDemoteHeadings } from './src/lib/rehype-demote-headings.mjs';
   noindexRoutes covers what serialize cannot see. On demand pages write no file, so there
   is no markup to read, and they reach the sitemap purely as routes. That is how
   /unsubscribe/ stayed listed after being parked.
-
-  This file used to assert that on demand pages are invisible to the sitemap and that
-  report was therefore excluded. Both halves were false. Nothing surfaced it because a
-  sitemap is generated and never read by a person.
 */
 function noindexRoutes() {
   const root = fileURLToPath(new URL('./src/pages/', import.meta.url));

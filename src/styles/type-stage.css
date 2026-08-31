@@ -78,6 +78,10 @@ a {
   color: inherit;
 }
 
+.squiggle {
+  text-decoration-color: var(--red);
+}
+
 h1,
 h2,
 h3,
@@ -1636,18 +1640,22 @@ h6 {
   background: var(--black);
 }
 
-.story-head::before {
+.story-topic {
   position: absolute;
   z-index: 1;
-  right: -4%;
-  bottom: -12%;
+  top: 8%;
+  left: 50%;
+  width: min(100%, var(--shell));
+  padding: 0 2rem;
   color: #1c1c1c;
-  content: "T[]";
-  font-family: var(--variable);
-  font-size: clamp(18rem, 42vw, 44rem);
+  font-family: var(--display);
+  font-size: clamp(7rem, 18vw, 19rem);
   font-weight: 800;
-  letter-spacing: -0.1em;
-  line-height: 0.7;
+  letter-spacing: -0.07em;
+  line-height: 0.75;
+  text-transform: uppercase;
+  white-space: nowrap;
+  transform: translateX(-50%);
 }
 
 .story-head-inner {
@@ -1758,8 +1766,13 @@ h6 {
   color: var(--black);
 }
 
-.detail-rail .jump,
-.detail-rail .fine {
+.detail-rail .like[aria-pressed="true"] {
+  background: var(--red);
+  border-color: var(--red);
+  color: var(--black);
+}
+
+.detail-rail .jump {
   display: block;
   min-height: 2.75rem;
   margin-top: 0.75rem;
@@ -1858,7 +1871,14 @@ h6 {
   height: 100%;
   border: 0;
   object-fit: cover;
+}
+
+.story-video .embed-still {
   filter: grayscale(1) contrast(1.05) brightness(0.7);
+}
+
+.story-video iframe {
+  filter: none;
 }
 
 .story-video .play {
@@ -1926,7 +1946,12 @@ h6 {
 
 .tchapter-head h2 {
   margin: 0 0 1rem;
+  color: var(--black);
   font-size: 1.8rem;
+}
+
+.transcript .speaker {
+  color: var(--black);
 }
 
 .tline {
@@ -1938,6 +1963,7 @@ h6 {
 .tline p {
   grid-column: 2;
   margin: 0 0 1rem;
+  color: var(--gray-dark);
 }
 
 .watch-youtube {

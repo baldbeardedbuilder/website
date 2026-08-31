@@ -150,7 +150,7 @@ const ALSO_FILED_RATIO = 0.5;
  */
 const RESERVED = new Set([
   '404', 'about', 'blog', 'builders', 'conduct', 'dev-disasters', 'images',
-  'kitchen-sink', 'privacy', 'report', 'rss.xml', 'search', 'settings',
+  'kitchen-sink', 'privacy', 'rss.xml', 'search', 'settings',
   'sitemap-index.xml', 'submit', 'terms', 'uses', 'videos'
 ]);
 

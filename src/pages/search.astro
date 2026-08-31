@@ -527,7 +527,7 @@ import Base from '../layouts/Base.astro';
   }
 
   .search-intro h1 .squiggle {
-    color: var(--sev-error);
+    text-decoration-color: var(--red);
   }
 
   .search-intro h1 .squiggle > span {
@@ -644,7 +644,10 @@ import Base from '../layouts/Base.astro';
   }
 
   .search-input-wrap:focus-within {
-    border-color: var(--accent);
+    border-color: var(--line);
+    outline: 2px solid var(--fg);
+    outline-offset: 4px;
+    box-shadow: none;
   }
 
   .search-input-wrap svg {
@@ -668,6 +671,10 @@ import Base from '../layouts/Base.astro';
     background: transparent;
     color: var(--fg);
     font: 500 clamp(1.125rem, 2.2vw, 1.45rem)/1.35 var(--body);
+  }
+
+  .search-input-wrap input:focus-visible {
+    box-shadow: none;
   }
 
   .search-input-wrap input::placeholder {

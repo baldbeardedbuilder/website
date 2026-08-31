@@ -2,17 +2,14 @@
 /*
   Privacy.
 
-  Every claim on this page is checked against the code that makes it true, and where the
-  code does something less flattering than a policy would like to say, the page says the
-  less flattering thing. The two that matter: video thumbnails are served by Google, so
-  the browser does contact them on any page with a video on it, and the like dedupe does
-  involve an address even though it never stores one.
+  Every claim on this page is checked against the code that makes it true. The two details
+  that matter most are easy to miss: video thumbnails come from Google, and like dedupe
+  briefly uses a network address even though it never stores that address.
 
   If a claim here stops matching the code, the code wins and this page is wrong. The
-  places to check are src/lib/reader.ts for the like token and the address hash, the
-  Supabase migrations for retained account data, src/lib/notifications.ts for queued
-  story email, src/components/VideoEmbed.astro for the thumbnail, and
-  src/layouts/Base.astro for the fonts.
+  places to check are src/lib/likes.ts for the like token and address hash,
+  src/components/VideoEmbed.astro for YouTube, src/components/Drip.astro for the
+  newsletter, and src/layouts/Base.astro for the fonts.
 */
 import Base from '../layouts/Base.astro';
 import { SITE } from '../config/site';
@@ -43,32 +40,11 @@ const held = [
     gone: 'It is never stored as an address and cannot be turned back into one. Rotating the key forgets it entirely'
   },
   {
-    tag: 'Auth',
-    what: 'Basic profile details from the retired sign in system',
-    when: 'You created an account',
-    why: 'To support profiles and submissions while those features were active',
-    gone: 'Email the privacy inbox and I will delete it'
-  },
-  {
-    tag: 'Words',
-    what: 'What you wrote, and when you edited it',
-    when: 'You send a story, or when comments were available, a comment',
-    why: 'It is the thing you asked me to publish',
-    gone: 'Older comments become a tombstone. Published stories stay published'
-  },
-  {
-    tag: 'Email',
-    what: 'The email address your auth source supplied',
-    when: 'You created an account',
-    why: 'To finish notifications for stories already in the publication queue',
-    gone: 'Email the privacy inbox and I will delete it'
-  },
-  {
-    tag: 'Twitch',
-    what: 'Your Twitch user id',
-    when: 'You linked Twitch through the retired account page',
-    why: 'To match you to stream history for badges, by id rather than by name',
-    gone: 'Email the privacy inbox and I will delete it'
+    tag: 'Legacy',
+    what: 'Records from retired accounts, comments, and story submissions',
+    when: 'You used one of those features while it was available',
+    why: 'They supported the feature you chose to use at the time',
+    gone: 'Email the privacy inbox and I will remove what belongs to you'
   }
 ];
 ---
@@ -95,10 +71,9 @@ const held = [
             <span class="squiggle"><span>without telling me anything.</span></span>
           </h1>
           <p class="lede">
-            Reading needs no account, no cookie banner and no consent dialog, because
-            reading sets nothing that needs consenting to. Accounts and sign in have been
-            retired. Everything below covers the small amount of data the site still uses,
-            plus what remains from older accounts.
+            Reading needs no account, cookie banner, or consent dialog. Everything below
+            covers the small amount of data the site still uses, plus records left by
+            features that have been retired.
           </p>
         </header>
 
@@ -106,8 +81,8 @@ const held = [
           <div class="callout">
             <span class="tag">The short version</span>
             <p>
-              I keep the least I can get away with and I never sell it. If an old account
-              record is still here, email me and I will remove it.
+              I keep the least I can get away with, and I never sell it. If an old record
+              still belongs to you, email me and I will remove it.
             </p>
           </div>
 
@@ -161,53 +136,28 @@ const held = [
           <p>
             The exception, and it is a real one: video thumbnails are served by Google from
             <code>i.ytimg.com</code>, so on any page showing a video your browser makes a
-            request to Google to fetch that image, and Google sees it. The player itself is
-            not loaded. A YouTube embed would pull roughly 870 KB of Google script onto the
-            page and start talking to them before you had asked for anything, so instead the
-            page shows a still and a play button, and clicking it takes you to YouTube,
-            where their rules apply and mine stop.
+            request to Google to fetch that image, and Google sees it. The player itself
+            does not load until you press play. At that point your browser connects to
+            <code>youtube-nocookie.com</code>, and YouTube's rules apply to the player.
           </p>
           <p>
             The pages are hosted by Netlify and the database is Supabase. Both process
             requests on my behalf, and neither gets that data to use for themselves.
           </p>
 
-          <h2 id="retired-accounts">Retired accounts</h2>
+          <h2>Records from retired features</h2>
           <p>
-            The account, sign in, profile, and submission pages have been removed. If you
-            had an account, <a href={`mailto:${SITE.privacyEmail}`}>email the privacy inbox</a>
-            and I will delete the account record, handle, badges, auth details, and Twitch
-            link.
-          </p>
-          <p>
-            Two things survive it, and you should know which before you press it. Comments
-            become tombstones rather than vanishing, because deleting the middle of a
-            conversation makes nonsense of the replies around it, and those replies belong
-            to other people. Stories you have already had published stay published, because
-            they are articles on a public site by then. If you want a published story taken
-            down as well, <a href={`mailto:${SITE.privacyEmail}`}>email the privacy inbox</a>
-            and I will take it down.
+            If you had an account, wrote a comment, or submitted a story before those
+            features were retired, an old record may still exist.
+            <a href={`mailto:${SITE.privacyEmail}`}>Email the privacy inbox</a> and I will
+            remove what belongs to you.
           </p>
 
-          <h2>Email</h2>
+          <h2>Newsletter</h2>
           <p>
-            No new account notification settings are created. A story already in the
-            publication queue may still send the notification its author asked for. Every
-            message has a link that turns off that type without asking you to sign in.
-          </p>
-          <p>
-            The delivery queue stores your account id and the details needed to write the
-            message, but not your email address. The address is read from your auth account
-            at send time and handed to Resend, the delivery provider. When I delete the
-            account data, its queued messages go with it. The site sends no welcome email,
-            digest, or marketing email from that address.
-          </p>
-          <p>
-            The .NET Drip is the one exception and it is opt in. Its signup box sits on the
-            front page and a handful of others, and it is the only thing here that asks you
-            to type an address. If you use it, that address goes onto the Drip list, which
-						is a newsletter I send from somewhere else. It was never joined to the old
-						account system, and every issue carries its own unsubscribe link.
+            The .NET Drip is opt in. Its signup box is the only place here that asks you to
+            type an email address. If you use it, that address goes to the Drip newsletter,
+            which I send from another service. Every issue carries its own unsubscribe link.
           </p>
 
           <h2>Where you live</h2>
@@ -221,7 +171,7 @@ const held = [
           <h2>Children</h2>
           <p>
             This is a site about professional software. It is not aimed at children. The
-            retired account system was not intended for anyone under 16.
+            newsletter is not intended for anyone under 16.
           </p>
 
           <h2>When this changes</h2>
@@ -233,7 +183,7 @@ const held = [
         </div>
 
         <div class="hero-actions privacy-acts">
-          <a class="btn primary" href={`mailto:${SITE.privacyEmail}`}>Delete old account data</a>
+          <a class="btn primary" href={`mailto:${SITE.privacyEmail}`}>Ask about your data</a>
           <a class="btn" href="/terms/">Terms</a>
         </div>
       </article>

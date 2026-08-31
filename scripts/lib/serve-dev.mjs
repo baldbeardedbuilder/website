@@ -2,12 +2,8 @@
   A dev server, for the gates that need to see a page dist does not contain.
 
   Most of the site is prerendered and gets audited out of dist, which is both faster and
-  closer to what Netlify serves. The report page is not prerendered, because it reads a
-  target out of the query string on the server so the field arrives filled for somebody
-  with JavaScript off. That makes it invisible to a dist audit, and it is the last page on
-  the site that should go unchecked: it is the one people reach on a bad day.
-
-  So it gets checked here instead, against a real render.
+  closer to what Netlify serves. Server rendered utility pages are checked here against a
+  real render instead.
 */
 
 import { spawn } from 'node:child_process';

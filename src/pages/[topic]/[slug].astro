@@ -67,7 +67,7 @@ const likes = await bakedLike('content', item.key);
 
 <Base
   title={item.title}
-  description={item.description || `${itemKindLabel(item.kind)} by Michael Jolley.`}
+  description={item.description || `${itemKindLabel(item.kind)} about ${topic.title}.`}
   active={video ? 'videos' : 'articles'}
   image={item.thumbnail ?? undefined}
   noindex={item.draft}
@@ -80,15 +80,12 @@ const likes = await bakedLike('content', item.key);
     data-pagefind-meta={`kind:${item.kind}`}
     data-pagefind-filter={`topic:${item.topic}`}
   >
-    <header class="story-head">
+    <header class="story-head" data-pagefind-filter={`kind:${item.kind}`}>
+      <span class="story-topic" aria-hidden="true">{topic.title}</span>
       <div class="story-head-inner">
-        <span class="signal-label" data-pagefind-filter={`kind:${item.kind}`}>
-          {itemKindLabel(item.kind)} / {topic.title}
-        </span>
         <h1>{item.title}</h1>
         {item.description && <p class="lede">{item.description}</p>}
         <div class="story-byline">
-          <span>Michael Jolley</span>
           <time datetime={item.date.toISOString()}>{dateLabel}</time>
           <span>{item.length}</span>
         </div>
@@ -118,9 +115,6 @@ const likes = await bakedLike('content', item.key);
           />
           <ShareMenu path={pageUrl} title={item.title} kind="content" targetKey={item.key} />
         </div>
-        <a class="fine" href={`/report/?type=content&target=${encodeURIComponent(pageUrl)}`}>
-          Report a problem
-        </a>
       </aside>
 
       <article class="story">

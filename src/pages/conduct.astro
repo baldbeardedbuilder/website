@@ -136,20 +136,21 @@ const lastChanged = new Date(SITE.conductUpdated).toLocaleDateString('en-GB', {
         <div class="prose conduct-tail">
           <h2>If I get it wrong</h2>
           <p>
-            Use the report form or email me. I have reversed moderation calls before and I
-            will do it again. I will not argue about somebody's safety in public.
+            <a href={`mailto:${SITE.conductEmail}`}>Email the conduct inbox</a>. I have
+            reversed moderation calls before and I will do it again. I will not argue about
+            somebody's safety in public.
           </p>
 
           <h2>If it's about me</h2>
           <p>
-            I'm the one who runs this, which makes reporting me awkward. Do it anyway.
-            Email works, and if you'd rather not talk to me at all, say so in the report
-            and I'll have somebody I trust read it first.
+            I'm the one who runs this, which makes the conversation awkward. Email the conduct
+            inbox anyway. If you do not want me to handle it alone, say so and I will ask
+            somebody I trust to read it first.
           </p>
         </div>
 
         <div class="hero-actions conduct-acts">
-          <a class="btn primary" href="/report/">Report a problem</a>
+          <a class="btn primary" href={`mailto:${SITE.conductEmail}`}>Email about conduct</a>
           <a class="btn" href="/all/">Browse articles and videos</a>
         </div>
       </article>

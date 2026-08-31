@@ -56,12 +56,6 @@ const filed = d.date.toLocaleDateString('en-GB', {
           */}
           <ShareMenu path={d.url} title={d.line} kind="disaster" targetKey={String(d.id)} />
         </div>
-        <a
-          class="fine"
-          href={`/report/?type=disaster&target=${encodeURIComponent(d.url)}`}
-        >
-          Report this story
-        </a>
       </aside>
 
       {/* One filter per element. See the note in [topic]/[slug].astro. */}
