@@ -45,21 +45,21 @@ const held = [
     tag: 'Auth',
     what: 'Basic profile details from the sign-in provider you choose',
     when: 'You sign in',
-    why: 'To put a name on your comments and help review brand-new accounts',
+    why: 'To identify your submissions and support your account',
     gone: 'Delete your account and it goes with it'
   },
   {
     tag: 'Words',
     what: 'What you wrote, and when you edited it',
-    when: 'You comment or send a story',
+    when: 'You send a story, or when comments were available, a comment',
     why: 'It is the thing you asked me to publish',
-    gone: 'Comments become a tombstone. Published stories stay published'
+    gone: 'Older comments become a tombstone. Published stories stay published'
   },
   {
     tag: 'Email',
     what: 'Your email address, as your auth source supplied it',
     when: 'You sign in',
-    why: 'To send the story and direct reply notifications you control',
+    why: 'To send the story notifications you control',
     gone: 'Delete your account and it goes with it'
   },
   {
@@ -190,11 +190,10 @@ const held = [
 
           <h2>Email</h2>
           <p>
-            This site can send three account notifications: when a dev disaster you sent is
-            published, when it reaches the front page, and when somebody replies directly to
-            one of your comments. All three start on. Each has its own switch on
-            <a href="/account/#email-notifications">your account page</a>, and every message
-            has a link that turns off that type without asking you to sign in.
+            This site can send two account notifications: when a dev disaster you sent is
+            published, and when it reaches the front page. Both start on. Each has its own
+            switch on <a href="/account/#email-notifications">your account page</a>, and every
+            message has a link that turns off that type without asking you to sign in.
           </p>
           <p>
             The delivery queue stores your account id and the details needed to write the

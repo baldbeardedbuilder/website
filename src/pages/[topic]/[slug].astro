@@ -4,12 +4,10 @@ import Base from '../../layouts/Base.astro';
 import FeedItem from '../../components/FeedItem.astro';
 import VideoEmbed from '../../components/VideoEmbed.astro';
 import LikeButton from '../../components/islands/LikeButton';
-import CommentThread from '../../components/islands/CommentThread';
 import ShareMenu from '../../components/ShareMenu.astro';
 import { topicBySlug } from '../../config/site';
 import { isVideoKind, itemKindLabel, pagedItems, type Item } from '../../lib/content';
 import { bakedLike } from '../../lib/likes';
-import { bakedReplies } from '../../lib/comments';
 import { videoTranscripts } from '../../lib/video-transcripts';
 
 export async function getStaticPaths() {
@@ -65,7 +63,6 @@ const transcriptHint = transcript
     : `${transcript.paragraphCount} paragraphs`
   : '';
 const likes = await bakedLike('content', item.key);
-const replies = await bakedReplies('content', item.key);
 ---
 
 <Base
@@ -121,8 +118,7 @@ const replies = await bakedReplies('content', item.key);
           />
           <ShareMenu path={pageUrl} title={item.title} kind="content" targetKey={item.key} />
         </div>
-        <a class="jump replies" href="#comments">{replies === 1 ? '1 reply' : `${replies} replies`}</a>
-        <a class="fine" href={`/report/?type=${item.kind}&target=${encodeURIComponent(pageUrl)}`}>
+        <a class="fine" href={`/report/?type=content&target=${encodeURIComponent(pageUrl)}`}>
           Report a problem
         </a>
       </aside>
@@ -194,21 +190,5 @@ const replies = await bakedReplies('content', item.key);
         <div class="archive-list">{related.map((candidate) => <FeedItem item={candidate} />)}</div>
       </section>
     )}
-
-    <section class="comments" id="comments">
-      <CommentThread
-        client:visible
-        kind="content"
-        targetKey={item.key}
-        initial={replies}
-        pageUrl={pageUrl}
-      />
-      <noscript>
-        <div class="detail-shell">
-          <aside class="detail-rail"><p>{replies} {replies === 1 ? 'reply' : 'replies'}</p></aside>
-          <div><p class="note">Replies need JavaScript. The rest of this page does not.</p></div>
-        </div>
-      </noscript>
-    </section>
   </main>
 </Base>

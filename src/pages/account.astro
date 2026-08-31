@@ -130,8 +130,8 @@ const canEmail = Boolean(account?.email && account.preferences);
             <span class="path">account<span class="sep">/</span><b>sign in</b></span>
             <h1 id="account-signin">Your seat is waiting.</h1>
             <p class="lede">
-              Sign in to comment, tell a story, shape your public profile, and keep the
-              badges you have already earned in one place.
+              Sign in to tell a story, shape your public profile, and keep the badges you
+              have already earned in one place.
             </p>
             <div class="gate-actions">
               <a class="btn primary" href="/signin/?next=/account/" rel="nofollow">
@@ -310,12 +310,11 @@ const canEmail = Boolean(account?.email && account.preferences);
                       />
                       <div>
                         <label class="switch-label" for="is_private">
-                          Hide my profile. When hidden, your name comes off stories and comments.
+                          Hide my profile. When hidden, your name comes off stories.
                         </label>
                         <span class="switch-help">
-                          Your profile returns a 404 and your name comes off stories and
-                          comments. The content stays published. Turn this off and your name
-                          comes back.
+                          Your profile returns a 404 and your name comes off stories. The
+                          content stays published. Turn this off and your name comes back.
                         </span>
                       </div>
                     </div>
@@ -397,21 +396,6 @@ const canEmail = Boolean(account?.email && account.preferences);
                               </div>
                             </div>
 
-                            <div class="switch-row">
-                              <input
-                                class="switch"
-                                type="checkbox"
-                                id="comment_reply"
-                                name="comment_reply"
-                                checked={account.preferences?.commentReply}
-                              />
-                              <div>
-                                <label class="switch-label" for="comment_reply">Direct replies</label>
-                                <span class="switch-help">
-                                  Hear when somebody replies directly to one of your comments.
-                                </span>
-                              </div>
-                            </div>
                           </fieldset>
 
                           <div class="save-bar email-save">
@@ -536,8 +520,7 @@ const canEmail = Boolean(account?.email && account.preferences);
                   </header>
                   <p class="danger-copy">
                     This removes your account, handle, badges and Twitch link. Published
-                    stories stay published without your name. Comments become tombstones so
-                    the conversations around them still make sense.
+                    stories stay published without your name.
                   </p>
                   <form class="delete-form form" method="post" action="/account/">
                     <input type="hidden" name="intent" value="delete" />

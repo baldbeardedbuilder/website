@@ -103,7 +103,6 @@ const n = (v: number) => v.toLocaleString('en-GB');
       <div class="stat-strip">
         <span><b>{n(profile.stats.disasters)}</b> dev disasters</span>
         <span><b>{n(profile.stats.likesReceived)}</b> likes received</span>
-        <span><b>{n(profile.stats.comments)}</b> comments</span>
         {profile.twitchLinked && <span><b>{n(profile.stats.streamsWatched)}</b> streams watched live</span>}
       </div>
 
@@ -151,8 +150,8 @@ const n = (v: number) => v.toLocaleString('en-GB');
         */}
         {earned.length === 0 && (
           <p class="shelf-empty">
-            Badges come from turning up. Watch a stream, say something in chat, file a dev
-            disaster, answer somebody in the comments.
+            Badges come from turning up. Watch a stream, say something in chat, or file a dev
+            disaster.
             {!profile.twitchLinked && ' Linking Twitch brings the older ones across.'}
           </p>
         )}

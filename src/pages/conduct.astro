@@ -11,7 +11,7 @@ const consequences = [
   {
     sev: 'hint',
     label: 'Hint',
-    what: 'I edit or delete the comment',
+    what: 'I edit or remove it',
     detail:
       'Usually a first offence, usually somebody having a bad day. You get a note explaining what I removed and why.'
   },
@@ -25,7 +25,7 @@ const consequences = [
   {
     sev: 'warn',
     label: 'Warning',
-    what: 'You lose commenting for a while',
+    what: 'You lose posting access for a while',
     detail:
       'Seven days, then thirty. You can still read everything and your stories stay up.'
   },
@@ -34,7 +34,7 @@ const consequences = [
     label: 'Error',
     what: 'You are done here',
     detail:
-      'Account closed, comments removed. For harassment, threats, or doxxing, this is the first step and not the last one.'
+      'Account closed, contributions removed. For harassment, threats, or doxxing, this is the first step and not the last one.'
   }
 ];
 
@@ -47,13 +47,13 @@ const lastChanged = new Date(SITE.conductUpdated).toLocaleDateString('en-GB', {
 
 <Base
   title="Code of conduct"
-  description="One rule: somebody just told you about the worst day of their career. Respond like it cost them something."
+  description="One rule: somebody just told you about the worst day of their career. Treat it like it cost them something."
 >
   <main id="main">
     <div class="shell read">
       <aside class="rail">
         <dl>
-          <div><dt>Applies to</dt><dd>Comments, dev disasters, profiles</dd></div>
+          <div><dt>Applies to</dt><dd>Dev disasters and profiles</dd></div>
           <div><dt>Enforced by</dt><dd><a href="/about/">Michael Jolley</a></dd></div>
           <div><dt>Last changed</dt><dd>{lastChanged}</dd></div>
         </dl>
@@ -77,21 +77,19 @@ const lastChanged = new Date(SITE.conductUpdated).toLocaleDateString('en-GB', {
           <div class="callout">
             <span class="tag">The rule</span>
             <p>
-              Somebody just told you about the worst day of their career. Respond like that
+              Somebody just told you about the worst day of their career. Treat it like that
               cost them something, because it did.
             </p>
           </div>
 
           <h2>What that looks like in practice</h2>
           <p>
-            Ask what you'd ask a teammate. "What would have caught this?" is a great
-            comment. "How did you not know that?" is not, and the difference is not tone,
-            it's whether you're trying to learn something or trying to win something.
+            Write like you'd speak to a teammate sitting beside you. Honest is useful. Cruel
+            is not, and the difference is whether you're trying to help or trying to win.
           </p>
           <p>
-            Add your version. The best threads here are four people going "oh, ours was
-            worse" and then a fifth person quietly posting the config flag that prevents
-            all of it.
+            If you send your version, include the detail that would have prevented it.
+            That's the part somebody else can use the next time production gets weird.
           </p>
           <p>
             Assume the person had less information than you have now. Every disaster on
@@ -115,11 +113,11 @@ const lastChanged = new Date(SITE.conductUpdated).toLocaleDateString('en-GB', {
           </p>
           <p>
             Selling things. Your product may genuinely have prevented that outage. Say so
-            once, disclose that it's yours, and move on. Do it in five threads and it's
-            spam.
+            once, disclose that it's yours, and move on. Turn every profile link and story
+            into a pitch and it's spam.
           </p>
           <p>
-            Feeding threads to a language model and pasting the output. I can tell,
+            Feeding a story to a language model and pasting the output. I can tell,
             everybody can tell, and it wastes the one thing this place has, which is that a
             real person was there.
           </p>
@@ -149,8 +147,8 @@ const lastChanged = new Date(SITE.conductUpdated).toLocaleDateString('en-GB', {
           <h2>If I get it wrong</h2>
           <p>
             Reply to the email. I've reversed moderation calls before and I'll do it again.
-            What I won't do is relitigate a removal in public comments, because that turns
-            somebody's bad week into a thread.
+            What I won't do is relitigate a removal in public, because that turns somebody's
+            bad week into a spectacle.
           </p>
 
           <h2>If it's about me</h2>

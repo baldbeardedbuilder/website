@@ -15,7 +15,7 @@ import Base from '../layouts/Base.astro';
 import { SITE } from '../config/site';
 
 const KINDS = [
-  { id: 'comment', label: 'A comment' },
+  { id: 'content', label: 'An article or video' },
   { id: 'disaster', label: 'A dev disaster' },
   { id: 'profile', label: 'A profile' },
   { id: 'offsite', label: 'Something off site' }
@@ -23,7 +23,7 @@ const KINDS = [
 
 const params = Astro.url.searchParams;
 const requested = params.get('type') ?? '';
-const selected = KINDS.some((k) => k.id === requested) ? requested : 'comment';
+const selected = KINDS.some((k) => k.id === requested) ? requested : 'content';
 
 /*
   Only a path from this site is accepted as a prefill. Anything else would let a crafted
@@ -123,15 +123,15 @@ const sent = SENT[params.get('sent') ?? ''] ?? null;
             <label for="why">What's wrong with it</label>
             <p class="help">
               Plain language is fine. You don't have to quote the rule you think it broke,
-              that's my job. If it's part of a pattern, tell me that too, because one
-              comment on its own often looks like nothing.
+              that's my job. If it's part of a pattern, tell me that too. One page may not
+              show the whole problem.
             </p>
             <textarea
               id="why"
               name="why"
               rows="9"
               required
-              placeholder="They keep replying to this person's story to tell them they should have been fired..."></textarea>
+              placeholder="This page includes private information that should not be here..."></textarea>
           </div>
 
           <div class="switch-row">

@@ -76,6 +76,7 @@ const viewUrl = (s: string, o: string) => {
 
 const scopeLabel = scope === 'all' ? '' : sevLabel(scope);
 const title = scope === 'all' ? 'dev disasters' : `${scopeLabel} dev disasters`;
+const visibleSorts = DISASTER_SORTS.filter((option) => option.id !== 'replies');
 
 /*
   The empty wall, worded for the view it is on.
@@ -142,7 +143,7 @@ const isDefault = scope === 'all' && sort === 'liked';
         <span class="push"></span>
         <span class="lbl">Sort</span>
         {
-          DISASTER_SORTS.map((o) => (
+          visibleSorts.map((o) => (
             <a
               class={sort === o.id ? 'chip on' : 'chip'}
               aria-current={sort === o.id ? 'true' : undefined}
@@ -167,20 +168,12 @@ const isDefault = scope === 'all' && sort === 'liked';
                 <span class="wq-lab">
                   <b>{disasterCode(d.id)}</b>
                   <span class={`sev ${sevClass(d.severity)}`}>{sevLabel(d.severity)}</span>
-                  {(d.likes > 0 || d.replies > 0) && (
+                  {d.likes > 0 && (
                     <span class="wq-stats">
-                      {d.likes > 0 && (
-                        <span class="st">
-                          <i>&#9825;</i>
-                          {d.likes.toLocaleString('en-US')}
-                        </span>
-                      )}
-                      {d.replies > 0 && (
-                        <span class="st">
-                          <i class="cm">//</i>
-                          {d.replies.toLocaleString('en-US')}
-                        </span>
-                      )}
+                      <span class="st">
+                        <i>&#9825;</i>
+                        {d.likes.toLocaleString('en-US')}
+                      </span>
                     </span>
                   )}
                 </span>

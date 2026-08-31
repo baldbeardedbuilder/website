@@ -19,14 +19,16 @@ test('the queue migration and unsubscribe route are active together', () => {
   assert.equal(exists('src', 'pages', '_unwired', 'unsubscribe.astro'), false);
 });
 
-test('account settings expose and persist all three notification types', () => {
+test('account settings expose active notifications and preserve the retired reply preference', () => {
   const page = read('src', 'pages', 'account.astro');
   const account = read('src', 'lib', 'account.ts');
 
-  for (const field of ['story_published', 'story_featured', 'comment_reply']) {
+  for (const field of ['story_published', 'story_featured']) {
     assert.ok(page.includes(field), `account.astro is missing ${field}`);
     assert.ok(account.includes(field), `account.ts does not persist ${field}`);
   }
+  assert.equal(page.includes('comment_reply'), false);
+  assert.ok(account.includes('comment_reply'), 'account.ts no longer preserves the legacy reply preference');
   assert.ok(page.includes('saveNotificationPrefs'));
   assert.ok(page.includes('account.email'), 'the destination address is not shown');
 });

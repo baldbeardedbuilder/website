@@ -2001,58 +2001,6 @@ h6 {
   color: var(--gray);
 }
 
-.detail-page .comments {
-  padding: clamp(5rem, 8vw, 8rem) 0;
-  background: var(--white);
-  border-color: #b9b5ad;
-  color: var(--black);
-}
-
-.detail-page .comments .shell {
-  display: grid;
-  grid-template-columns: minmax(14rem, 0.35fr) minmax(0, 44rem);
-  gap: clamp(3rem, 7vw, 8rem);
-  max-width: var(--shell);
-  padding-inline: 2rem;
-}
-
-.detail-page .comments .rail {
-  color: var(--black);
-}
-
-.detail-page .comments .composer {
-  background: transparent;
-  border-color: var(--black);
-}
-
-.detail-page .comments textarea {
-  background: #fffdf8;
-  border-color: #b9b5ad;
-  color: var(--black);
-}
-
-.detail-page .comments .comment {
-  border-color: #b9b5ad;
-}
-
-.detail-page .comments .cbody,
-.detail-page .comments .who,
-.detail-page .comments .chead {
-  color: var(--black);
-}
-
-.detail-page .comments .note,
-.detail-page .comments .fine,
-.detail-page .comments .eyebrow {
-  color: var(--gray-dark);
-}
-
-.detail-page .comments .like {
-  background: transparent;
-  border-color: #b9b5ad;
-  color: var(--black);
-}
-
 .share-menu {
   background: var(--black-raised);
   border-color: var(--line);
@@ -2267,9 +2215,6 @@ body > main .read .storyhead {
     opacity: 0.72;
   }
 
-  .detail-page .comments .shell {
-    grid-template-columns: 1fr;
-  }
 }
 
 @media (max-width: 50rem) {

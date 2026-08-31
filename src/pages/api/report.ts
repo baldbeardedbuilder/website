@@ -18,6 +18,7 @@ export const prerender = false;
 /* The form's own vocabulary, mapped onto the kinds the table accepts. */
 const KIND_MAP: Record<string, string> = {
   comment: 'comment',
+  content: 'other',
   disaster: 'disaster',
   profile: 'profile',
   conduct: 'conduct',
