@@ -82,6 +82,20 @@ test('content pages distribute backgrounds evenly in stable key order', () => {
   assert.match(images.get('content:05'), /ograph_6\.png$/);
 });
 
+test('content images double encode commas for Cloudinary text layers', () => {
+  const image = buildContentSocialImage(
+    {
+      title: 'The Secret to Mastering Queue, Stack and Dictionary in C#!',
+      topics: ['C#']
+    },
+    3
+  );
+
+  assert.match(image, /QUEUE%252C%20STACK/);
+  assert.doesNotMatch(image, /QUEUE%2C%20STACK/);
+  assert.match(image, /l_text:Archivo%20Black_32:AND%20DICTIONARY%20IN%20C%23%21/);
+});
+
 test('content title layers keep product names and versions together', () => {
   const cases = [
     [

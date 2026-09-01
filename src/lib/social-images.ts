@@ -38,10 +38,12 @@ export interface ContentSocialImage {
 }
 
 function encodeText(value: string): string {
-  return encodeURIComponent(value.toLocaleUpperCase('en-US')).replace(
-    /[!'()*]/g,
-    (character) => `%${character.charCodeAt(0).toString(16).toUpperCase()}`
-  );
+  return encodeURIComponent(value.toLocaleUpperCase('en-US'))
+    .replace(/%2C/g, '%252C')
+    .replace(
+      /[!'()*]/g,
+      (character) => `%${character.charCodeAt(0).toString(16).toUpperCase()}`
+    );
 }
 
 function productToken(word: string): string {
