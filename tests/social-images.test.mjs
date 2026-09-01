@@ -16,6 +16,7 @@ const base = read('src', 'layouts', 'Base.astro');
 const home = read('src', 'pages', 'index.astro');
 const about = read('src', 'pages', 'about.astro');
 const detail = read('src', 'pages', '[topic]', '[slug].astro');
+const taxonomy = JSON.parse(read('src', 'config', 'taxonomy.json'));
 
 test('page groups use their intended social images', () => {
   assert.match(config, /home: 'https:\/\/res\.cloudinary\.com\/.+\/ograph\/home_[^']+\.png'/);
@@ -85,23 +86,46 @@ test('content title layers keep product names and versions together', () => {
   const cases = [
     [
       'Tame Configuration in ASP.NET Core with IValidateOptions',
-      ['Tame Configuration in', 'ASP.NET Core with IValidateOptions']
+      ['Tame Configuration in ASP.NET Core with', 'IValidateOptions']
     ],
     [
       'Avoid These EF Core Mistakes Today',
-      ['Avoid These', 'EF Core Mistakes Today']
+      ['Avoid These EF Core', 'Mistakes Today']
     ],
     [
       'Working with Entity Framework Migrations',
-      ['Working with', 'Entity Framework Migrations']
+      ['Working with Entity Framework', 'Migrations']
     ],
     [
       'Remembering SQL Server 2000 Today',
       ['Remembering SQL Server 2000', 'Today']
+    ],
+    [
+      'Unit of Work with Entity Framework Core',
+      ['Unit of Work with Entity Framework Core', '']
     ]
   ];
 
   for (const [title, [main, ending]] of cases) {
     assert.deepEqual(splitSocialTitle(title), { main, ending });
   }
+});
+
+test('content subheads never exceed 20 characters including spaces', () => {
+  for (const entry of Object.values(taxonomy.entries)) {
+    const { ending } = splitSocialTitle(entry.title);
+    assert.ok(
+      ending.length <= 20,
+      `"${entry.title}" generated a ${ending.length} character subhead: "${ending}"`
+    );
+  }
+
+  const unsplittable = buildContentSocialImage(
+    {
+      title: 'Understanding Supercalifragilisticexpialidocious',
+      topics: ['C#']
+    },
+    1
+  );
+  assert.doesNotMatch(unsplittable, /l_text:Archivo%20Black_32:/);
 });

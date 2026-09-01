@@ -1,5 +1,6 @@
 const CLOUDINARY_BASE = 'https://res.cloudinary.com/dk3rdh3yo/image/upload';
 const BACKGROUND_COUNT = 6;
+const MAX_SUBHEAD_LENGTH = 20;
 const PROTECTED_PRODUCT_NAMES = [
   ['entity', 'framework', 'core'],
   ['visual', 'studio', 'code'],
@@ -69,7 +70,11 @@ export function splitSocialTitle(title: string): { main: string; ending: string 
   const safeBoundaries = Array.from(
     { length: Math.max(0, words.length - 1) },
     (_, index) => index + 1
-  ).filter((boundary) => !protectedBoundaries.has(boundary));
+  ).filter(
+    (boundary) =>
+      !protectedBoundaries.has(boundary) &&
+      words.slice(boundary).join(' ').length <= MAX_SUBHEAD_LENGTH
+  );
   const boundary = safeBoundaries.reduce(
     (closest, candidate) => {
       const candidateDistance = Math.abs(candidate - idealBoundary);
@@ -82,7 +87,7 @@ export function splitSocialTitle(title: string): { main: string; ending: string 
     safeBoundaries[0] ?? 0
   );
 
-  if (!boundary) return { main: normalized, ending: normalized };
+  if (!boundary) return { main: normalized, ending: '' };
 
   return {
     main: words.slice(0, boundary).join(' '),
@@ -108,11 +113,16 @@ export function buildContentSocialImage(
   const titleLayer =
     `w_630,c_fit,co_white,b_rgb:00000080,l_text:Archivo%20Black_60_line_spacing_-20:${encodeText(title.main)}` +
     '/fl_layer_apply,g_south_west,x_60,y_180';
-  const endingLayer =
-    `bo_15px_solid_%23e83a47,b_%23e83a47,co_%23000000,l_text:Archivo%20Black_32:${encodeText(title.ending)},c_fit,w_600,h_50` +
-    '/fl_layer_apply,g_south_west,x_60,y_100';
+  const layers = [topicLayer, titleLayer];
 
-  return `${CLOUDINARY_BASE}/${topicLayer}/${titleLayer}/${endingLayer}/v1/ograph/ograph_${background}.png`;
+  if (title.ending) {
+    layers.push(
+      `bo_15px_solid_%23e83a47,b_%23e83a47,co_%23000000,l_text:Archivo%20Black_32:${encodeText(title.ending)},c_fit,w_600,h_50` +
+        '/fl_layer_apply,g_south_west,x_60,y_100'
+    );
+  }
+
+  return `${CLOUDINARY_BASE}/${layers.join('/')}/v1/ograph/ograph_${background}.png`;
 }
 
 export function assignContentSocialImages(
