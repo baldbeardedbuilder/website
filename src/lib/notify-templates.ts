@@ -1,5 +1,5 @@
 /*
-  What the three notification emails say.
+  What the remaining story notification emails say.
 
   Separate from the drain on purpose. Everything here is pure: a kind, a payload and a
   URL in, a subject and two bodies out. That means the copy can be tested without a
@@ -146,17 +146,18 @@ function render(
 export function renderNotification(
   kind: NotificationKind,
   payload: Record<string, unknown>,
-  token: string,
-  /** Resolved by the caller, because working it out needs the content collections. */
-  commentUrl: string | null
+  token: string
 ): Rendered | null {
+  // Old reply rows can still exist in the queue, but there is no thread to send anyone to.
+  if (kind === 'comment_reply') return null;
+
   const unsub = unsubscribeUrl(token, kind);
-  const manage = absolute('/account/');
+  const manage = absolute('/privacy/#retired-accounts');
 
   const footer = (why: string) => [
     `You are getting this because ${why}`,
     `Turn this one off: ${unsub}`,
-    `All your email settings: ${manage}`
+    `Account data and email help: ${manage}`
   ];
 
   if (kind === 'story_published' || kind === 'story_featured') {
@@ -189,7 +190,7 @@ export function renderNotification(
           ? 'Your story is published, and Michael put it on the front page.'
           : 'Michael put your story on the front page.',
         line,
-        'There is a Featured badge on your profile now as well.'
+        'Thanks for letting me share it.'
       ],
       { label: 'See it', url },
       footer('you told a dev disaster and asked to hear if it got featured.'),
@@ -197,15 +198,5 @@ export function renderNotification(
     );
   }
 
-  if (!commentUrl) return null;
-
-  const excerpt = typeof payload.excerpt === 'string' ? payload.excerpt.trim() : '';
-
-  return render(
-    'Somebody replied to you',
-    ['Somebody replied to your comment.', excerpt ? `"${excerpt}"` : ''],
-    { label: 'Read the reply', url: commentUrl },
-    footer('somebody replied to a comment you left.'),
-    unsub
-  );
+  return null;
 }

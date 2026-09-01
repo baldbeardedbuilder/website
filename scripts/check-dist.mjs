@@ -17,7 +17,9 @@ const DIST = 'dist';
   Route segments that must not ship. Add to this when a feature is parked, and delete the
   entry in the same commit that unparks it.
 */
-const PARKED = [];
+const PARKED = [
+  { route: 'report', why: 'Problem reports are retired.' }
+];
 
 const problems = [];
 

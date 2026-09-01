@@ -10,16 +10,17 @@ import Base from '../layouts/Base.astro';
 
 <Base
   title="Search"
-  description="Search every article, video and dev disaster on the site."
+  description="Search every public article, video, and short on the site."
+  active="search"
   noindex={true}
 >
   <main id="main">
     <div class="search-page shell">
       <header class="search-intro">
-        <span class="path">search<span class="sep">/</span><b>index</b></span>
+        <span class="path">Search / Local index</span>
         <h1>Find the one where <span class="squiggle"><span>something broke.</span></span></h1>
         <p class="lede">
-          Search the full text of every article, video transcript, and dev disaster.
+          Search the full text of every public article and video transcript.
         </p>
 
         <dl class="search-facts" aria-label="About this search">
@@ -44,7 +45,7 @@ import Base from '../layouts/Base.astro';
                 type="search"
                 autocomplete="off"
                 enterkeyhint="search"
-                placeholder="Try “Blazor”, “async”, or an error message"
+                placeholder="Try Blazor, async, or an error message"
                 spellcheck="false"
               />
               <button class="search-clear" type="button" aria-label="Clear search" hidden>
@@ -171,7 +172,6 @@ import Base from '../layouts/Base.astro';
       article: 'Articles',
       video: 'Videos',
       short: 'Shorts',
-      disaster: 'Dev disasters',
       page: 'Pages'
     };
 
@@ -402,13 +402,15 @@ import Base from '../layouts/Base.astro';
       counts: Record<string, number>
     ) => {
       const container = root.querySelector<HTMLElement>(`[data-filter-group="${group}"]`)!;
-      const values = Object.entries(counts).sort(([left], [right]) => {
+      const values = Object.entries(counts)
+        .filter(([value]) => value !== 'disaster')
+        .sort(([left], [right]) => {
         if (group === 'kind') {
-          const order = ['article', 'video', 'short', 'disaster', 'page'];
+          const order = ['article', 'video', 'short', 'page'];
           return order.indexOf(left) - order.indexOf(right);
         }
         return labelFor(left).localeCompare(labelFor(right));
-      });
+        });
       const allCount = values.reduce((sum, [, count]) => sum + count, 0);
       const options: Array<[string, number]> = [['', allCount], ...values];
 
@@ -438,7 +440,9 @@ import Base from '../layouts/Base.astro';
         const counts = await pagefind.filters();
 
         for (const group of ['kind', 'topic'] as const) {
-          const groupCounts = counts[group] ?? {};
+          const groupCounts = Object.fromEntries(
+            Object.entries(counts[group] ?? {}).filter(([value]) => value !== 'disaster')
+          );
           if (selected[group] && !(selected[group]! in groupCounts)) selected[group] = null;
           renderFilterGroup(group, groupCounts);
         }
@@ -523,7 +527,7 @@ import Base from '../layouts/Base.astro';
   }
 
   .search-intro h1 .squiggle {
-    color: var(--sev-error);
+    text-decoration-color: var(--red);
   }
 
   .search-intro h1 .squiggle > span {
@@ -640,7 +644,10 @@ import Base from '../layouts/Base.astro';
   }
 
   .search-input-wrap:focus-within {
-    border-color: var(--accent);
+    border-color: var(--line);
+    outline: 2px solid var(--fg);
+    outline-offset: 4px;
+    box-shadow: none;
   }
 
   .search-input-wrap svg {
@@ -664,6 +671,10 @@ import Base from '../layouts/Base.astro';
     background: transparent;
     color: var(--fg);
     font: 500 clamp(1.125rem, 2.2vw, 1.45rem)/1.35 var(--body);
+  }
+
+  .search-input-wrap input:focus-visible {
+    box-shadow: none;
   }
 
   .search-input-wrap input::placeholder {

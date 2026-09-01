@@ -2,39 +2,32 @@
 import Base from '../layouts/Base.astro';
 import { SITE } from '../config/site';
 
-/*
-  The severity vocabulary earns its keep one more time here. The consequences really are
-  tiered, so the same four badges that classify a disaster classify what happens when
-  somebody breaks the rule. Note the class is sev-warn while the id is warning.
-*/
 const consequences = [
   {
     sev: 'hint',
     label: 'Hint',
-    what: 'I edit or delete the comment',
+    what: 'I point it out',
     detail:
-      'Usually a first offence, usually somebody having a bad day. You get a note explaining what I removed and why.'
+      'Most problems are misunderstandings or somebody having a rough day. A clear note is usually enough.'
   },
   {
     sev: 'info',
     label: 'Info',
     what: 'I ask you to stop',
-    detail:
-      'A direct message, from me, not a bot. Nothing happens to your account. Most of these end here.'
+    detail: 'A direct message from me, not a bot. Most problems end here.'
   },
   {
     sev: 'warn',
     label: 'Warning',
-    what: 'You lose commenting for a while',
-    detail:
-      'Seven days, then thirty. You can still read everything and your stories stay up.'
+    what: 'I remove you from the space',
+    detail: 'You lose access to the place where it happened. I will tell you why when I can.'
   },
   {
     sev: 'error',
     label: 'Error',
-    what: 'You are done here',
+    what: 'I take it further',
     detail:
-      'Account closed, comments removed. For harassment, threats, or doxxing, this is the first step and not the last one.'
+      'Threats, stalking, or publishing private information may go to platform moderators or law enforcement.'
   }
 ];
 
@@ -47,13 +40,13 @@ const lastChanged = new Date(SITE.conductUpdated).toLocaleDateString('en-GB', {
 
 <Base
   title="Code of conduct"
-  description="One rule: somebody just told you about the worst day of their career. Respond like it cost them something."
+  description="How people are expected to treat one another in the spaces Michael runs."
 >
   <main id="main">
     <div class="shell read">
       <aside class="rail">
         <dl>
-          <div><dt>Applies to</dt><dd>Comments, dev disasters, profiles</dd></div>
+          <div><dt>Applies to</dt><dd>Spaces I run and direct contact</dd></div>
           <div><dt>Enforced by</dt><dd><a href="/about/">Michael Jolley</a></dd></div>
           <div><dt>Last changed</dt><dd>{lastChanged}</dd></div>
         </dl>
@@ -67,9 +60,8 @@ const lastChanged = new Date(SITE.conductUpdated).toLocaleDateString('en-GB', {
             <span class="squiggle"><span>reading your worst commit.</span></span>
           </h1>
           <p class="lede">
-            This whole site runs on people admitting they broke something. That only works
-            if admitting it is safe. So there is exactly one rule, and then some detail
-            about what it means.
+            This site points to a few places where people build and learn together. Those
+            places only work when nobody has to brace for cruelty before joining in.
           </p>
         </header>
 
@@ -77,57 +69,53 @@ const lastChanged = new Date(SITE.conductUpdated).toLocaleDateString('en-GB', {
           <div class="callout">
             <span class="tag">The rule</span>
             <p>
-              Somebody just told you about the worst day of their career. Respond like that
-              cost them something, because it did.
+              Treat people like people. Critique the idea, code, or decision without treating
+              the person as the problem.
             </p>
           </div>
 
           <h2>What that looks like in practice</h2>
           <p>
-            Ask what you'd ask a teammate. "What would have caught this?" is a great
-            comment. "How did you not know that?" is not, and the difference is not tone,
-            it's whether you're trying to learn something or trying to win something.
+            Be curious before you are certain. Ask about the constraints, explain the tradeoff
+            you see, and leave room for context you do not have.
           </p>
           <p>
-            Add your version. The best threads here are four people going "oh, ours was
-            worse" and then a fifth person quietly posting the config flag that prevents
-            all of it.
+            Disagreement is welcome. Say what you think, show your work, and let the other
+            person make their own call. Winning the exchange is not the goal.
           </p>
           <p>
-            Assume the person had less information than you have now. Every disaster on
-            this site looks obvious in hindsight. That's what makes it a disaster and not a
-            mystery.
+            Respect names, pronouns, experience, privacy, and boundaries. Give credit when
+            somebody else's work helped you.
           </p>
 
-          <h2>What gets you removed</h2>
+          <h2>What does not belong here</h2>
           <p>
-            Harassment, slurs, sexual content, and threats. Nothing clever to say about
-            these, they're just out.
+            Harassment, slurs, threats, stalking, intimidation, or unwanted sexual attention.
+            Nothing clever to say about these. They are out.
           </p>
           <p>
-            Identifying somebody. Don't name the company, the coworker, the customer, or
-            the intern. If you can work out who a story is about, keep it to yourself. If
-            you post it, you're gone.
+            Publishing private information about somebody else. That includes addresses,
+            phone numbers, private messages, and anything shared in confidence.
           </p>
           <p>
-            Dunking. Telling somebody their outage was their own fault is both useless and
-            usually true, which is exactly why it isn't worth saying.
+            Sustained disruption. Honest criticism is useful. Following somebody around,
+            piling on, or making it impossible for everyone else to participate is not.
           </p>
           <p>
-            Selling things. Your product may genuinely have prevented that outage. Say so
-            once, disclose that it's yours, and move on. Do it in five threads and it's
-            spam.
-          </p>
-          <p>
-            Feeding threads to a language model and pasting the output. I can tell,
-            everybody can tell, and it wastes the one thing this place has, which is that a
-            real person was there.
+            Spam and disguised advertising. A useful link is fine. Turning every exchange
+            into a sales pitch is not.
           </p>
 
-          <h2>What happens when somebody breaks it</h2>
+          <h2>Where this applies</h2>
           <p>
-            There's no committee. It's me. Here's the ladder, and I'll tell you which rung
-            you're on rather than leaving you to guess.
+            This covers the spaces I control and direct contact connected to them. Behavior
+            elsewhere may matter when it creates a real safety problem here.
+          </p>
+
+          <h2>What happens when somebody breaks the rule</h2>
+          <p>
+            There is no committee. It is me. I usually start small, but this is not a promise
+            to walk through every step when somebody is in danger.
           </p>
         </div>
 
@@ -148,22 +136,22 @@ const lastChanged = new Date(SITE.conductUpdated).toLocaleDateString('en-GB', {
         <div class="prose conduct-tail">
           <h2>If I get it wrong</h2>
           <p>
-            Reply to the email. I've reversed moderation calls before and I'll do it again.
-            What I won't do is relitigate a removal in public comments, because that turns
-            somebody's bad week into a thread.
+            <a href={`mailto:${SITE.conductEmail}`}>Email the conduct inbox</a>. I have
+            reversed moderation calls before and I will do it again. I will not argue about
+            somebody's safety in public.
           </p>
 
           <h2>If it's about me</h2>
           <p>
-            I'm the one who runs this, which makes reporting me awkward. Do it anyway.
-            Email works, and if you'd rather not talk to me at all, say so in the report
-            and I'll have somebody I trust read it first.
+            I'm the one who runs this, which makes the conversation awkward. Email the conduct
+            inbox anyway. If you do not want me to handle it alone, say so and I will ask
+            somebody I trust to read it first.
           </p>
         </div>
 
         <div class="hero-actions conduct-acts">
-          <a class="btn primary" href="/report/">Report a problem</a>
-          <a class="btn" href="/dev-disasters/">Read dev disasters</a>
+          <a class="btn primary" href={`mailto:${SITE.conductEmail}`}>Email about conduct</a>
+          <a class="btn" href="/all/">Browse articles and videos</a>
         </div>
       </article>
     </div>

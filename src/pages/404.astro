@@ -1,75 +1,24 @@
 ---
-/*
-  404.
-
-  The site already speaks in diagnostics, so the not found page is written as one. No
-  gradient text, no spinning zero, no animation to opt out of.
-*/
 import Base from '../layouts/Base.astro';
-import { VISIBLE_TOPICS } from '../config/site';
 ---
 
-<Base
-  title="Page not found"
-  description="That path does not resolve. Here is where the rest of it lives."
-  noindex={true}
->
-  <main id="main">
-    <div class="shell read">
-      <aside class="rail">
-        <dl>
-          <div><dt>Status</dt><dd>404</dd></div>
-          <div><dt>Meaning</dt><dd>No page at that path</dd></div>
-          <div><dt>Likely cause</dt><dd>An old link, or a typo</dd></div>
-        </dl>
-        <a class="btn" href="/">Back to the front</a>
-        <span class="fine">Everything else is still where you left it.</span>
-      </aside>
-
-      <article>
-        <header class="storyhead">
-          <span class="path">404</span>
-          <h1>
-            That path
-            <span class="squiggle"><span>does not resolve.</span></span>
-          </h1>
-          <p class="lede">
-            Every old address on this site redirects to its new home, so if you got here
-            from a link of mine, that is a bug and I want to know about it.
-          </p>
-        </header>
-
-        <div class="prose nf-body">
-          <p>
-            The site moved to topic first addresses. An article that used to live under
-            <code>/blog/</code> now lives under the topic it belongs to, for example
-            <code>/csharp/the-traps-of-nullable-in-c-sharp/</code>. Old links are forwarded,
-            one hop, straight to the destination.
-          </p>
-          <p>Pick a topic and start from there.</p>
-        </div>
-
-        <div class="chips nf-chips">
-          {VISIBLE_TOPICS.map((t) => <a class="chip" href={`/${t.slug}/`}>{t.label}</a>)}
-        </div>
-
-        <div class="hero-actions nf-acts">
-          <a class="btn primary" href="/dev-disasters/">Read dev disasters</a>
-          <a class="btn" href="/about/">About me</a>
-        </div>
-      </article>
+<Base title="Page not found" description="That page is not here." noindex={true}>
+  <main id="main" class="not-found">
+    <div class="not-found-code" aria-hidden="true">404</div>
+    <img src="/images/type-stage/shrug.webp" alt="Michael Jolley shrugging" width="1600" height="1139" />
+    <div class="not-found-copy">
+      <span class="signal-label">Well, that did not compile.</span>
+      <h1>This page wandered off.</h1>
+      <p>The link may be old, the URL may have a typo, or I moved something and missed a redirect. Either way, there is plenty of useful stuff still here.</p>
+      <div class="not-found-actions">
+        <a class="button primary" href="/">Back home</a>
+        <a class="button secondary" href="/search/">Search the site</a>
+      </div>
+      <nav aria-label="Helpful links">
+        <a href="/articles/">Articles</a>
+        <a href="/videos/">Videos</a>
+        <a href="/topics/">Topics</a>
+      </nav>
     </div>
   </main>
 </Base>
-
-<style>
-  .nf-body {
-    margin-top: 2rem;
-  }
-  .nf-chips {
-    margin-top: 1.75rem;
-  }
-  .nf-acts {
-    margin-top: 2.5rem;
-  }
-</style>

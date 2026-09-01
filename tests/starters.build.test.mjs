@@ -41,11 +41,11 @@ const starters = read(path.join('src', 'lib', 'starters.ts'));
 const content = read(path.join('src', 'lib', 'content.ts'));
 const index = read(path.join('src', 'pages', 'index.astro'));
 
-/* The wide card is the lead. Pull it out of the built markup and look inside it. */
+/* The first Start here card is the video. Pull it out of the built markup and look inside it. */
 function leadCard() {
   const html = fs.readFileSync(path.join(DIST, 'index.html'), 'utf8');
-  const open = html.indexOf('card wide');
-  assert.notEqual(open, -1, 'no element with the card wide class was built on the homepage');
+  const open = html.indexOf('start-watch');
+  assert.notEqual(open, -1, 'no Start here video card was built on the homepage');
   const start = html.lastIndexOf('<', open);
   /*
     Cards are anchors and do not nest, so the next closing tag of the same kind ends it.
@@ -72,7 +72,7 @@ test('the lead card on the built homepage has a summary', { skip: !hasBuild }, (
 test('the lead card still draws its thumbnail and its meta line', { skip: !hasBuild }, () => {
   const card = leadCard();
   assert.match(card, /<img/, 'the lead card lost its thumbnail');
-  assert.match(card, /class="foot"/, 'the lead card lost its meta line');
+  assert.match(card, /Watch this first/, 'the lead card lost its meta line');
 });
 
 test('the lead is chosen by having prose, not by being first', () => {
@@ -121,13 +121,13 @@ test('an authored line wins over whatever the collection supplied', () => {
 test('no Start here card points at an unpublished page', { skip: !hasBuild }, () => {
   const html = fs.readFileSync(path.join(DIST, 'index.html'), 'utf8');
 
-  const heading = html.indexOf('>Start here<');
+  const heading = html.indexOf('start-grid');
   assert.notEqual(heading, -1, 'the Start here heading is gone from the homepage');
   /* The rail ends where the next section heading begins. */
   const next = html.indexOf('<h2', heading + 12);
   const rail = html.slice(heading, next === -1 ? html.length : next);
 
-  const hrefs = [...rail.matchAll(/<a class="card[^"]*" href="([^"]+)"/g)].map((m) => m[1]);
+  const hrefs = [...rail.matchAll(/<a class="start-[^"]*" href="([^"]+)"/g)].map((m) => m[1]);
   assert.ok(
     hrefs.length >= 2,
     `only ${hrefs.length} cards were found in the Start here rail, so this test is ` +

@@ -1,385 +1,277 @@
 ---
-/*
-  The front page. Decision 118, layout A, the workbench.
-
-  The newest thing Michael made is the headline. Dev disasters keep their section and
-  their call to action, but they sit mid page as the Problems panel rather than owning
-  the H1. This is a hierarchy change only: every colour, size and radius below is a
-  token that was already in use.
-
-  Zero JavaScript, same as before. Nothing here rotates, animates or fetches.
-*/
-import Mark from '../components/Mark.astro';
-import { getCollection } from 'astro:content';
 import Base from '../layouts/Base.astro';
 import Drip from '../components/Drip.astro';
-import { SITE, VISIBLE_TOPICS, sevClass, sevLabel } from '../config/site';
-import { allItems, isVideoKind, itemKindLabel, itemsInTopic } from '../lib/content';
-import { starterItems, fillSpans } from '../lib/starters';
-import { freshnessKicker, postedOn } from '../lib/freshness';
-import { leadSentences } from '../lib/excerpt';
-import { imageUrlAtWidth } from '../lib/images';
-import {
-  allDisasters,
-  sortDisasters,
-  countsBySeverity,
-  problemSummary,
-  disasterCode
-} from '../lib/disasters';
+import FeedItem from '../components/FeedItem.astro';
+import { SITE, SOCIAL_IMAGES, VISIBLE_TOPICS } from '../config/site';
+import { allItems, isVideoKind, itemKindLabel, itemsInTopic, type Item } from '../lib/content';
+import { starterItems } from '../lib/starters';
 
 const items = await allItems();
-
-/*
-  The hero is the newest item that carries a summary, not simply the newest item.
-
-  Same rule as the Start here lead, and for the same measured reason: the layout gives
-  the excerpt a paragraph of height, so an item without one leaves a hole in the largest
-  element on the page. Skipping forward costs a few days of recency and never costs the
-  page its shape.
-*/
-const hero = items.find((i) => i.description);
-const alsoNew = items.filter((i) => i !== hero).slice(0, 3);
-
+const hero = items[0];
 const starters = await starterItems();
-const fill = fillSpans(starters.length);
+const starterVideo = starters.find((item) => isVideoKind(item.kind));
+const starterArticle = starters.find((item) => item.kind === 'article');
 
-const disasters = allDisasters();
-const topProblems = sortDisasters(disasters, 'liked').slice(0, 4);
-const counts = countsBySeverity();
+const mostWatched = items
+  .filter((item) => isVideoKind(item.kind) && item.views !== null)
+  .sort((left, right) => (right.views ?? 0) - (left.views ?? 0))
+  .slice(0, 5);
 
-const drips = await getCollection('drips');
-drips.sort((a, b) => (a.data.publishDate < b.data.publishDate ? 1 : -1));
-const latestDrip = drips[0];
-
-const dripDay = latestDrip
-  ? new Date(latestDrip.data.publishDate).toLocaleDateString('en-US', { weekday: 'short' })
-  : '';
-
-/*
-  Four rows across two columns, the drip taking the last slot when there is one. Split by
-  halves rather than by column index so an odd count leaves the shorter column second.
-*/
-const alsoRows: Array<{
-  href: string;
-  title: string;
-  kindLabel: string;
-  meta: string;
-  offsite: boolean;
-  opensYouTube: boolean;
-}> =
-  alsoNew.map((i) => ({
-    href: i.href,
-    title: i.title,
-    kindLabel: itemKindLabel(i.kind),
-    meta: i.length,
-    offsite: i.offsite,
-    opensYouTube: isVideoKind(i.kind) && i.offsite
-  }));
-
-if (latestDrip) {
-  alsoRows.push({
-    href: 'https://dotnetdrip.com',
-    title: 'The links that were worth reading this week',
-    kindLabel: 'Drip',
-    meta: dripDay,
-    offsite: true,
-    opensYouTube: false
-  });
-}
-
-const alsoSplit = Math.ceil(alsoRows.length / 2);
-const alsoColumns = [alsoRows.slice(0, alsoSplit), alsoRows.slice(alsoSplit)].filter(
-  (c) => c.length > 0
-);
+const articles = items.filter((item) => item.kind === 'article');
+const worthReading = [...starters.filter((item) => item.kind === 'article'), ...articles]
+  .filter((item, index, all) => all.findIndex((candidate) => candidate.key === item.key) === index)
+  .slice(0, 4);
 
 const topicCounts = await Promise.all(
-  VISIBLE_TOPICS.map(async (t) => ({ topic: t, n: (await itemsInTopic(t.slug)).length }))
+  VISIBLE_TOPICS.map(async (topic) => ({
+    topic,
+    count: (await itemsInTopic(topic.slug)).length
+  }))
 );
 
-/*
-  Views print only when there are some. A video showing "0 views" on the front page reads
-  as work nobody wanted, which is a different claim from a number we have not fetched.
-*/
-const heroMeta = hero
-  ? [
-      hero.views && hero.views > 0 ? `${hero.views.toLocaleString('en-US')} views` : null,
-      hero.engagementLikes !== null
-        ? `${hero.engagementLikes.toLocaleString('en-US')} ${
-            hero.engagementLikes === 1 ? 'like' : 'likes'
-          }`
-        : null,
-      hero.kind === 'article' && hero.engagementComments !== null
-        ? `${hero.engagementComments.toLocaleString('en-US')} ${
-            hero.engagementComments === 1 ? 'comment' : 'comments'
-          }`
-        : null,
-      `posted ${postedOn(hero.date)}`,
-      hero.thumbnail ? null : hero.length,
-      hero.offsite ? 'on YouTube' : null
-    ].filter(Boolean)
-  : [];
-
-const heroThumbnail = hero?.thumbnail;
-const heroImage = heroThumbnail
-  ? (() => {
-      const src = imageUrlAtWidth(heroThumbnail, 640);
-      const responsive = src !== heroThumbnail;
-      return {
-        src,
-        srcset: responsive
-          ? [640, 1280]
-              .map((width) => `${imageUrlAtWidth(heroThumbnail, width)} ${width}w`)
-              .join(', ')
-          : undefined,
-        cloudinary: responsive
-      };
-    })()
-  : null;
+const latest = items.slice(0, 6);
+const opensYouTube = (item: Item) => isVideoKind(item.kind) && item.offsite;
+const heroSizes = '(max-width: 48rem) 90vw, (max-width: 68rem) 68vw, 55vw';
+const heroPortraits = [
+  {
+    src: '/images/type-stage/point.webp',
+    srcset: '/images/type-stage/point-800.webp 800w, /images/type-stage/point.webp 1600w'
+  },
+  {
+    src: '/images/type-stage/think.webp',
+    srcset: '/images/type-stage/think-800.webp 800w, /images/type-stage/think.webp 1600w'
+  },
+  {
+    src: '/images/type-stage/shrug.webp',
+    srcset: '/images/type-stage/shrug-800.webp 800w, /images/type-stage/shrug.webp 1600w'
+  },
+  {
+    src: '/images/type-stage/shirt.webp',
+    srcset: '/images/type-stage/shirt-800.webp 800w, /images/type-stage/shirt.webp 1600w'
+  },
+  {
+    src: '/images/type-stage/laugh.webp',
+    srcset: '/images/type-stage/laugh-800.webp 800w, /images/type-stage/laugh.webp 1544w'
+  }
+];
 ---
 
-<Base title={SITE.name} description={SITE.tagline}>
-  {
-    heroImage && (
-      <Fragment slot="head">
-        {heroImage.cloudinary && <link rel="preconnect" href="https://res.cloudinary.com" />}
-        <link
-          rel="preload"
-          as="image"
-          href={heroImage.src}
-          imagesrcset={heroImage.srcset}
-          imagesizes={heroImage.srcset ? '(max-width: 1080px) calc(100vw - 4rem), 592px' : undefined}
-          fetchpriority="high"
-        />
-      </Fragment>
-    )
-  }
+<Base title={SITE.name} description={SITE.tagline} image={SOCIAL_IMAGES.home}>
+  <Fragment slot="head">
+    <script is:inline define:vars={{ heroPortraits, heroSizes }}>
+      (() => {
+        const storageKey = 'bbb:hero-portrait';
+        let previous = null;
+
+        try {
+          previous = sessionStorage.getItem(storageKey);
+        } catch {
+          /* The portrait can still rotate when storage is unavailable. */
+        }
+
+        const available = heroPortraits.filter((portrait) => portrait.src !== previous);
+        const selected = available[Math.floor(Math.random() * available.length)] ?? heroPortraits[0];
+        const root = document.documentElement;
+        root.dataset.heroPortraitSrc = selected.src;
+        root.dataset.heroPortraitSrcset = selected.srcset;
+
+        const preload = document.createElement('link');
+        preload.rel = 'preload';
+        preload.as = 'image';
+        preload.href = selected.src;
+        preload.setAttribute('imagesrcset', selected.srcset);
+        preload.setAttribute('imagesizes', heroSizes);
+        preload.setAttribute('fetchpriority', 'high');
+        document.head.append(preload);
+
+        try {
+          sessionStorage.setItem(storageKey, selected.src);
+        } catch {
+          /* A private tab may forget which portrait it just showed. */
+        }
+      })();
+    </script>
+  </Fragment>
+
   <main id="main">
-    {
-      hero && (
-        <section class={`bench shell${hero.thumbnail ? '' : ' plain'}`}>
-          {
-            /*
-              No still, no column for one. `image` is optional in the blog schema, so a
-              post without one is a commit away, and a two column headline with nothing
-              in the left column is half a screen of nothing. The length moves to the
-              meta line in that case, since the duration badge lives on the still.
-            */
-          }
-          {heroImage && (
-            <a
-              class="shot"
-              href={hero.href}
-              target={isVideoKind(hero.kind) && hero.offsite ? '_blank' : undefined}
-              rel={hero.offsite ? 'noopener noreferrer' : undefined}
-              tabindex="-1"
-              aria-hidden="true"
-            >
-              <img
-                src={heroImage.src}
-                srcset={heroImage.srcset}
-                sizes={heroImage.srcset ? '(max-width: 1080px) calc(100vw - 4rem), 592px' : undefined}
-                alt=""
-                width="640"
-                height="360"
-                fetchpriority="high"
-                decoding="async"
-              />
-              {isVideoKind(hero.kind) && <span class="play" aria-hidden="true">&#9654;</span>}
-              <span class="dur">{hero.length}</span>
-            </a>
-          )}
+    <section class="hero">
+      <div class="hero-type" aria-hidden="true"><span>BUILD</span><span>BETTER</span></div>
+      <div class="hero-copy">
+        <span class="signal-label">Real code. Honest tradeoffs.</span>
+        <h1>Have some fun doing it.</h1>
+        <p>.NET, Windows, developer tools, and mistakes included.</p>
+        <a href="#start">Find your starting point <span aria-hidden="true">&darr;</span></a>
+      </div>
+      <img
+        class="hero-person"
+        src={heroPortraits[0].src}
+        srcset={heroPortraits[0].srcset}
+        sizes={heroSizes}
+        alt="Michael Jolley, the Bald Bearded Builder"
+        width="1600"
+        height="1139"
+        fetchpriority="high"
+      />
+      <script is:inline>
+        (() => {
+          const image = document.querySelector('.hero-person');
+          if (!(image instanceof HTMLImageElement)) return;
 
-          <div>
-            <div class="eyebrow">
-              <span class="path">
-                {hero.topic}
-                <span class="sep">/</span>
-                <b>{hero.kind}</b>
-              </span>
-              <span class="spacer" />
-              <span class="kick">{freshnessKicker(hero.date)}</span>
+          const root = document.documentElement;
+          if (!root.dataset.heroPortraitSrc || !root.dataset.heroPortraitSrcset) return;
+
+          image.src = root.dataset.heroPortraitSrc;
+          image.srcset = root.dataset.heroPortraitSrcset;
+        })();
+      </script>
+      {hero && (
+        <a
+          class="hero-latest"
+          href={hero.href}
+          target={opensYouTube(hero) ? '_blank' : undefined}
+          rel={hero.offsite ? 'noopener noreferrer' : undefined}
+        >
+          <span>Newest thing / {itemKindLabel(hero.kind)} / {hero.topic}</span>
+          <strong>{hero.title}</strong>
+          <div><i>{hero.length}</i><b>{isVideoKind(hero.kind) ? 'Watch now' : 'Read now'} &rarr;</b></div>
+        </a>
+      )}
+      <div class="hero-foot">
+        <span>Michael Jolley</span>
+        <span>Building since 1999</span>
+        <span>Learning out loud</span>
+      </div>
+    </section>
+
+    <section id="start" class="start-here">
+      <header class="section-header">
+        <span>New here?</span>
+        <h2>Start with these.</h2>
+        <p>One video and one article. They show how I teach, what I care about, and why the answer is usually "it depends."</p>
+      </header>
+      <div class="start-grid">
+        {starterVideo && (
+          <a
+            class="start-watch"
+            href={starterVideo.href}
+            target={opensYouTube(starterVideo) ? '_blank' : undefined}
+            rel={starterVideo.offsite ? 'noopener noreferrer' : undefined}
+          >
+            {starterVideo.thumbnail && <img src={starterVideo.thumbnail} alt="" width="1280" height="720" />}
+            <div class="start-overlay">
+              <span>Watch this first / {starterVideo.length}</span>
+              <h3>{starterVideo.title}</h3>
+              {starterVideo.description && <p>{starterVideo.description}</p>}
+              <strong>Play the video &rarr;</strong>
             </div>
-
-            <h1>{hero.title}</h1>
-
-            <p class="excerpt">{leadSentences(hero.description)}</p>
-
-            <div class="acts">
-              <a
-                class="btn primary"
-                href={hero.href}
-                target={isVideoKind(hero.kind) && hero.offsite ? '_blank' : undefined}
-                rel={hero.offsite ? 'noopener noreferrer' : undefined}
-              >
-                {isVideoKind(hero.kind) ? 'Watch it' : 'Read it'}
-              </a>
-              <a class="btn" href={`/${hero.topic}/`}>
-                Everything on {hero.topic}
-              </a>
+          </a>
+        )}
+        {starterArticle && (
+          <a class="start-read" href={starterArticle.href}>
+            <span>Read this first / {starterArticle.length}</span>
+            <div class="config-lines" aria-hidden="true">
+              <i>Build the smallest useful thing</i>
+              <i>Measure what matters</i>
+              <i class="bad">Question the happy path</i>
             </div>
-
-            <p class="meta">{heroMeta.join(' \u00b7 ')}</p>
-          </div>
-        </section>
-      )
-    }
-
-    {/* Whose site this is. Full bleed so it reads as the page speaking, not as a module. */}
-    <div class="ident">
-      <div class="shell">
-        <Mark class="mk" />
-        <p>
-          <b>I'm Michael.</b> Twenty years of C# and I still find new ways to embarrass
-          myself. I teach .NET and Windows development the way I learned it, out loud, on
-          camera, mistakes included.
-        </p>
-        <a class="more" href="/about/">More about me &rarr;</a>
+            <h3>{starterArticle.title}</h3>
+            {starterArticle.description && <p>{starterArticle.description}</p>}
+            <strong>Read the article &rarr;</strong>
+          </a>
+        )}
       </div>
-    </div>
+    </section>
 
-    <div class="below shell">
-      {
-        alsoColumns.length > 0 && (
-          <Fragment>
-            <div class="rule">
-              <h2>Also new</h2>
-              <a class="more" href="/all/">All &rarr;</a>
+    {mostWatched.length > 0 && (
+      <section class="most-watched">
+        <header class="section-header light">
+          <span>The numbers have spoken</span>
+          <h2>Most watched.</h2>
+          <p>What developers have watched most across the channel, ranked by real YouTube views.</p>
+        </header>
+        <div class="watch-grid">
+          <a
+            class="watch-lead"
+            href={mostWatched[0].href}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {mostWatched[0].thumbnail && <img src={mostWatched[0].thumbnail} alt="" width="1280" height="720" />}
+            <span class="rank">01</span>
+            <div>
+              <span>{mostWatched[0].views?.toLocaleString('en-US')} views / {mostWatched[0].length}</span>
+              <h3>{mostWatched[0].title}</h3>
+              <strong>Watch &rarr;</strong>
             </div>
-            <div class="two">
-              {alsoColumns.map((column) => (
-                <div>
-                  {column.map((r) => (
-                    <a
-                      class="row"
-                      href={r.href}
-                      target={r.opensYouTube ? '_blank' : undefined}
-                      rel={r.offsite ? 'noopener noreferrer' : undefined}
-                    >
-                      <h3>{r.title}</h3>
-                      <span class="meta">
-                        <span class="k">{r.kindLabel}</span> {r.meta}
-                      </span>
-                    </a>
-                  ))}
-                </div>
-              ))}
-            </div>
-          </Fragment>
-        )
-      }
-
-      <div class="rule major">
-        <h2>Start here</h2>
-        <a class="more" href="/all/">Everything I've made &rarr;</a>
-      </div>
-      <p class="lead-in">
-        New around here? The things I would hand you first, in the order I would hand
-        them over.
-      </p>
-      <div class="grid" style={`--fill-3:${fill.three};--fill-2:${fill.two}`}>
-        {
-          starters.map((i, n) =>
-            n === 0 ? (
-              <a
-                class="card wide"
-                href={i.href}
-                target={isVideoKind(i.kind) && i.offsite ? '_blank' : undefined}
-                rel={i.offsite ? 'noopener noreferrer' : undefined}
-              >
-                <span class="thumb">
-                  {i.thumbnail ? (
-                    <img src={i.thumbnail} alt="" width="480" height="270" loading="lazy" />
-                  ) : (
-                    i.length
-                  )}
-                </span>
-                <span class="body">
-                  <h3>{i.title}</h3>
-                  {i.description && <p>{i.description}</p>}
-                  <span class="foot">
-                    <span class="k">{itemKindLabel(i.kind)}</span> {i.topic}{' '}
-                    &middot; {i.length}
-                    {i.offsite && <Fragment> &middot; YouTube</Fragment>}
-                  </span>
-                </span>
-              </a>
-            ) : (
-              <a
-                class="card"
-                href={i.href}
-                target={isVideoKind(i.kind) && i.offsite ? '_blank' : undefined}
-                rel={i.offsite ? 'noopener noreferrer' : undefined}
-              >
-                <h3>{i.title}</h3>
-                {i.description && <p>{i.description}</p>}
-                <span class="foot">
-                  <span class="k">{itemKindLabel(i.kind)}</span> {i.topic}{' '}
-                  &middot; {i.length}
-                  {i.offsite && <Fragment> &middot; YouTube</Fragment>}
-                </span>
-              </a>
-            )
-          )
-        }
-      </div>
-
-      <div class="rule major"><h2>Learning paths</h2></div>
-      <p class="lead-in">
-        Pick a rabbit hole. Each one is everything I've made on that topic, in the order
-        that actually makes sense to read it.
-      </p>
-      <div class="chips">
-        {
-          topicCounts
-            .filter((t) => t.n > 0)
-            .map((t) => (
-              <a class="chip" href={`/${t.topic.slug}/`}>
-                {t.topic.label} <span class="n">{t.n}</span>
-              </a>
-            ))
-        }
-      </div>
-
-      <div class="rule major">
-        <h2>Dev disasters</h2>
-        <a class="more" href="/dev-disasters/">{counts.all > 0 ? `All ${counts.all} ` : 'All '}&rarr;</a>
-      </div>
-      <p class="lead-in">Not mine. Yours. Other people's worst days, filed by how bad it got.</p>
-      <div class="panel">
-        <div class="panel-bar">
-          <span>Problems</span>
-          <span class="count">{problemSummary()}</span>
+          </a>
+          <ol class="watch-list" start="2">
+            {mostWatched.slice(1).map((item, index) => (
+              <li>
+                <a href={item.href} target="_blank" rel="noopener noreferrer">
+                  <span class="number">{String(index + 2).padStart(2, '0')}</span>
+                  {item.thumbnail && <img src={item.thumbnail} alt="" width="160" height="90" loading="lazy" />}
+                  <div><h3>{item.title}</h3><span>{item.views?.toLocaleString('en-US')} views / {item.length}</span></div>
+                  <b aria-hidden="true">&rarr;</b>
+                </a>
+              </li>
+            ))}
+          </ol>
         </div>
-        {
-          topProblems.map((d) => (
-            <a class="prow" href={d.url}>
-              <span class={`sev ${sevClass(d.severity)}`}>{sevLabel(d.severity)}</span>
-              <span class="msg">{d.line}</span>
-              <span class="loc">
-                #{disasterCode(d.id)}
-                {d.likes > 0 && <Fragment> &middot; &#9825; {d.likes.toLocaleString('en-US')}</Fragment>}
-              </span>
-            </a>
-          ))
-        }
-        {
-          topProblems.length === 0 && (
-            <a class="prow" href="/submit/">
-              <span class="sev sev-info">Info</span>
-              <span class="msg">No problems reported. Yours would be the first.</span>
-              <span class="loc">#000</span>
-            </a>
-          )
-        }
-      </div>
+        <a class="section-link light-link" href="/videos/">Every video <span>&rarr;</span></a>
+      </section>
+    )}
 
-      <div class="story-cta">
-        <a class="btn primary" href="/submit/">Tell me yours</a>
-        <span class="fine">Post anonymously if you'd rather. No name is ever required.</span>
-      </div>
+    {worthReading.length > 0 && (
+      <section class="most-read">
+        <header class="section-header">
+          <span>Keep these close</span>
+          <h2>Worth reading.</h2>
+          <p>Practical guides I would hand you when the same problem shows up again.</p>
+        </header>
+        <div class="reading-grid">
+          {worthReading.map((item) => (
+            <a href={item.href}>
+              <span>{item.topic} / {item.length}</span>
+              <h3>{item.title}</h3>
+              {item.description && <p>{item.description}</p>}
+              <strong>Read it &rarr;</strong>
+            </a>
+          ))}
+        </div>
+        <a class="section-link" href="/articles/">Every article <span>&rarr;</span></a>
+      </section>
+    )}
 
-      <div class="rule major" id="drip"><h2>The .NET Drip</h2></div>
-      <Drip uid="home" />
-    </div>
+    <section class="topics">
+      <header class="section-header light">
+        <span>Pick your problem</span>
+        <h2>Choose a rabbit hole.</h2>
+        <p>Start with the thing you need to fix, understand, or finally stop searching for.</p>
+      </header>
+      <div class="topic-list">
+        {topicCounts.filter(({ count }) => count > 0).map(({ topic, count }, index) => (
+          <a href={`/${topic.slug}/`}>
+            <span>{String(index + 1).padStart(2, '0')}</span>
+            <strong>{topic.title}</strong>
+            <i>{topic.blurb}</i>
+            <b>{count} <span class="vh">pieces</span> &rarr;</b>
+          </a>
+        ))}
+      </div>
+    </section>
+
+    <section class="latest-feed">
+      <header class="section-header">
+        <span>Straight off the workbench</span>
+        <h2>Latest.</h2>
+        <p>Videos and articles together, newest first.</p>
+      </header>
+      <div class="feed homepage-feed">
+        {latest.map((item) => <FeedItem item={item} />)}
+      </div>
+      <a class="section-link" href="/all/">Everything I've made <span>&rarr;</span></a>
+    </section>
+
+    <Drip uid="home" />
   </main>
 </Base>

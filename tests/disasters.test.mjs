@@ -9,14 +9,12 @@
   the archive at /dev-disasters/[...filter] serves its severity and sort views from the
   same path segment a story slug occupies, so a story slugged "newest" sits on top of the
   "all, newest" view. What changed is where that rule has to hold. It used to hold because
-  a human wrote the seed file and a test read it. It now has to hold at the one moment a
-  slug is chosen, which is the submit API.
+  a human wrote the seed file and a test read it.
 
   So these tests check the wiring instead of the data. That matters more than it sounds,
   because when the seed was deleted the wiring did not exist: RESERVED_DISASTER_SLUGS was
-  exported from site.ts, documented as being checked by the submit API, and imported by
-  nothing at all. The test over the seed was the only enforcement, and it was about to be
-  deleted along with its subject.
+  exported from site.ts and imported by nothing at all. The test over the seed was the only
+  enforcement, and it was about to be deleted along with its subject.
 
   Read as source rather than imported because both files are TypeScript and this is a
   plain node test. That is a weaker check than calling the code, and it is the reason each
@@ -31,7 +29,6 @@ import { fileURLToPath } from 'node:url';
 const read = (p) => readFileSync(fileURLToPath(new URL(p, import.meta.url)), 'utf8');
 
 const site = read('../src/config/site.ts');
-const submitApi = read('../src/pages/api/disasters.ts');
 const disastersLib = read('../src/lib/disasters.ts');
 
 /*
@@ -68,36 +65,6 @@ test('the reserved slug list is derived from the severities and sorts, not retyp
   assert.match(m[1], /\.\.\.SEVERITIES\.map/, 'the severities are not spread into it');
   assert.match(m[1], /\.\.\.DISASTER_SORTS\.map/, 'the sorts are not spread into it');
   assert.match(m[1], /'all'/, "the archive's own /dev-disasters/all/ view is not reserved");
-});
-
-/*
-  The test this file exists for.
-
-  A reserved word is only reserved if something refuses to hand it out. This asserts the
-  submit API imports the list and folds it into the set uniqueSlug checks against, which
-  is the whole mechanism. It failed the day the seed file was deleted, which is exactly
-  when it needed to.
-*/
-test('the submit API refuses to hand out a slug the archive already uses', () => {
-  assert.match(
-    submitApi,
-    /import \{[^}]*\bRESERVED_DISASTER_SLUGS\b[^}]*\} from '\.\.\/\.\.\/config\/site'/,
-    'src/pages/api/disasters.ts does not import RESERVED_DISASTER_SLUGS'
-  );
-
-  const m = submitApi.match(/const taken = new Set\(\[([\s\S]*?)\]\);/);
-  assert.ok(m, 'the taken slug set is not built from an array literal any more');
-  assert.match(
-    m[1],
-    /\.\.\.RESERVED_DISASTER_SLUGS/,
-    'the reserved words are not in the set of slugs the submit API treats as taken'
-  );
-
-  assert.match(
-    submitApi,
-    /slug: uniqueSlug\(draft\.slug, taken\)/,
-    'the inserted slug does not come from uniqueSlug against that set'
-  );
 });
 
 /*

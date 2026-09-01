@@ -1,19 +1,10 @@
 ---
-/*
-  One dev disaster.
-
-  The comment thread and the like button are Preact islands that land in phase five, so
-  this page is currently the story and its counts and nothing that pretends to be
-  interactive. A dead control is worse than an absent one.
-*/
 import Teller from '../../components/Teller.astro';
 import Base from '../../layouts/Base.astro';
 import { sevClass, sevLabel } from '../../config/site';
 import LikeButton from '../../components/islands/LikeButton';
-import CommentThread from '../../components/islands/CommentThread';
 import ShareMenu from '../../components/ShareMenu.astro';
 import { allDisasters, disasterBySlug, disasterCode, countsBySeverity } from '../../lib/disasters';
-import { bakedReplies } from '../../lib/comments';
 
 export function getStaticPaths() {
   return allDisasters().map((d) => ({ params: { slug: d.slug } }));
@@ -24,8 +15,6 @@ const d = disasterBySlug(slug!);
 if (!d) throw new Error(`No dev disaster with slug "${slug}"`);
 
 const counts = countsBySeverity();
-
-const replies = await bakedReplies('disaster', String(d.id));
 
 const filed = d.date.toLocaleDateString('en-GB', {
   day: 'numeric',
@@ -67,16 +56,11 @@ const filed = d.date.toLocaleDateString('en-GB', {
           */}
           <ShareMenu path={d.url} title={d.line} kind="disaster" targetKey={String(d.id)} />
         </div>
-        <a
-          class="fine"
-          href={`/report/?type=disaster&target=${encodeURIComponent(d.url)}`}
-        >
-          Report this story
-        </a>
       </aside>
 
       {/* One filter per element. See the note in [topic]/[slug].astro. */}
       <article
+        data-pagefind-ignore
         data-pagefind-body
         data-pagefind-meta="kind:disaster"
         data-pagefind-filter="kind:disaster"
@@ -98,27 +82,10 @@ const filed = d.date.toLocaleDateString('en-GB', {
         </p>
 
         <div class="hero-actions dd-acts">
-          <a class="btn primary" href="/submit/">Tell me yours</a>
-          <a class="btn" href="/dev-disasters/">All {counts.all} dev disasters &rarr;</a>
+          <a class="btn primary" href="/dev-disasters/">All {counts.all} dev disasters &rarr;</a>
         </div>
       </article>
     </div>
-
-    <section class="comments" id="comments">
-      <CommentThread
-        client:visible
-        kind="disaster"
-        targetKey={String(d.id)}
-        initial={replies}
-        pageUrl={`/dev-disasters/${d.slug}/`}
-      />
-      <noscript>
-        <div class="shell">
-          <aside class="rail"><p class="eyebrow">{replies} {replies === 1 ? 'reply' : 'replies'}</p></aside>
-          <div><p class="note">Replies need JavaScript. The rest of this page does not.</p></div>
-        </div>
-      </noscript>
-    </section>
   </main>
 </Base>
 

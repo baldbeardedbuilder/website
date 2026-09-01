@@ -4,8 +4,8 @@
   POST toggles, GET reads. Both answer with the same shape so the island has one code
   path for "what is the state" and "the state changed".
 
-  No sign in required, per decision 11. Signing in only changes whether the like gets
-  your name on it.
+  Likes are anonymous. A browser token and address hash stop one person from moving the
+  count over and over.
 */
 
 import type { APIRoute } from 'astro';
@@ -89,6 +89,6 @@ export const POST: APIRoute = async (context) => {
     return bad('That is a lot of liking. Give it an hour.', 429);
   }
 
-  const state = await toggleLike(kind, key, token, ip, context.locals.profile?.id ?? null);
+  const state = await toggleLike(kind, key, token, ip, null);
   return ok(state);
 };

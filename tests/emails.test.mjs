@@ -51,11 +51,11 @@ test('site config publishes no personal address', () => {
 });
 
 test('both consuming pages read the address they are meant to', () => {
-  const report = fs.readFileSync(path.join(ROOT, 'src', 'pages', 'report.astro'), 'utf8');
+  const conduct = fs.readFileSync(path.join(ROOT, 'src', 'pages', 'conduct.astro'), 'utf8');
   const privacy = fs.readFileSync(path.join(ROOT, 'src', 'pages', 'privacy.astro'), 'utf8');
-  assert.ok(report.includes('SITE.conductEmail'), 'report.astro must route to the conduct inbox');
+  assert.ok(conduct.includes('SITE.conductEmail'), 'conduct.astro must route to the conduct inbox');
   assert.ok(privacy.includes('SITE.privacyEmail'), 'privacy.astro must route to the privacy inbox');
-  assert.ok(!report.includes('SITE.privacyEmail'), 'a conduct report must not go to the privacy inbox');
+  assert.ok(!conduct.includes('SITE.privacyEmail'), 'conduct requests must not go to the privacy inbox');
   assert.ok(!privacy.includes('SITE.conductEmail'), 'a data request must not go to the conduct inbox');
 });
 
@@ -64,13 +64,8 @@ test('the gate is wired into package.json and into CI', () => {
   assert.ok(CI.includes('pnpm check:emails'), 'ci.yml must run check:emails');
 });
 
-/*
-  The gate reads source as well as dist, and that is load bearing rather than belt and
-  braces. /report/ is prerender = false, so it writes no file, so every other gate in this
-  repo that reads dist is blind to the page the whole reporting flow ends on.
-*/
 test('the address gate reads source as well as dist', () => {
   const gate = fs.readFileSync(path.join(ROOT, 'scripts', 'check-emails.mjs'), 'utf8');
-  assert.ok(gate.includes("'src/pages'"), 'check:emails must scan src/pages, since /report/ never reaches dist');
+  assert.ok(gate.includes("'src/pages'"), 'check:emails must scan addresses in source');
   assert.ok(gate.includes('provenanceSuffix'), 'check:emails must name the tree it read');
 });

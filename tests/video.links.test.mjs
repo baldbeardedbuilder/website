@@ -43,5 +43,5 @@ test('YouTube video cards open in a new browsing context', { skip: !hasBuild }, 
 
 test('shorts are labeled as their own content kind', { skip: !hasBuild }, () => {
   const html = fs.readFileSync(path.join(DIST, 'videos', 'index.html'), 'utf8');
-  assert.match(html, /<span class="kind">Short<\/span>/);
+  assert.match(html, /<span class="kind">Short \//);
 });

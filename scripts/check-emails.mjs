@@ -61,15 +61,8 @@ const EMAIL = /[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/g;
 /*
   Source files worth scanning as well as dist.
 
-  Not decoration. /report/ is prerender = false, so it renders on demand and never writes
-  a file, which means every gate in this repo that reads dist is blind to the page the
-  whole reporting flow ends on. That is the page this decision exists for. A dist only
-  version of this gate would have reported clean on the one page it most needed to read.
-
-  a11y.mjs is the exception and is worth naming rather than leaving implied: it starts a
-  dev server and audits seven on demand targets, /report/ among them. So the page is not
-  unaudited, it is unreadable to anything that works from the built output, which is this
-  gate and four others.
+  Dist proves which addresses reach readers in the common path. Source catches addresses
+  in server handlers and conditional states that the static output may not render.
 */
 const SRC_DIRS = ['src/pages', 'src/components', 'src/config', 'src/lib'];
 
@@ -139,24 +132,16 @@ for (const file of [...distFiles, ...srcFiles]) {
 }
 
 /*
-  Fail closed, and the two halves are not the same assertion.
-
-  privacy@ is checked in dist because /privacy/ is a static page, so this follows the
-  address all the way to the markup a reader is handed.
-
-  coc@ can only be checked in source, because /report/ renders on demand and writes no
-  file. Stating that rather than quietly checking the easy half, since a gate that cannot
-  see its most important page should say so where somebody will read it.
+  Fail closed. Both role addresses belong on static pages, so the built output proves they
+  reach the markup a reader receives.
 */
 const distText = distFiles.map((f) => fs.readFileSync(f, 'utf8')).join('\n');
-const reportPage = path.join(ROOT, 'src', 'pages', 'report.astro');
-const reportText = fs.existsSync(reportPage) ? fs.readFileSync(reportPage, 'utf8') : '';
 
 if (!distText.includes('privacy@baldbeardedbuilder.com')) {
   failures.push('dist publishes no privacy address, so this gate is not reading a real page');
 }
-if (!reportText.includes('SITE.conductEmail')) {
-  failures.push('report.astro no longer names SITE.conductEmail, so the conduct inbox is unrouted');
+if (!distText.includes('coc@baldbeardedbuilder.com')) {
+  failures.push('dist publishes no conduct address, so the conduct inbox is unrouted');
 }
 
 if (failures.length) {

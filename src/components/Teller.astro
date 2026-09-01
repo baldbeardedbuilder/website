@@ -21,7 +21,7 @@ const { teller } = Astro.props;
 
 {
   teller.shown === 'handle' ? (
-    <a href={`/builders/${teller.handle}/`}>{teller.handle}</a>
+    teller.handle
   ) : teller.shown === 'anonymous' ? (
     'anonymous'
   ) : null

@@ -1,19 +1,5 @@
 /*
-  Self hosted fonts.
-
-  The design system asks for three families by their real names, so the generated CSS uses
-  those names rather than the "Fraunces Variable" style names Fontsource ships. Nothing in
-  app.css has to know where the files came from.
-
-  This exists because the alternative, a Google Fonts stylesheet in the head, is a render
-  blocking request to a third party before a single word can paint, and it tells Google
-  about every reader. Self hosting removes both. The files land in public/fonts, which is
-  gitignored, because Fontsource is the source of truth and a copied binary in the repo
-  would only ever drift away from it.
-
-  Only the latin and latin-ext subsets are shipped. The site is written in English, and a
-  reader who needs Cyrillic or Vietnamese gets the fallback stack, which is what they would
-  have got from an unsubsetted webfont on a slow connection anyway.
+  Self hosted fonts. Only the latin and latin-ext subsets ship.
 */
 
 import { mkdir, readFile, writeFile, copyFile, rm } from 'node:fs/promises';
@@ -26,28 +12,25 @@ const OUT_CSS = join(ROOT, 'src', 'styles', 'fonts.generated.css');
 
 const SUBSETS = ['latin', 'latin-ext'];
 
-/*
-  Fraunces ships one file per combination of variable axes. The design sets SOFT and WONK
-  on every heading, and only the "full" build carries both, so the cheaper single axis
-  builds are not an option here.
-*/
 const FAMILIES = [
   {
-    family: 'Fraunces',
-    pkg: '@fontsource-variable/fraunces',
-    /* No italic. The only italics in the design system are on the mono face, and a
-       synthesized oblique on the rare emphasised heading is not worth 150 KB. */
-    css: ['full.css']
+    family: 'Archivo Black',
+    pkg: '@fontsource/archivo-black',
+    css: ['index.css']
   },
   {
-    family: 'Atkinson Hyperlegible Next',
-    pkg: '@fontsource-variable/atkinson-hyperlegible-next',
-    /* Body copy, so real italics matter. Fontsource keeps them in a separate stylesheet. */
+    family: 'Anybody',
+    pkg: '@fontsource-variable/anybody',
+    css: ['index.css']
+  },
+  {
+    family: 'Chivo',
+    pkg: '@fontsource-variable/chivo',
     css: ['index.css', 'wght-italic.css']
   },
   {
-    family: 'Fira Code',
-    pkg: '@fontsource-variable/fira-code',
+    family: 'Martian Mono',
+    pkg: '@fontsource-variable/martian-mono',
     css: ['index.css']
   }
 ];
@@ -101,6 +84,7 @@ for (const { family, pkg, css } of FAMILIES) {
       await copyFile(join(pkgDir, 'files', face.file), join(OUT_DIR, face.file));
       copied++;
 
+      const format = face.weight.includes(' ') ? 'woff2-variations' : 'woff2';
       blocks.push(
         [
           `@font-face {`,
@@ -110,7 +94,7 @@ for (const { family, pkg, css } of FAMILIES) {
           /* swap rather than optional, because the design leans on Fraunces hard enough
              that a permanent fallback would not be the same site. */
           `  font-display: swap;`,
-          `  src: url(/fonts/${face.file}) format('woff2-variations');`,
+          `  src: url(/fonts/${face.file}) format('${format}');`,
           face.unicodeRange ? `  unicode-range: ${face.unicodeRange};` : null,
           `}`
         ]

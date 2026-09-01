@@ -25,6 +25,7 @@ interface Props {
 const { item, level = 3 } = Astro.props;
 const Title = `h${level}` as 'h3' | 'h4';
 const opensYouTube = isVideoKind(item.kind) && item.offsite;
+const dateLabel = item.date.toLocaleDateString('en-US', { month: 'short', day: '2-digit' });
 
 const stats: string[] = [item.length];
 if (item.views !== null) {
@@ -34,27 +35,28 @@ if (item.engagementLikes !== null) {
   const label = item.engagementLikes === 1 ? 'like' : 'likes';
   stats.push(`${item.engagementLikes.toLocaleString('en-US')} ${label}`);
 }
-if (item.kind === 'article' && item.engagementComments !== null) {
-  const label = item.engagementComments === 1 ? 'comment' : 'comments';
-  stats.push(`${item.engagementComments.toLocaleString('en-US')} ${label}`);
-}
 if (item.offsite) {
   stats.push('YouTube');
 }
 ---
 
 <a
-  class="fitem"
+  class={`fitem archive-row${isVideoKind(item.kind) ? ' video-row' : ''}`}
   href={item.href}
   target={opensYouTube ? '_blank' : undefined}
   rel={opensYouTube ? 'noopener noreferrer' : undefined}
 >
-  <span class="kind">{itemKindLabel(item.kind)}</span>
-  <span>
+  <time class="date" datetime={item.date.toISOString()}>{dateLabel}</time>
+  {isVideoKind(item.kind) && item.thumbnail && (
+    <img src={item.thumbnail} alt="" width="176" height="99" loading="lazy" decoding="async" />
+  )}
+  <span class="archive-copy">
+    <span class="kind">{itemKindLabel(item.kind)} / {item.topic}</span>
     <Title>{item.title}</Title>
     {item.description && <p>{item.description}</p>}
   </span>
-  <span class="stat">
+  <span class="stat length">
     {stats.map((s) => <span>{s}</span>)}
   </span>
+  <b class="archive-arrow" aria-hidden="true">&rarr;</b>
 </a>

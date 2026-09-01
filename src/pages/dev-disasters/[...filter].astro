@@ -76,6 +76,7 @@ const viewUrl = (s: string, o: string) => {
 
 const scopeLabel = scope === 'all' ? '' : sevLabel(scope);
 const title = scope === 'all' ? 'dev disasters' : `${scopeLabel} dev disasters`;
+const visibleSorts = DISASTER_SORTS.filter((option) => option.id !== 'replies');
 
 /*
   The empty wall, worded for the view it is on.
@@ -103,7 +104,7 @@ const isDefault = scope === 'all' && sort === 'liked';
   noindex={!isDefault}
   description="Real outages, real bad code, real 2am pages, told by the people who caused them."
 >
-  <main id="main">
+  <main id="main" data-pagefind-ignore>
     <div class="shell">
       <header class="pagehead topichead">
         <span class="path">dev-disasters</span>
@@ -142,7 +143,7 @@ const isDefault = scope === 'all' && sort === 'liked';
         <span class="push"></span>
         <span class="lbl">Sort</span>
         {
-          DISASTER_SORTS.map((o) => (
+          visibleSorts.map((o) => (
             <a
               class={sort === o.id ? 'chip on' : 'chip'}
               aria-current={sort === o.id ? 'true' : undefined}
@@ -167,20 +168,12 @@ const isDefault = scope === 'all' && sort === 'liked';
                 <span class="wq-lab">
                   <b>{disasterCode(d.id)}</b>
                   <span class={`sev ${sevClass(d.severity)}`}>{sevLabel(d.severity)}</span>
-                  {(d.likes > 0 || d.replies > 0) && (
+                  {d.likes > 0 && (
                     <span class="wq-stats">
-                      {d.likes > 0 && (
-                        <span class="st">
-                          <i>&#9825;</i>
-                          {d.likes.toLocaleString('en-US')}
-                        </span>
-                      )}
-                      {d.replies > 0 && (
-                        <span class="st">
-                          <i class="cm">//</i>
-                          {d.replies.toLocaleString('en-US')}
-                        </span>
-                      )}
+                      <span class="st">
+                        <i>&#9825;</i>
+                        {d.likes.toLocaleString('en-US')}
+                      </span>
                     </span>
                   )}
                 </span>
@@ -202,24 +195,6 @@ const isDefault = scope === 'all' && sort === 'liked';
       <div class="below dd-foot">
         <div class="story-cta">
           {rows.length > 0 && <span class="fine">Showing all {rows.length}</span>}
-        </div>
-
-        <div class="rule major"><h2>Your turn</h2></div>
-        <div class="drip">
-          <div>
-            <p class="promise">
-              Somewhere in your git history is a commit you still think about
-            </p>
-            <p>
-              Write it down. Badly, if you want. I'll fix the typos and I will never put
-              your employer's name anywhere near it. Some of these turn into videos, and
-              when one of yours does, you get asked first.
-            </p>
-          </div>
-          <div>
-            <a class="btn primary" href="/submit/">Tell me yours</a>
-            <p class="fine">Post anonymously if you'd rather. No name is ever required.</p>
-          </div>
         </div>
 
         <div class="rule major" id="drip"><h2>The .NET Drip</h2></div>

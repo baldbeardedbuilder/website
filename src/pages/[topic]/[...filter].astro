@@ -1,123 +1,64 @@
 ---
-/*
-  Topic index. Also serves the two filter views at /[topic]/articles/ and
-  /[topic]/videos/.
-
-  The filters are real prerendered URLs rather than client side toggles. Decision 39 is
-  about controls that only act on what has already loaded, and a client side filter over
-  a partially rendered list is exactly that bug. Real URLs are linkable, work with
-  JavaScript off, and cost nothing to build.
-
-  Sort is newest only at launch. Most liked cannot be honest until like counts exist,
-  and a sort control that does nothing is worse than no sort control.
-*/
 import Base from '../../layouts/Base.astro';
 import FeedItem from '../../components/FeedItem.astro';
-import { TOPICS, VISIBLE_TOPICS } from '../../config/site';
-import { isVideoKind, topicView, TOPIC_FILTERS, type TopicFilter } from '../../lib/content';
+import { TOPICS, topicBySlug } from '../../config/site';
+import { itemKindLabel, itemsInTopic } from '../../lib/content';
 
 export async function getStaticPaths() {
-  const paths: Array<{ params: { topic: string; filter?: string }; props: { filter: TopicFilter | null } }> = [];
-  for (const t of TOPICS) {
-    paths.push({ params: { topic: t.slug, filter: undefined }, props: { filter: null } });
-    for (const f of TOPIC_FILTERS) {
-      paths.push({ params: { topic: t.slug, filter: f }, props: { filter: f } });
-    }
-  }
-  return paths;
+  return TOPICS.flatMap((topic) => [
+    { params: { topic: topic.slug, filter: undefined } },
+    { params: { topic: topic.slug, filter: 'articles' } },
+    { params: { topic: topic.slug, filter: 'videos' } }
+  ]);
 }
 
-const { topic: slug } = Astro.params;
-const { filter } = Astro.props as { filter: TopicFilter | null };
-
-const view = await topicView(slug!);
-if (!view) return Astro.rewrite('/404');
-
-const { topic, items, articles, videos } = view;
-
-const shown =
-  filter === 'articles'
-    ? items.filter((i) => i.kind === 'article')
-    : filter === 'videos'
-      ? items.filter((i) => isVideoKind(i.kind))
-      : items;
-
-const base = `/${topic.slug}/`;
-const filters = [
-  { href: base, label: 'Everything', n: items.length, on: filter === null },
-  { href: `${base}articles/`, label: 'Articles', n: articles, on: filter === 'articles' },
-  { href: `${base}videos/`, label: 'Videos', n: videos, on: filter === 'videos' }
-];
-
-const related = VISIBLE_TOPICS.filter((t) => t.slug !== topic.slug);
-const title = filter ? `${topic.title}, ${filter}` : topic.title;
+const slug = String(Astro.params.topic ?? '');
+const filter = String(Astro.params.filter ?? '');
+const topic = topicBySlug(slug)!;
+const all = await itemsInTopic(slug);
+const items = all.filter((item) => {
+  if (filter === 'articles') return item.kind === 'article';
+  if (filter === 'videos') return item.kind === 'video' || item.kind === 'short';
+  return true;
+});
+const title = filter === 'articles'
+  ? `${topic.title} articles`
+  : filter === 'videos'
+    ? `${topic.title} videos`
+    : topic.title;
+const description = filter
+  ? `${itemKindLabel(filter === 'articles' ? 'article' : 'video')}s about ${topic.title}.`
+  : topic.blurb;
 ---
 
-<Base
-  title={title}
-  description={topic.blurb}
-  active={topic.slug}
-  noindex={filter !== null || items.length === 0}
->
-  <main id="main">
-    <div class="shell">
-      <header class="pagehead topichead">
-        <span class="path">topics<span class="sep">/</span><b>{topic.slug}</b></span>
-        <h1><span class="slash">/</span>{topic.slug}</h1>
-        <p class="lede">{topic.blurb}</p>
-      </header>
-
-      {
-        items.length > 0 && (
-          <div class="filters">
-            <span class="lbl" id={`filter-${topic.slug}`}>
-              Show
-            </span>
-            <nav aria-labelledby={`filter-${topic.slug}`}>
-              {filters.map((f) => (
-                <a
-                  class={f.on ? 'chip on' : 'chip'}
-                  href={f.href}
-                  aria-current={f.on ? 'page' : undefined}
-                >
-                  {f.label} <span class="n">{f.n}</span>
-                </a>
-              ))}
-            </nav>
-          </div>
-        )
-      }
-
-      {
-        shown.length > 0 ? (
-          <div class="feed">
-            <h2 class="vh">
-              {filter === 'articles' ? 'Articles' : filter === 'videos' ? 'Videos' : 'Everything'}
-              {' '}filed under {topic.slug}
-            </h2>
-            {shown.map((item) => (
-              <FeedItem item={item} />
-            ))}
-          </div>
-        ) : (
-          <div class="note">
-            <p>
-              Nothing filed under {topic.slug} yet. It is a real topic with real work
-              coming, it just has not landed.
-            </p>
-            <p>
-              <a href="/">Head back to the front page</a> where the newest work lives.
-            </p>
-          </div>
-        )
-      }
-
-      <div class="below" style="padding-top:2rem;">
-        <div class="rule major" style="margin-top:3.5rem;"><h2>Other topics</h2></div>
-        <div class="chips">
-          {related.map((t) => <a class="chip" href={`/${t.slug}/`}>{t.slug}</a>)}
+<Base title={title} description={description} active="topics" noindex={filter !== ''}>
+  <main id="main" class="subpage">
+    <section class="page-hero topic-stage">
+      <div class="page-ghost" aria-hidden="true">{topic.title.toUpperCase()}.</div>
+      <div class="page-hero-grid">
+        <div>
+          <span class="signal-label">Topic / {items.length} {items.length === 1 ? 'piece' : 'pieces'}</span>
+          <h1>{title}</h1>
+        </div>
+        <div class="page-intro">
+          <p>{topic.blurb}</p>
+          <nav class="filter-nav" aria-label={`${topic.title} content filters`}>
+            <a href={`/${slug}/`} aria-current={filter === '' ? 'page' : undefined}>Everything</a>
+            <a href={`/${slug}/articles/`} aria-current={filter === 'articles' ? 'page' : undefined}>Articles</a>
+            <a href={`/${slug}/videos/`} aria-current={filter === 'videos' ? 'page' : undefined}>Videos</a>
+          </nav>
         </div>
       </div>
-    </div>
+    </section>
+    <section class="archive topic-archive">
+      <header class="archive-head">
+        <h2>{filter ? title : `Everything about ${topic.title}.`}</h2>
+        <p>Newest first. No clever sorting hiding the good stuff.</p>
+      </header>
+      {items.length === 0
+        ? <div class="empty-state"><h2>Nothing here yet.</h2><p>I have not published anything in this slice of the topic.</p></div>
+        : <div class="archive-list">{items.map((item) => <FeedItem item={item} />)}</div>}
+      <a class="section-link" href="/topics/">Browse every topic <span>&rarr;</span></a>
+    </section>
   </main>
 </Base>

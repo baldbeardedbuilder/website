@@ -2,16 +2,14 @@
 /*
   Privacy.
 
-  Every claim on this page is checked against the code that makes it true, and where the
-  code does something less flattering than a policy would like to say, the page says the
-  less flattering thing. The two that matter: video thumbnails are served by Google, so
-  the browser does contact them on any page with a video on it, and the like dedupe does
-  involve an address even though it never stores one.
+  Every claim on this page is checked against the code that makes it true. The two details
+  that matter most are easy to miss: video thumbnails come from Google, and like dedupe
+  briefly uses a network address even though it never stores that address.
 
   If a claim here stops matching the code, the code wins and this page is wrong. The
-  places to check are src/lib/reader.ts for the like token and the address hash,
-  src/lib/account.ts for deletion, src/components/VideoEmbed.astro for the thumbnail, and
-  src/layouts/Base.astro for the fonts.
+  places to check are src/lib/likes.ts for the like token and address hash,
+  src/components/VideoEmbed.astro for YouTube, src/components/Drip.astro for the
+  newsletter, and src/layouts/Base.astro for the fonts.
 */
 import Base from '../layouts/Base.astro';
 import { SITE } from '../config/site';
@@ -42,32 +40,11 @@ const held = [
     gone: 'It is never stored as an address and cannot be turned back into one. Rotating the key forgets it entirely'
   },
   {
-    tag: 'Auth',
-    what: 'Basic profile details from the sign-in provider you choose',
-    when: 'You sign in',
-    why: 'To put a name on your comments and help review brand-new accounts',
-    gone: 'Delete your account and it goes with it'
-  },
-  {
-    tag: 'Words',
-    what: 'What you wrote, and when you edited it',
-    when: 'You comment or send a story',
-    why: 'It is the thing you asked me to publish',
-    gone: 'Comments become a tombstone. Published stories stay published'
-  },
-  {
-    tag: 'Email',
-    what: 'Your email address, as your auth source supplied it',
-    when: 'You sign in',
-    why: 'To send the story and direct reply notifications you control',
-    gone: 'Delete your account and it goes with it'
-  },
-  {
-    tag: 'Twitch',
-    what: 'Your Twitch user id',
-    when: 'You link Twitch, which is optional',
-    why: 'To match you to stream history for badges, by id rather than by name',
-    gone: 'Unlink it, or delete your account'
+    tag: 'Legacy',
+    what: 'Records from retired accounts, comments, and story submissions',
+    when: 'You used one of those features while it was available',
+    why: 'They supported the feature you chose to use at the time',
+    gone: 'Email the privacy inbox and I will remove what belongs to you'
   }
 ];
 ---
@@ -94,9 +71,9 @@ const held = [
             <span class="squiggle"><span>without telling me anything.</span></span>
           </h1>
           <p class="lede">
-            Reading needs no account, no cookie banner and no consent dialog, because
-            reading sets nothing that needs consenting to. Everything below is about what
-            happens when you do something, and there is a short list of somethings.
+            Reading needs no account, cookie banner, or consent dialog. Everything below
+            covers the small amount of data the site still uses, plus records left by
+            features that have been retired.
           </p>
         </header>
 
@@ -104,8 +81,8 @@ const held = [
           <div class="callout">
             <span class="tag">The short version</span>
             <p>
-              I keep the least I can get away with, I never sell it, and every piece of it
-              has a way out that you control rather than one that requires emailing me.
+              I keep the least I can get away with, and I never sell it. If an old record
+              still belongs to you, email me and I will remove it.
             </p>
           </div>
 
@@ -154,77 +131,47 @@ const held = [
           <p>
             Fonts are served from this site, not from Google. There is no analytics script,
             no advertising network, no session recorder, and no tag manager. The site sets
-            no cookie at all until you like something or sign in.
+            no cookie at all until you like something.
           </p>
           <p>
             The exception, and it is a real one: video thumbnails are served by Google from
             <code>i.ytimg.com</code>, so on any page showing a video your browser makes a
-            request to Google to fetch that image, and Google sees it. The player itself is
-            not loaded. A YouTube embed would pull roughly 870 KB of Google script onto the
-            page and start talking to them before you had asked for anything, so instead the
-            page shows a still and a play button, and clicking it takes you to YouTube,
-            where their rules apply and mine stop.
+            request to Google to fetch that image, and Google sees it. The player itself
+            does not load until you press play. At that point your browser connects to
+            <code>youtube-nocookie.com</code>, and YouTube's rules apply to the player.
           </p>
           <p>
-            Signing in sends you to the auth provider you chose, and linking Twitch sends 
-						you to Twitch. Both see that you came from here. The pages are hosted by
-						Netlify and the database is Supabase, both of whom process requests on my
-						behalf and neither of whom get anything to use for themselves.
+            The pages are hosted by Netlify and the database is Supabase. Both process
+            requests on my behalf, and neither gets that data to use for themselves.
           </p>
 
-          <h2>Deleting your account</h2>
+          <h2>Records from retired features</h2>
           <p>
-            It is a button on <a href="/account/">your account page</a>, it works
-            immediately, and it does not route through me. It removes your account, your
-            handle, your badges, your address and any Twitch link.
-          </p>
-          <p>
-            Two things survive it, and you should know which before you press it. Comments
-            become tombstones rather than vanishing, because deleting the middle of a
-            conversation makes nonsense of the replies around it, and those replies belong
-            to other people. Stories you have already had published stay published, because
-            they are articles on a public site by then. If you want a published story taken
-            down as well, <a href={`mailto:${SITE.privacyEmail}`}>email the privacy inbox</a>
-            and I will take it down.
+            If you had an account, wrote a comment, or submitted a story before those
+            features were retired, an old record may still exist.
+            <a href={`mailto:${SITE.privacyEmail}`}>Email the privacy inbox</a> and I will
+            remove what belongs to you.
           </p>
 
-          <h2>Email</h2>
+          <h2>Newsletter</h2>
           <p>
-            This site can send three account notifications: when a dev disaster you sent is
-            published, when it reaches the front page, and when somebody replies directly to
-            one of your comments. All three start on. Each has its own switch on
-            <a href="/account/#email-notifications">your account page</a>, and every message
-            has a link that turns off that type without asking you to sign in.
-          </p>
-          <p>
-            The delivery queue stores your account id and the details needed to write the
-            message, but not your email address. The address is read from your auth account
-            at send time and handed to Resend, the delivery provider. Delete the account and
-            its queued messages are deleted with it. The site sends no welcome email, digest
-            or marketing email from that account address.
-          </p>
-          <p>
-            The .NET Drip is the one exception and it is opt in. Its signup box sits on the
-            front page and a handful of others, and it is the only thing here that asks you
-            to type an address. If you use it, that address goes onto the Drip list, which
-						is a newsletter I send from somewhere else. It is not joined to your account,
-						signing in does not put you on it, having an account does not put you on it,
-						and every issue carries its own unsubscribe link.
+            The .NET Drip is opt in. Its signup box is the only place here that asks you to
+            type an email address. If you use it, that address goes to the Drip newsletter,
+            which I send from another service. Every issue carries its own unsubscribe link.
           </p>
 
           <h2>Where you live</h2>
           <p>
             If you are in the UK, the EU, or somewhere with similar law, you have rights to
-            see what I hold, correct it, take it elsewhere and have it deleted. Most of that
-            is a button here already. For anything a button does not cover,
-            <a href={`mailto:${SITE.privacyEmail}`}>email the privacy inbox</a> and I will do
+            see what I hold, correct it, take it elsewhere and have it deleted.
+            <a href={`mailto:${SITE.privacyEmail}`}>Email the privacy inbox</a> and I will do
             it by hand.
           </p>
 
           <h2>Children</h2>
           <p>
-            This is a site about professional software. It is not aimed at children
-            and accounts are not intended for anyone under 16.
+            This is a site about professional software. It is not aimed at children. The
+            newsletter is not intended for anyone under 16.
           </p>
 
           <h2>When this changes</h2>
@@ -236,7 +183,7 @@ const held = [
         </div>
 
         <div class="hero-actions privacy-acts">
-          <a class="btn primary" href="/account/">Your account</a>
+          <a class="btn primary" href={`mailto:${SITE.privacyEmail}`}>Ask about your data</a>
           <a class="btn" href="/terms/">Terms</a>
         </div>
       </article>

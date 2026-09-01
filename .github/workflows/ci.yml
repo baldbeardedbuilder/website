@@ -105,9 +105,7 @@ jobs:
         run: pnpm check:dist
 
       # In this job rather than the browser one because it needs no browser, and it reads
-      # source as well as dist. /report/ is prerender = false, so it writes no file and
-      # every gate that works from the built output is blind to it. a11y is the exception,
-      # since it starts a dev server for exactly that reason.
+      # source as well as dist so server handlers and conditional states are covered too.
       - name: Published addresses
         run: pnpm check:emails
 

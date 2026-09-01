@@ -1,0 +1,50 @@
+---
+import Base from '../layouts/Base.astro';
+import Drip from '../components/Drip.astro';
+import FeedItem from '../components/FeedItem.astro';
+import PageHero from '../components/PageHero.astro';
+import { allItems } from '../lib/content';
+
+const articles = (await allItems()).filter((item) => item.kind === 'article');
+const featured = articles[0];
+---
+
+<Base
+  title="Articles"
+  description="Practical articles about C#, .NET, ASP.NET Core, data, and building software on Windows."
+  active="articles"
+>
+  <main id="main" class="subpage">
+    <PageHero
+      ghost="READ."
+      title="Code is easier"
+      accent="when the why sticks."
+      description="Practical walkthroughs, runnable examples, and the tradeoffs that never fit in the happy path docs."
+      stats={[
+        { label: 'In the archive', value: `${articles.length} articles` },
+        { label: 'Main ingredients', value: '.NET + Windows' }
+      ]}
+    />
+    <section class="archive">
+      <header class="archive-head">
+        <h2>Fresh off the workbench.</h2>
+        <p>Newest first. Pick the problem in front of you, or wander around until something useful falls out.</p>
+      </header>
+      {featured && (
+        <a class="archive-feature" href={featured.href}>
+          <div class="feature-visual"><div class="feature-code">{featured.topic}<br />ARTICLE</div></div>
+          <div class="feature-copy">
+            <span>Newest / {featured.topic} / {featured.length}</span>
+            <h2>{featured.title}</h2>
+            {featured.description && <p>{featured.description}</p>}
+            <strong>Read the article &rarr;</strong>
+          </div>
+        </a>
+      )}
+      <div class="archive-list">
+        {articles.slice(1).map((item) => <FeedItem item={item} />)}
+      </div>
+    </section>
+    <Drip uid="articles" />
+  </main>
+</Base>

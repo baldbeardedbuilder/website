@@ -2,9 +2,8 @@
   Accessibility gate.
 
   WCAG 2.2 AA is a decision, not an aspiration, so it is checked by a script that fails
-  the build rather than by remembering to look. Every page archetype is audited, under a
-  dark theme and a light theme, at a phone width and a desktop width, because contrast
-  and reflow failures only show up in some of those combinations.
+  the build rather than by remembering to look. Every page archetype is audited in the
+  fixed Type Stage palette at phone and desktop widths.
 
   Run it against a built dist. `pnpm a11y` serves dist and does the rest.
 */
@@ -20,7 +19,10 @@ import { provenanceSuffix } from './lib/provenance.mjs';
    a line here, which is the point. */
 const PAGES = [
   ['home', '/'],
+  ['all content', '/all/'],
+  ['articles', '/articles/'],
   ['videos', '/videos/'],
+  ['topics', '/topics/'],
   ['topic index', '/csharp/'],
   ['topic filtered', '/csharp/articles/'],
   /*
@@ -71,17 +73,9 @@ if (!PAGES.some(([label]) => label === 'article')) {
 
 /*
   Pages that are rendered on demand, so they are not in dist and a static audit cannot see
-  them. The report page reads its prefill on the server, which is what keeps it working
-  with JavaScript off, and that is exactly why it must not be the one page nobody checks.
+  them. Unsubscribe reads and validates its token on the server, so it needs a real render.
 */
 const ON_DEMAND = [
-  ['report', '/report/'],
-  ['report prefilled', '/report/?type=comment&ref=00000000-0000-4000-8000-000000000000&target=%2Fcsharp%2F'],
-  ['report sent', '/report/?sent=1'],
-  ['report refused', '/report/?sent=slow'],
-  ['submit', '/submit/'],
-  ['submit sent', '/submit/?sent=1'],
-  ['submit refused', '/submit/?sent=consent'],
   ['unsubscribe missing token', '/unsubscribe/'],
   [
     'unsubscribe confirmation',
@@ -94,9 +88,7 @@ const VIEWPORTS = [
   ['desktop', { width: 1280, height: 900 }]
 ];
 
-/* One dark and one light. hotdog-stand is the harshest palette the generator emits, so
-   it is the one most likely to expose a contrast rule the guard missed. */
-const THEMES = ['bbb-dark', 'bbb-light', 'hotdog-stand'];
+const THEMES = ['type-stage'];
 
 /*
   The 31 July unexplained failure, now explained.
@@ -166,6 +158,40 @@ for (const [vpName, viewport] of VIEWPORTS) {
        this the gate fails a handful of runs in a hundred with a wall of target-size
        violations nobody changed anything to cause. */
     await page.evaluate(() => document.fonts.ready);
+
+    /*
+      Vite can briefly show its own error overlay while the on demand route finishes
+      compiling. Give that one clean retry, then report Vite's message instead of asking
+      axe to grade the overlay as if it were the site.
+    */
+    const viteError = () =>
+      page.evaluate(() => {
+        const root = document.querySelector('vite-error-overlay')?.shadowRoot;
+        if (!root) return null;
+
+        const message = root.getElementById('message-content')?.textContent?.trim();
+        const stack = root.getElementById('stack-content')?.textContent?.trim();
+        return [message, stack?.split('\n').slice(0, 8).join('\n')]
+          .filter(Boolean)
+          .join('\n');
+      });
+
+    let devError = await viteError();
+    if (devError) {
+      const retry = await page.reload({ waitUntil: 'load' });
+      if (!retry || retry.status() !== 200) {
+        failures.push(`${label} ${url} returned ${retry ? retry.status() : 'no response'} on retry`);
+        continue;
+      }
+
+      await page.waitForTimeout(600);
+      await page.evaluate(() => document.fonts.ready);
+      devError = await viteError();
+      if (devError) {
+        failures.push(`${label} [${vpName}] Vite failed to render the route after a retry:\n${devError}`);
+        continue;
+      }
+    }
 
     /*
       Find every disclosure on the page and tag it, so its contents can be audited.
@@ -369,103 +395,34 @@ for (const [vpName, viewport] of VIEWPORTS) {
       failures.push(`${label} [${vpName}] scrolls sideways by ${overflow}px`);
     }
 
-    /*
-      Focus rings on the two controls that are not boxes, WCAG 2.2 success criterion 2.4.7.
-
-      Here rather than in a script of its own because these two pages are prerender = false,
-      so they write no file and this is the only gate with a dev server that can reach them.
-      It is also the same subject: axe has no rule for focus appearance, so a ring that is
-      drawn on the wrong element, or not drawn at all, passes every audit above.
-
-      The defect it was written for shipped on both pages. `.field input:focus` had no
-      exclusion for radios and checkboxes, so clicking an option drew a 2px square around a
-      13px dot floating inside a much larger rounded chip, and it fired on :focus rather
-      than :focus-visible so a mouse click drew it. It was doing the same to the consent
-      checkboxes on submit, on top of the correct .consent rule fifteen lines away, which
-      nobody had noticed because nobody was looking at that control.
-
-      Removing the ring outright was the literal request and would have failed 2.4.7, so
-      what is asserted is that it moved rather than that it went away.
-
-      Transitions are already settled here: every context is opened with reducedMotion
-      'reduce' and app.css collapses transition-duration under it, so a computed style read
-      straight after a state change is the settled one. That is measured in check:headings
-      rather than assumed here.
-
-      Clicks assert a transition rather than a state. Asserting "checked" after a click
-      makes the answer depend on whether the fixture ships pre-ticked, and "no ring" only
-      means something if the click landed at all.
-    */
+    /* Axe does not measure focus appearance, so prove keyboard focus remains visible. */
     const ringed = (el) => {
       const s = getComputedStyle(el);
       return s.outlineStyle !== 'none' && parseFloat(s.outlineWidth) > 0;
     };
 
-    if (await page.locator('.pick input').first().count()) {
-      focusChecked.add(label);
+    await page.evaluate(() => {
+      if (document.activeElement instanceof HTMLElement) document.activeElement.blur();
+    });
+    await page.keyboard.press('Tab');
 
-      const atRest = await page.evaluate((fn) => {
-        const test = new Function('el', `return (${fn})(el)`);
-        return [...document.querySelectorAll('.pick')].filter(
-          (chip) => test(chip) || test(chip.querySelector('input'))
-        ).length;
-      }, ringed.toString());
-      if (atRest > 0) failures.push(`${label} [${vpName}] draws a focus ring on ${atRest} option(s) at rest`);
+    const onKeys = await page.evaluate((fn) => {
+      const test = new Function('el', `return (${fn})(el)`);
+      const active = document.activeElement;
+      if (!(active instanceof HTMLElement)) return { skip: false, ring: false, visible: false };
 
-      /* An option that is not already selected, so the click has somewhere to move to. */
-      const target = await page.evaluate(() => {
-        const chips = [...document.querySelectorAll('.pick')];
-        const chip = chips.find((c) => !c.querySelector('input').checked) ?? chips[0];
-        chip.setAttribute('data-focus-probe', '');
-        return chips.indexOf(chip);
-      });
-      if (target < 0) failures.push(`${label} [${vpName}] has options but none could be probed`);
+      const rect = active.getBoundingClientRect();
+      return {
+        skip: active.matches('.skip'),
+        ring: test(active),
+        visible: rect.width > 0 && rect.height > 0
+      };
+    }, ringed.toString());
+    focusChecked.add(label);
 
-      await page.locator('[data-focus-probe]').click();
-      const onMouse = await page.evaluate((fn) => {
-        const test = new Function('el', `return (${fn})(el)`);
-        const chip = document.querySelector('[data-focus-probe]');
-        const input = chip.querySelector('input');
-        return { checked: input.checked, chip: test(chip), dot: test(input) };
-      }, ringed.toString());
-
-      if (!onMouse.checked) failures.push(`${label} [${vpName}] clicking an option did not select it`);
-      if (onMouse.dot) failures.push(`${label} [${vpName}] a mouse click rings the radio dot`);
-      if (onMouse.chip) failures.push(`${label} [${vpName}] a mouse click rings the option chip`);
-
-      /*
-        Keyboard next. A real key press first, because :focus-visible follows the modality of
-        the last interaction, and the click above has just set that to mouse. Focusing after
-        the press is what a reader arrowing through the group ends up in.
-      */
-      await page.keyboard.press('Tab');
-      await page.evaluate(() => document.querySelector('[data-focus-probe] input').focus());
-      const onKeys = await page.evaluate((fn) => {
-        const test = new Function('el', `return (${fn})(el)`);
-        const chip = document.querySelector('[data-focus-probe]');
-        return { chip: test(chip), dot: test(chip.querySelector('input')) };
-      }, ringed.toString());
-
-      if (!onKeys.chip) failures.push(`${label} [${vpName}] a keyboard focused option draws no ring at all`);
-      if (onKeys.dot) failures.push(`${label} [${vpName}] a keyboard focused option rings the dot as well as the chip`);
-
-      await page.evaluate(() => document.querySelector('[data-focus-probe]')?.removeAttribute('data-focus-probe'));
-    }
-
-    if (await page.locator('.consent input').first().count()) {
-      focusChecked.add(label);
-
-      const before = await page.locator('.consent input').first().isChecked();
-      await page.locator('.consent input').first().click();
-      const consent = await page.evaluate((fn) => {
-        const test = new Function('el', `return (${fn})(el)`);
-        const input = document.querySelector('.consent input');
-        return { checked: input.checked, ring: test(input) };
-      }, ringed.toString());
-
-      if (consent.checked === before) failures.push(`${label} [${vpName}] clicking a consent box did not toggle it`);
-      if (consent.ring) failures.push(`${label} [${vpName}] a mouse click rings the consent checkbox`);
-    }
+    if (!onKeys.skip) failures.push(`${label} [${vpName}] does not focus the skip link first`);
+    if (!onKeys.ring) failures.push(`${label} [${vpName}] keyboard focus draws no ring`);
+    if (!onKeys.visible) failures.push(`${label} [${vpName}] keyboard focus is not visible`);
   }
 
   await context.close();
@@ -491,11 +448,10 @@ if (disclosuresOpened === 0) {
   process.exit(1);
 }
 
-if (focusChecked.size < 2) {
+if (focusChecked.size < 1) {
   /*
-    Fail closed, same reasoning as the disclosures above. Both /report/ and /submit/ carry
-    these controls, so anything under two means a selector stopped matching and the focus
-    checks quietly measured nothing while still reporting clean.
+    Fail closed, same reasoning as the disclosures above. Zero means a selector stopped
+    matching and the focus checks quietly measured nothing while still reporting clean.
   */
   console.error(
     `focus rings were only checked on ${focusChecked.size} page(s): ${[...focusChecked].join(', ') || 'none'}.`

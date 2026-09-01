@@ -1,45 +1,64 @@
 ---
-import Wordmark from './Wordmark.astro';
-import ThemePicker from './ThemePicker.astro';
+import Mark from './Mark.astro';
 import { VISIBLE_TOPICS } from '../config/site';
 
 interface Props {
-  /** Topic slug, or "dd" for dev disasters. Drives the current nav marker. */
   active?: string;
 }
 
 const { active } = Astro.props;
+const topicActive = active === 'topics' || VISIBLE_TOPICS.some((topic) => topic.slug === active);
+const links = [
+  { href: '/#start', label: 'Start here', on: active === 'start' },
+  { href: '/videos/', label: 'Videos', on: active === 'videos' },
+  { href: '/articles/', label: 'Articles', on: active === 'articles' || active === 'all' },
+  { href: '/topics/', label: 'Topics', on: topicActive },
+  { href: '/about/', label: 'About', on: active === 'about' }
+];
 ---
 
-<header class="masthead">
-  <div class="shell">
-    <Wordmark />
-    <nav aria-label="Topics">
-      <ul class="nav">
-        {
-          VISIBLE_TOPICS.map((t) => (
-            <li>
-              <a
-                class={active === t.slug ? 'on' : undefined}
-                aria-current={active === t.slug ? 'page' : undefined}
-                href={`/${t.slug}/`}
-              >
-                {t.label}
-              </a>
-            </li>
-          ))
-        }
-        <li>
-          <a
-            class={`dd${active === 'dd' ? ' on' : ''}`}
-            aria-current={active === 'dd' ? 'page' : undefined}
-            href="/dev-disasters/"
-          >
-            dev disasters
-          </a>
-        </li>
-      </ul>
-    </nav>
-    <ThemePicker />
-  </div>
+<header class="site-header">
+  <a class="site-logo" href="/" aria-label="Bald Bearded Builder home">
+    <Mark />
+    <span>Bald Bearded Builder</span>
+  </a>
+  <button class="menu-button" type="button" aria-expanded="false" aria-controls="site-nav">
+    Menu
+  </button>
+  <nav id="site-nav" class="site-nav" aria-label="Primary navigation">
+    {links.map((link) => (
+      <a href={link.href} aria-current={link.on ? 'page' : undefined}>{link.label}</a>
+    ))}
+    <a class="nav-latest" href="/search/" aria-current={active === 'search' ? 'page' : undefined}>
+      Search <span aria-hidden="true">&rarr;</span>
+    </a>
+  </nav>
 </header>
+
+<script is:inline>
+  (() => {
+    const button = document.querySelector('.menu-button');
+    const nav = document.querySelector('.site-nav');
+    if (!(button instanceof HTMLButtonElement) || !(nav instanceof HTMLElement)) return;
+
+    const close = () => {
+      button.setAttribute('aria-expanded', 'false');
+      nav.classList.remove('open');
+    };
+
+    button.addEventListener('click', () => {
+      const open = button.getAttribute('aria-expanded') !== 'true';
+      button.setAttribute('aria-expanded', String(open));
+      nav.classList.toggle('open', open);
+    });
+    nav.addEventListener('click', (event) => {
+      if (event.target instanceof HTMLAnchorElement) close();
+    });
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') {
+        close();
+        button.focus();
+      }
+    });
+  })();
+</script>

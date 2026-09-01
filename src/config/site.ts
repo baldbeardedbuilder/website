@@ -138,6 +138,7 @@ export const RESERVED_SLUGS = [
   '404',
   'about',
   'all',
+  'articles',
   'blog',
   'builders',
   'conduct',
@@ -145,13 +146,13 @@ export const RESERVED_SLUGS = [
   'images',
   'kitchen-sink',
   'privacy',
-  'report',
   'rss.xml',
   'search',
   'settings',
   'sitemap-index.xml',
   'submit',
   'terms',
+  'topics',
   'uses',
   'videos'
 ] as const;
@@ -202,11 +203,8 @@ export const DISASTER_SORTS = [
  * Words a dev disaster slug can never be, because the archive serves its severity and
  * sort views from those same segments.
  *
- * src/pages/api/disasters.ts folds this into the set of taken slugs before it accepts an
- * AI written one, so a story that drafts as "newest" gets "newest-2" instead of landing
- * on top of the archive. tests/disasters.test.mjs asserts that wiring still exists, which
- * it does because for a while it did not: this list was exported and imported by nothing,
- * and the only thing keeping a slug off a reserved word was a test over a seed file.
+ * The submission route is retired, but these words still belong to archive routes and
+ * remain reserved for stored story slugs.
  */
 export const RESERVED_DISASTER_SLUGS = [
   'all',
@@ -220,24 +218,12 @@ export const SITE = {
   tagline:
     'Bringing smiles to the syntax, because laughter is the best error handler.',
   url: 'https://baldbeardedbuilder.com',
-  /** The comment avatar and the host badge key off this handle. */
-  hostHandle: 'michaeljolley',
-  /*
-    The host's profile id, by uuid rather than by handle.
-
-    A handle is mutable, which is why the schema says nothing else keys off it, and this
-    is a gate: the submission limit in src/pages/api/disasters.ts is skipped for this id.
-    The limit exists because pre moderation makes every submission cost me a read, and it
-    is not protecting me from myself. A rename should not quietly hand that exemption to
-    whoever claims the handle next.
-  */
-  hostProfileId: '5defcc02-0c5e-4311-82ac-4bf5836ad582',
-  hostBadgeLabel: 'The bald one',
   /** Shown on the code of conduct. Bump it whenever the rules actually change. */
-  conductUpdated: '2026-02-02',
-  /** Shown on the privacy and terms pages. Bump both when either actually changes. */
-  privacyUpdated: '2026-08-03',
-  termsUpdated: '2026-08-03',
+  conductUpdated: '2026-08-31',
+  /** Shown on the privacy page. */
+  privacyUpdated: '2026-08-31',
+  /** Shown on the terms page. */
+  termsUpdated: '2026-08-31',
   /*
     Two role addresses, deliberately not one.
 
@@ -255,15 +241,22 @@ export const SITE = {
   privacyEmail: 'privacy@baldbeardedbuilder.com'
 } as const;
 
+export const SOCIAL_IMAGES = {
+  home: 'https://res.cloudinary.com/dk3rdh3yo/image/upload/v1788212079/ograph/home_gphtyx.png',
+  about: 'https://res.cloudinary.com/dk3rdh3yo/image/upload/v1788212081/ograph/about_jfnh7z.png',
+  misc: 'https://res.cloudinary.com/dk3rdh3yo/image/upload/v1788212080/ograph/misc_coebzy.png'
+} as const;
+
 export const EXTERNAL = {
   drip: 'https://dotnetdrip.com',
   youtube: 'https://youtube.com/@baldbeardedbuilder',
   twitch: 'https://twitch.tv/baldbeardedbuilder',
   github: 'https://github.com/michaeljolley',
+  repository: 'https://github.com/baldbeardedbuilder/website',
   bluesky: 'https://bsky.app/profile/baldbeardedbuilder.com',
 	x: 'https://x.com/michaeljolley',
 	linkedin: 'https://linkedin.com/in/michaelwjolley',
-	discord: 'https://discord.gg/4TKgK4TGQA'
+	discord: 'https://bbb.dev/discord'
 } as const;
 
 /**

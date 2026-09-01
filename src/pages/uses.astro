@@ -1,128 +1,64 @@
 ---
-/*
-  Uses.
-
-  No mockup exists for this page, so it borrows the reading layout the about page uses
-  and lays the gear out as a definition list per category. Emoji category icons are gone.
-  They were decoration that a screen reader had to read out loud.
-*/
-import Base from '../layouts/Base.astro';
 import { getCollection } from 'astro:content';
+import Base from '../layouts/Base.astro';
+import PageHero from '../components/PageHero.astro';
 
-const active = (await getCollection('gear')).filter((g) => g.data.status === 'active');
-
-const CATEGORY_ORDER = ['Hardware', 'Software', 'Network', 'Audio', 'Video'];
-
+const active = (await getCollection('gear')).filter((item) => item.data.status === 'active');
+const categoryOrder = ['Hardware', 'Software', 'Network', 'Audio', 'Video'];
 const grouped = new Map<string, typeof active>();
-for (const item of active) {
-  const list = grouped.get(item.data.category) ?? [];
-  list.push(item);
-  grouped.set(item.data.category, list);
-}
-for (const list of grouped.values()) list.sort((a, b) => a.data.rank - b.data.rank);
 
-const categories = [...grouped.keys()].sort((a, b) => {
-  const ai = CATEGORY_ORDER.indexOf(a);
-  const bi = CATEGORY_ORDER.indexOf(b);
-  if (ai === -1 && bi === -1) return a.localeCompare(b);
-  if (ai === -1) return 1;
-  if (bi === -1) return -1;
-  return ai - bi;
+for (const item of active) {
+  grouped.set(item.data.category, [...(grouped.get(item.data.category) ?? []), item]);
+}
+for (const items of grouped.values()) {
+  items.sort((left, right) => left.data.rank - right.data.rank);
+}
+
+const categories = [...grouped.keys()].sort((left, right) => {
+  const leftIndex = categoryOrder.indexOf(left);
+  const rightIndex = categoryOrder.indexOf(right);
+  if (leftIndex === -1 && rightIndex === -1) return left.localeCompare(right);
+  if (leftIndex === -1) return 1;
+  if (rightIndex === -1) return -1;
+  return leftIndex - rightIndex;
 });
 ---
 
-<Base
-  title="Uses"
-  description="The hardware, software and gear behind the streams, the videos and the day job."
->
-  <main id="main">
-    <div class="shell read">
-      <aside class="rail">
-        <dl>
-          <div><dt>Things listed</dt><dd>{active.length}</dd></div>
-          <div><dt>Affiliate links</dt><dd>Where possible. 😁</dd></div>
-        </dl>
-        <span class="fine">Nobody paid for a place on this list.</span>
-      </aside>
-
-      <article data-pagefind-body data-pagefind-filter="kind:page">
-        <header class="storyhead">
-          <span class="path">uses</span>
-          <h1>
-            The gear I actually
-            <span class="squiggle"><span>reach for.</span></span>
-          </h1>
-          <p class="lede">
-            Not a wish list and not a sponsor reel. This is what is plugged in right now,
-            and most of it has been for years.
-          </p>
-        </header>
-
-        {
-          categories.map((category) => (
-            <section class="uses-cat">
-              <h2>{category}</h2>
-              <dl class="uses-list">
-                {grouped.get(category)!.map((item) => (
-                  <div>
-                    <dt>
-                      {item.data.link ? (
-                        <a href={item.data.link} rel="nofollow noopener">
-                          {item.data.title}
-                        </a>
-                      ) : (
-                        item.data.title
-                      )}
-                    </dt>
-                    <dd>{item.data.description ?? ''}</dd>
-                  </div>
-                ))}
-              </dl>
-            </section>
-          ))
-        }
-      </article>
-    </div>
+<Base title="Uses" description="The hardware, software, and services Michael Jolley uses to build and teach." active="uses">
+  <main id="main" class="subpage">
+    <PageHero
+      ghost="TOOLS."
+      title="The gear"
+      accent="that earns its spot."
+      description="This is what I use to write code, make videos, and keep the whole operation moving. Some links are affiliate links. The opinion is still mine."
+      stats={[{ label: 'Listed here', value: `${active.length} tools` }]}
+    />
+    <section class="uses-directory">
+      {categories.map((category, index) => (
+        <section class="uses-group" id={category.toLowerCase()}>
+          <header>
+            <span>{String(index + 1).padStart(2, '0')}</span>
+            <h2>{category}</h2>
+            <i>{grouped.get(category)!.length} {grouped.get(category)!.length === 1 ? 'thing' : 'things'}</i>
+          </header>
+          <div class="uses-list">
+            {grouped.get(category)!.map((item) => (
+              <article class="use-row">
+                <div>
+                  <h3>{item.data.title}</h3>
+                  {item.data.description && <p>{item.data.description}</p>}
+                </div>
+                {item.data.link && (
+                  <a href={item.data.link} target="_blank" rel="nofollow noopener noreferrer">
+                    Visit site <span aria-hidden="true">&nearr;</span>
+                  </a>
+                )}
+              </article>
+            ))}
+          </div>
+        </section>
+      ))}
+      <p class="affiliate-note">If you buy through an affiliate link, I may earn a commission at no extra cost to you. Nobody paid for a place on this list.</p>
+    </section>
   </main>
 </Base>
-
-<style>
-  .uses-cat {
-    margin-top: 2.75rem;
-  }
-  .uses-cat h2 {
-    font-family: var(--mono);
-    font-size: 0.75rem;
-    text-transform: uppercase;
-    letter-spacing: 0.12em;
-    color: var(--fg-dim);
-    margin: 0 0 0.9rem;
-  }
-  .uses-list {
-    display: grid;
-    gap: 0;
-    margin: 0;
-    border-top: 1px solid var(--line);
-  }
-  .uses-list > div {
-    display: grid;
-    grid-template-columns: minmax(11rem, 18rem) 1fr;
-    gap: 1.25rem;
-    padding: 0.85rem 0;
-    border-bottom: 1px solid var(--line);
-  }
-  .uses-list dt {
-    font-weight: 700;
-  }
-  .uses-list dd {
-    margin: 0;
-    color: var(--fg-dim);
-    font-size: 0.9375rem;
-  }
-  @media (max-width: 640px) {
-    .uses-list > div {
-      grid-template-columns: 1fr;
-      gap: 0.25rem;
-    }
-  }
-</style>
