@@ -86,7 +86,7 @@ test('content title layers keep product names and versions together', () => {
   const cases = [
     [
       'Tame Configuration in ASP.NET Core with IValidateOptions',
-      ['Tame Configuration in ASP.NET Core with', 'IValidateOptions']
+      ['Tame Configuration in ASP.NET Core', 'with IValidateOptions']
     ],
     [
       'Avoid These EF Core Mistakes Today',
@@ -102,7 +102,11 @@ test('content title layers keep product names and versions together', () => {
     ],
     [
       'Unit of Work with Entity Framework Core',
-      ['Unit of Work with Entity Framework Core', '']
+      ['Unit of Work with', 'Entity Framework Core']
+    ],
+    [
+      'Build Better Software Every Day with C# API tips now',
+      ['Build Better Software Every Day', 'with C# API tips now']
     ]
   ];
 
@@ -111,11 +115,11 @@ test('content title layers keep product names and versions together', () => {
   }
 });
 
-test('content subheads never exceed 20 characters including spaces', () => {
+test('content subheads never exceed 21 characters including spaces', () => {
   for (const entry of Object.values(taxonomy.entries)) {
     const { ending } = splitSocialTitle(entry.title);
     assert.ok(
-      ending.length <= 20,
+      ending.length <= 21,
       `"${entry.title}" generated a ${ending.length} character subhead: "${ending}"`
     );
   }

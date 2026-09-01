@@ -1,6 +1,20 @@
 const CLOUDINARY_BASE = 'https://res.cloudinary.com/dk3rdh3yo/image/upload';
 const BACKGROUND_COUNT = 6;
-const MAX_SUBHEAD_LENGTH = 20;
+const MAX_SUBHEAD_LENGTH = 21;
+const SUBHEAD_CONNECTORS = new Set([
+  'and',
+  'by',
+  'for',
+  'from',
+  'in',
+  'on',
+  'or',
+  'to',
+  'versus',
+  'vs',
+  'with',
+  'without'
+]);
 const PROTECTED_PRODUCT_NAMES = [
   ['entity', 'framework', 'core'],
   ['visual', 'studio', 'code'],
@@ -75,7 +89,7 @@ export function splitSocialTitle(title: string): { main: string; ending: string 
       !protectedBoundaries.has(boundary) &&
       words.slice(boundary).join(' ').length <= MAX_SUBHEAD_LENGTH
   );
-  const boundary = safeBoundaries.reduce(
+  let boundary = safeBoundaries.reduce(
     (closest, candidate) => {
       const candidateDistance = Math.abs(candidate - idealBoundary);
       const closestDistance = Math.abs(closest - idealBoundary);
@@ -88,6 +102,16 @@ export function splitSocialTitle(title: string): { main: string; ending: string 
   );
 
   if (!boundary) return { main: normalized, ending: '' };
+
+  const connectedBoundary = boundary - 1;
+  if (
+    connectedBoundary > 0 &&
+    SUBHEAD_CONNECTORS.has(productToken(words[connectedBoundary])) &&
+    !protectedBoundaries.has(connectedBoundary) &&
+    words.slice(connectedBoundary).join(' ').length <= MAX_SUBHEAD_LENGTH
+  ) {
+    boundary = connectedBoundary;
+  }
 
   return {
     main: words.slice(0, boundary).join(' '),
