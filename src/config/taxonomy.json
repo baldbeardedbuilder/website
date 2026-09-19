@@ -312,6 +312,17 @@
       "slug": "integrating-notion-with-astro-sites",
       "url": "/dev-life/integrating-notion-with-astro-sites/"
     },
+    "blog:less-prose-more-signal-a-c-guide-to-honest-logs": {
+      "primaryTopic": "csharp",
+      "alsoFiled": [],
+      "source": "keyword",
+      "confidence": 9,
+      "needsReview": false,
+      "reviewed": false,
+      "title": "Less Prose, More Signal: a C# Guide to Honest Logs",
+      "slug": "less-prose-more-signal-a-c-guide-to-honest-logs",
+      "url": "/csharp/less-prose-more-signal-a-c-guide-to-honest-logs/"
+    },
     "blog:live-coding-to-learn-share-and-encourage": {
       "primaryTopic": "dev-life",
       "alsoFiled": [],
@@ -444,6 +455,17 @@
       "slug": "stop-parallelizing-everything-a-practical-guide-to-parallelforeach",
       "url": "/csharp/stop-parallelizing-everything-a-practical-guide-to-parallelforeach/"
     },
+    "blog:stop-sprinkling-async-on-everything-in-aspnet-core": {
+      "primaryTopic": "csharp",
+      "alsoFiled": [],
+      "source": "keyword",
+      "confidence": 10,
+      "needsReview": false,
+      "reviewed": false,
+      "title": "Stop sprinkling async on everything in ASP.NET Core",
+      "slug": "stop-sprinkling-async-on-everything-in-aspnet-core",
+      "url": "/csharp/stop-sprinkling-async-on-everything-in-aspnet-core/"
+    },
     "blog:tame-configuration-in-aspnet-core-with-ivalidateoptions": {
       "primaryTopic": "aspnetcore",
       "alsoFiled": [
@@ -454,6 +476,17 @@
       "title": "Tame Configuration in ASP.NET Core with IValidateOptions",
       "slug": "tame-configuration-in-aspnet-core-with-ivalidateoptions",
       "url": "/aspnetcore/tame-configuration-in-aspnet-core-with-ivalidateoptions/"
+    },
+    "blog:taming-app-settings-in-net-with-the-options-pattern": {
+      "primaryTopic": "csharp",
+      "alsoFiled": [],
+      "source": "keyword",
+      "confidence": 7,
+      "needsReview": false,
+      "reviewed": false,
+      "title": "Taming App Settings in .NET with the Options Pattern",
+      "slug": "taming-app-settings-in-net-with-the-options-pattern",
+      "url": "/csharp/taming-app-settings-in-net-with-the-options-pattern/"
     },
     "blog:the-traps-of-nullable-in-c-sharp": {
       "primaryTopic": "csharp",
@@ -552,6 +585,17 @@
       "title": "Virtual vs Override vs Partial in C# Explained with Small Runnable Examples",
       "slug": "virtual-vs-override-vs-partial-in-c-explained-with-small-runnable-examples",
       "url": "/csharp/virtual-vs-override-vs-partial-in-c-explained-with-small-runnable-examples/"
+    },
+    "blog:yield-return-vs-return-in-c-when-to-stream-and-when-to-deliver": {
+      "primaryTopic": "csharp",
+      "alsoFiled": [],
+      "source": "keyword",
+      "confidence": 12,
+      "needsReview": false,
+      "reviewed": false,
+      "title": "Yield return vs return in C#: when to stream and when to deliver",
+      "slug": "yield-return-vs-return-in-c-when-to-stream-and-when-to-deliver",
+      "url": "/csharp/yield-return-vs-return-in-c-when-to-stream-and-when-to-deliver/"
     },
     "videos:-uGeyE1TSs8": {
       "primaryTopic": "vscode",
@@ -1268,6 +1312,17 @@
       "title": "Building Custom Middleware for ASP.NET Core",
       "slug": "building-custom-middleware-for-asp-net-core",
       "url": "/aspnetcore/building-custom-middleware-for-asp-net-core/"
+    },
+    "videos:cu5no8n0qyE": {
+      "primaryTopic": "csharp",
+      "alsoFiled": [],
+      "source": "keyword",
+      "confidence": 1,
+      "needsReview": true,
+      "reviewed": false,
+      "title": "The C# const trap 🪤",
+      "slug": "the-csharp-const-trap",
+      "url": "/csharp/the-csharp-const-trap/"
     },
     "videos:d0Eah9-t9tY": {
       "primaryTopic": "aspnetcore",

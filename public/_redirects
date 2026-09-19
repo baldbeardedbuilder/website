@@ -14,7 +14,7 @@
 # Resolving from the id fixes it and stops the same rot recurring, because a
 # destination that stops existing now fails the build test instead of the visitor.
 
-# 161 explicit rules
+# 169 explicit rules
 
 /blog/ef-core-audit-logging-with-interceptors-that-do-not-clutter-your-dbcontext/    /data/ef-core-audit-logging-with-interceptors-that-do-not-clutter-your-dbcontext/    301!
 /blog/virtual-vs-override-vs-partial-in-c-explained-with-small-runnable-examples/    /csharp/virtual-vs-override-vs-partial-in-c-explained-with-small-runnable-examples/  301!
@@ -36,8 +36,10 @@
 /blog/how-to-use-whisper-openais-speech-recognition-model-in-1-minute/               /copilot-ai/how-to-use-whisper-openais-speech-recognition-model-in-1-minute/         301!
 /copilot/what-are-vector-databases-and-how-do-they-give-ai-superpowers               /copilot-ai/                                                                         301!
 /blog/how-to-use-whisper-openais-speech-recognition-model-in-1-minute                /copilot-ai/how-to-use-whisper-openais-speech-recognition-model-in-1-minute/         301!
+/blog/yield-return-vs-return-in-c-when-to-stream-and-when-to-deliver/                /csharp/yield-return-vs-return-in-c-when-to-stream-and-when-to-deliver/              301!
 /blog/email-phone-call-transcripts-with-twilio-studio-and-pipedream/                 /cloud/email-phone-call-transcripts-with-twilio-studio-and-pipedream/                301!
 /blog/stop-breaking-clocks-in-aspnet-core-with-utc-and-timezoneinfo/                 /aspnetcore/stop-breaking-clocks-in-aspnet-core-with-utc-and-timezoneinfo/           301!
+/blog/yield-return-vs-return-in-c-when-to-stream-and-when-to-deliver                 /csharp/yield-return-vs-return-in-c-when-to-stream-and-when-to-deliver/              301!
 /blog/email-phone-call-transcripts-with-twilio-studio-and-pipedream                  /cloud/email-phone-call-transcripts-with-twilio-studio-and-pipedream/                301!
 /blog/stop-breaking-clocks-in-aspnet-core-with-utc-and-timezoneinfo                  /aspnetcore/stop-breaking-clocks-in-aspnet-core-with-utc-and-timezoneinfo/           301!
 /blog/five-di-anti-patterns-haunting-net-apps-and-how-to-fix-them/                   /aspnetcore/five-di-anti-patterns-haunting-net-apps-and-how-to-fix-them/             301!
@@ -79,14 +81,18 @@
 /posts/using-netlify-functions-to-add-comments-to-gridsome/                          /                                                                                    301!
 /blog/building-a-discord-bot-to-improve-inclusive-language                           /dev-life/building-a-discord-bot-to-improve-inclusive-language/                      301!
 /blog/choosing-between-dotnet-controllers-and-minimal-apis                           /aspnetcore/choosing-between-dotnet-controllers-and-minimal-apis/                    301!
+/blog/taming-app-settings-in-net-with-the-options-pattern/                           /csharp/taming-app-settings-in-net-with-the-options-pattern/                         301!
 /posts/using-netlify-functions-to-add-comments-to-gridsome                           /                                                                                    301!
 /blog/making-a-man-lessons-learned-from-my-single-mother/                            /dev-life/making-a-man-lessons-learned-from-my-single-mother/                        301!
 /blog/sentiment-analysis-with-opentok-and-azure-face-api/                            /cloud/sentiment-analysis-with-opentok-and-azure-face-api/                           301!
+/blog/stop-sprinkling-async-on-everything-in-aspnet-core/                            /csharp/stop-sprinkling-async-on-everything-in-aspnet-core/                          301!
+/blog/taming-app-settings-in-net-with-the-options-pattern                            /csharp/taming-app-settings-in-net-with-the-options-pattern/                         301!
 /blog/unit-of-work-with-entity-framework-core-done-right/                            /data/unit-of-work-with-entity-framework-core-done-right/                            301!
 /posts/release-notes-with-github-appveyor-octopus-deploy/                            /cloud/automating-release-notes-with-git-hub-app-veyor-and-octopus-deploy/           301!
 /posts/sql-server-in-a-linux-container-to-do-quick-tasks/                            /cloud/using-sql-server-in-docker-containers-for-basic-tasks/                        301!
 /blog/making-a-man-lessons-learned-from-my-single-mother                             /dev-life/making-a-man-lessons-learned-from-my-single-mother/                        301!
 /blog/sentiment-analysis-with-opentok-and-azure-face-api                             /cloud/sentiment-analysis-with-opentok-and-azure-face-api/                           301!
+/blog/stop-sprinkling-async-on-everything-in-aspnet-core                             /csharp/stop-sprinkling-async-on-everything-in-aspnet-core/                          301!
 /blog/unit-of-work-with-entity-framework-core-done-right                             /data/unit-of-work-with-entity-framework-core-done-right/                            301!
 /posts/release-notes-with-github-appveyor-octopus-deploy                             /cloud/automating-release-notes-with-git-hub-app-veyor-and-octopus-deploy/           301!
 /posts/sql-server-in-a-linux-container-to-do-quick-tasks                             /cloud/using-sql-server-in-docker-containers-for-basic-tasks/                        301!
@@ -94,11 +100,13 @@
 /copilot/why-net-ai-smart-components-are-game-changing/                              /copilot-ai/                                                                         301!
 /blog/10-visual-studio-code-extensions-you-need-today/                               /vscode/10-visual-studio-code-extensions-you-need-today/                             301!
 /blog/how-to-update-notion-cover-image-with-javascript                               /cloud/how-to-update-notion-cover-image-with-javascript/                             301!
+/blog/less-prose-more-signal-a-c-guide-to-honest-logs/                               /csharp/less-prose-more-signal-a-c-guide-to-honest-logs/                             301!
 /blog/measure-twice-allocate-once-faster-lists-in-net/                               /csharp/measure-twice-allocate-once-faster-lists-in-net/                             301!
 /copilot/how-do-machine-learning-models-actually-work/                               /copilot-ai/                                                                         301!
 /copilot/why-net-ai-smart-components-are-game-changing                               /copilot-ai/                                                                         301!
 /blog/10-visual-studio-code-extensions-you-need-today                                /vscode/10-visual-studio-code-extensions-you-need-today/                             301!
 /blog/choosing-between-blazor-server-or-web-assembly/                                /blazor/choosing-between-blazor-server-or-web-assembly/                              301!
+/blog/less-prose-more-signal-a-c-guide-to-honest-logs                                /csharp/less-prose-more-signal-a-c-guide-to-honest-logs/                             301!
 /blog/measure-twice-allocate-once-faster-lists-in-net                                /csharp/measure-twice-allocate-once-faster-lists-in-net/                             301!
 /blog/using-netlify-functions-faunadb-for-short-urls/                                /cloud/using-netlify-functions-faunadb-for-short-urls/                               301!
 /copilot/how-do-machine-learning-models-actually-work                                /copilot-ai/                                                                         301!
