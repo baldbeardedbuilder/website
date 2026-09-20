@@ -41,7 +41,7 @@ deploy, Build settings:
 
 | UI field | What the file will impose | Why it matters if they differ |
 | --- | --- | --- |
-| Build command | `pnpm build` | Runs `prebuild` (`pnpm gen`: fonts, themes, taxonomy, redirects) then `astro build` then `postbuild` (pagefind). If the UI currently says `npm run build`, pnpm resolution replaces npm resolution against the same lockfile. |
+| Build command | `pnpm build` | Runs `prebuild` (`pnpm gen`: fonts, taxonomy, redirects), then `astro build`, then `postbuild` (pagefind). |
 | Publish directory | `dist` | Astro's default. A different value here would mean production has been publishing something else. |
 | Node version | `24` | `package.json` says `engines.node: ">=22"`. Everything on this branch was built and tested on 24.14.0. A UI value of 20 or 22 means production has never run the toolchain this branch was written against. |
 | pnpm version | `9` | `package.json` pins `packageManager: "pnpm@9.1.1"`. |

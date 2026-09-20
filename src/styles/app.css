@@ -1,7 +1,6 @@
 /* ==========================================================================
    Bald Bearded Builder
-   Color lives entirely in themes.css and is user controlled.
-   Identity therefore lives here: type, structure, rhythm, and one squiggle.
+   Shared component styles. type-stage.css supplies the palette and page design.
    ========================================================================== */
 
 *, *::before, *::after { box-sizing: border-box; }
@@ -30,7 +29,7 @@ body {
   font-synthesis-weight: none;
 }
 
-body, .card, .prow, .chip, .btn, .swatch i {
+body, .card, .prow, .chip, .btn {
   transition: background-color .18s ease, color .18s ease, border-color .18s ease;
 }
 
@@ -187,58 +186,6 @@ h1, h2, h3, h4 {
 .nav a:hover { color: var(--fg); }
 .nav a.on { color: var(--fg); border-bottom-color: var(--accent); }
 .nav a.dd { color: var(--sev-error); }
-
-/* ---------- theme picker ---------- */
-
-.themer { position: relative; }
-/* The picker cannot work without script, and a control that does nothing is worse than
-   no control at all. The no FOUC script sets html.js in the head, so this never flashes. */
-html:not(.js) .themer { display: none; }
-.themer-btn {
-  display: inline-flex; align-items: center; gap: .5rem;
-  font-family: var(--mono); font-size: .75rem;
-  padding: .45rem .7rem;
-  border: 1px solid var(--line); border-radius: var(--r);
-  background: var(--bg-raised); color: var(--fg-dim);
-  cursor: pointer;
-}
-.themer-btn:hover { color: var(--fg); border-color: var(--accent); }
-.themer-btn .caret { opacity: .6; font-size: .6rem; }
-
-.swatch { display: inline-flex; border-radius: 2px; overflow: hidden; border: 1px solid var(--line); flex: none; }
-.swatch i { display: block; width: .55rem; height: .9rem; }
-
-/* The only place in this file that is not a var(). A drop shadow needs a color that is
-   darker than every surface, and no token guarantees that, so it derives one from the
-   page background instead of hardcoding black. Under Hot Dog Stand that lands as a
-   yellow shadow, which is correct. */
-.themer-menu {  position: absolute; right: 0; top: calc(100% + .5rem);
-  width: 20rem; max-height: calc(100vh - 5.5rem); overflow-y: auto;
-  background: var(--bg-raised);
-  border: 1px solid var(--line); border-radius: var(--r);
-  padding: .4rem;
-  box-shadow: 0 12px 32px color-mix(in srgb, var(--bg) 72%, transparent);
-}
-.themer-menu[hidden] { display: none; }
-/* Dark and Light are group labels, not document headings. Making them h4 put an h4
-   before the h1 on every page in the site, which is a worse outline than no label at
-   all. role="group" plus aria-labelledby says the same thing without lying about
-   structure. */
-.themer-menu .themer-group-label {
-  font-family: var(--mono); font-size: .625rem; font-weight: 500;
-  letter-spacing: .16em; text-transform: uppercase;
-  color: var(--fg-dim); padding: .6rem .6rem .35rem; margin: 0;
-}
-.themer-menu button {
-  display: flex; align-items: center; gap: .65rem; width: 100%;
-  background: none; border: 0; border-radius: 3px;
-  padding: .45rem .6rem; cursor: pointer;
-  font-family: var(--mono); font-size: .8125rem;
-  color: var(--fg-dim); text-align: left;
-}
-.themer-menu button:hover { background: var(--bg-inset); color: var(--fg); }
-.themer-menu button[aria-current="true"] { color: var(--fg); }
-.themer-menu button[aria-current="true"]::after { content: "\2713"; margin-left: auto; color: var(--accent); }
 
 /* ---------- hero: the lead dev disaster as a diagnostic ---------- */
 
@@ -447,10 +394,7 @@ html:not(.js) .themer { display: none; }
   display: inline-flex; gap: .5rem; align-items: baseline;
 }
 .chip:hover { border-color: var(--accent); color: var(--accent); }
-/* The mockup dimmed the count with opacity .6 on top of --fg-dim, which lands under
-   4.5:1 in every one of the sixteen themes. The generator's contrast guard cannot see
-   this because opacity is not a token. Tabular numerals and a slightly smaller size do
-   the same visual job of making the count secondary without dropping the contrast. */
+/* Smaller tabular numerals make counts secondary without reducing their contrast. */
 .chip .n { font-size: .6875rem; font-variant-numeric: tabular-nums; }
 
 /* ---------- drip ---------- */
@@ -549,13 +493,6 @@ html:not(.js) .themer { display: none; }
 }
 .rail .jump.replies:hover { color: var(--accent); border-color: transparent; }
 
-/*
-  Decision 121. The share menu.
-
-  Same shape as .themer-menu on purpose. The site has already taught a reader what a
-  small mono menu hanging off a bordered button does, and a second vocabulary for the
-  same gesture would be a second thing to learn for no gain.
-*/
 .share { position: relative; }
 .share-btn {
   display: inline-flex; align-items: center; gap: .5rem;
@@ -602,8 +539,7 @@ html:not(.js) .themer { display: none; }
   No colour anywhere in here, which is the whole point. The svg takes currentColor, so a
   row is --fg-dim at rest and lifts to --fg with its label from the two rules above. That
   is why brand marks are allowed at all: the objection to them was never the shape, it was
-  that drawing them in brand colour means the first literal colours in this codebase and
-  two of them fight fifteen of the sixteen themes.
+  that brand colors compete with the site's palette.
 
   A fixed box rather than intrinsic width, so five shapes of different proportions share
   one left edge and five labels start in the same place.
@@ -645,14 +581,6 @@ html:not(.js) .themer { display: none; }
 .prose > * + * { margin-top: 1.35rem; }
 .prose h2 { font-size: 1.4rem; margin-top: 2.5rem; }
 
-/* Decision 130. A colour per heading level, resolved per theme by scripts/gen-themes.mjs
-   because CSS cannot ask whether two colours are far apart. Every value here is chosen
-   against that theme's prose colour, its link colour and its page background, so nothing
-   in this block is a constant and nothing needs to be.
-
-   h5 and h6 take the neutral rather than a hue. Michael scoped the request to 2 through
-   4, and they had no rule of their own at all before this, which left them in the body
-   font at browser default sizes: an h5 rendered smaller than the paragraph under it. */
 .prose h3 { font-size: 1.15rem; margin-top: 2rem; }
 .prose h4 { font-size: 1rem; margin-top: 1.75rem; }
 .prose h5, .prose h6 {
@@ -1307,7 +1235,6 @@ input.switch:focus-visible { outline: 2px solid var(--accent); outline-offset: 2
   }
   .nav li { flex: none; }
   .nav a { white-space: nowrap; }
-  .themer { margin-left: auto; }
   .foot-grid { grid-template-columns: 1fr 1fr; }
 }
 
@@ -1329,11 +1256,7 @@ input.switch:focus-visible { outline: 2px solid var(--accent); outline-offset: 2
 
 @media (max-width: 720px) {
   .shell { padding-inline: 1.25rem; }
-  /*
-    The masthead already takes two rows on a phone. While somebody is reading, that
-    space is worth more as page than as sticky chrome, and the theme picker is a set
-    once control rather than something a reader reaches for mid article.
-  */
+  /* Give the reading surface more room on phones. */
   .masthead { position: static; }
   .hero { padding: 2.5rem 0 2rem; }
   .grid, .card.wide { grid-column: auto; }
@@ -1344,7 +1267,6 @@ input.switch:focus-visible { outline: 2px solid var(--accent); outline-offset: 2
   .prow { grid-template-columns: 1fr; gap: .5rem; }
   .prow .loc { text-align: left; }
   .hero-actions .by { margin-left: 0; width: 100%; }
-  .themer-menu { position: fixed; left: 1rem; right: 1rem; width: auto; top: 4rem; }
   /* The rail is full width under the article at this size, so the menu can be too rather
      than sitting at 13rem in a 350px column. */
   .share-menu { width: 100%; min-width: 12rem; }

@@ -86,14 +86,7 @@ export function firstArticlePage() {
   const urls = contentUrls('blog');
   if (!urls.length) return [];
 
-  /*
-    Prefer a page with a code block on it. astro-expressive-code renders its own chrome
-    from the same resolved theme as the rest of the site, which is the whole reason the
-    theme generator resolves one theme for both, so an article without any code silently
-    stops auditing half of what the contrast guard is for. Nine of the fifty built articles
-    have no code in them, so this is a real choice and not a formality: sorted order lands
-    on one that does today, and that is luck rather than intent.
-  */
+  // Prefer a code sample so browser audits cover syntax colors and code block controls.
   const withCode = urls.find((url) =>
     readFileSync(`${DIST}${url}index.html`, 'utf8').includes('expressive-code')
   );

@@ -1,24 +1,6 @@
 /*
-  The share destination marks.
-
-  Decision 128, which reverses half of 121. That decision said no brand marks and no brand
-  colours, but those were one sentence rather than two decisions and only the second half
-  had a reason under it. The objection was that drawing a mark properly means hardcoding X
-  black and Bluesky #0285FF into a codebase with zero literal colours, and those two values
-  fight fifteen of the sixteen themes. The shapes were never the problem.
-
-  So every mark here is path data and nothing else. No fill attribute, no stroke colour, no
-  width. The svg element in ShareMenu.astro takes currentColor, which means a row is
-  --fg-dim at rest and lifts to --fg on hover along with its label, from rules that already
-  existed. Zero literal colours, so the one rule the whole colour system rests on holds.
-
-  Monochrome is also the sanctioned treatment rather than a workaround. All four platforms
-  permit a single colour alternate to the full colour mark, and all four expect it where
-  the mark sits on a surface whose colour is not known in advance. Sixteen themes is that
-  case by definition.
-
-  A leaf module. It holds data, imports nothing at runtime, and the one import it does
-  carry is a type, so the rules can be tested without a browser.
+  Share marks inherit currentColor so each icon follows its label's rest and hover colors.
+  Keeping just the paths here lets the same marks be checked without a browser.
 */
 
 import type { SharePlatform } from './share-links';

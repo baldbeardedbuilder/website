@@ -40,9 +40,7 @@ if (!PAGES.some(([label]) => label === 'article')) {
   process.exit(1);
 }
 
-/* Accessibility is deliberately absent. axe already runs across fifteen archetypes under
-   three themes at two widths, which is a far stronger check than Lighthouse's subset, and
-   having two tools own the same gate means neither of them really does. */
+/* Axe owns accessibility and checks the page archetypes at phone and desktop widths. */
 const THRESHOLDS = {
   performance: 0.95,
   'best-practices': 0.95,

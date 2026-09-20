@@ -65,8 +65,7 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
-      # Fails if a generated artifact was hand edited. themes.css, the font CSS, the
-      # taxonomy map and _redirects are all outputs, never inputs.
+      # Regeneration must match the committed font CSS, taxonomy and redirects.
       - name: Generated artifacts are in sync
         run: pnpm gen:check
 
@@ -158,9 +157,7 @@ jobs:
       - name: Id references
         run: pnpm check:aria
 
-      # Rides along here because it needs a browser and a built dist. Sixteen themes times
-      # five heading levels is 96 computed colors, and the failure being guarded is a
-      # heading that reads as body text or as a link rather than one that looks broken.
+      # Check heading contrast and hierarchy on the built article's reading surface.
       - name: Prose heading color
         run: pnpm check:headings
 

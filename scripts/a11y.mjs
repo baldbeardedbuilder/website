@@ -88,37 +88,6 @@ const VIEWPORTS = [
   ['desktop', { width: 1280, height: 900 }]
 ];
 
-const THEMES = ['type-stage'];
-
-/*
-  The 31 July unexplained failure, now explained.
-
-  A run reported contrast violations on h4 elements and would not reproduce: four full
-  runs, plus 96 targeted audits on /csharp/ and 64 on /videos/ using an exact mirror of
-  this file's browser setup, all clean. The note left here at the time cleared the body
-  colour transition at app.css:34 on the grounds that every context is opened with
-  reducedMotion 'reduce' and app.css collapses transition-duration to .01ms under that.
-
-  That was the wrong conclusion, and it took the same failure coming back to show it. In
-  October the gate failed on the home page on .row > h3 under bbb-light, on the
-  pull_request run, while the push run for the identical commit passed. Reproduced
-  locally at last by throttling the CPU 8x: one run in eight, with axe reporting fgColor
-  #1b1a18 against bgColor #15171a, which is the foreground of the theme being left on the
-  background of the theme being arrived at.
-
-  So the transition was the cause. .01ms is a duration, not an absence, and the swap still
-  has to wait for a frame before anything reads the new colour. On an unloaded machine
-  that frame is immediate and the old 50ms sleep covered it. On a loaded CI runner it is
-  not, and the sleep covered nothing. Both symptoms were the first few headings of a
-  block, which is simply what axe reaches first.
-
-  Two things came out of it, both below in applyTheme and record. The theme swap now waits
-  for the transitions it starts and then proves the page is wearing the theme before
-  auditing, and violations now print the data axe already had. The other half of the old
-  note stands and is worth repeating: the rule id was cut from that first run by
-  `Select-Object -Last 2`, so never do that to a gate that can fail.
-*/
-
 const { server, base } = await serveDist();
 const dev = await serveDev();
 const browser = await chromium.launch();
@@ -193,19 +162,8 @@ for (const [vpName, viewport] of VIEWPORTS) {
       }
     }
 
-    /*
-      Find every disclosure on the page and tag it, so its contents can be audited.
-
-      Found while adding the share menu. A closed disclosure is display: none, so axe walks
-      straight past it, which means the theme picker menu has been on every page of this
-      site since phase one and has never once been audited. Sixteen swatch rows and two
-      group labels, in three themes, checked by nothing.
-
-      The panels are opened rather than the triggers clicked, because a click that lands on
-      the wrong element navigates and the audit then reports on a different page. Every
-      disclosure on this site is either a details element or a panel hidden by the hidden
-      attribute, and both open the same way from here.
-    */
+    /* Axe skips closed disclosures. Open their panels directly so a click cannot
+       accidentally navigate away from the page being audited. */
     const panels = await page.evaluate(() => {
       const found = [];
 
@@ -250,129 +208,46 @@ for (const [vpName, viewport] of VIEWPORTS) {
       if (trigger) trigger.setAttribute('aria-expanded', open ? 'true' : 'false');
     };
 
-    /*
-      Switch theme and wait for the page to actually be wearing it.
+    const audit = () =>
+      new AxeBuilder({ page })
+        .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa', 'best-practice'])
+        // YouTube owns the player markup. The frame's title is checked below.
+        .exclude('iframe[src*="youtube"]');
 
-      Setting data-theme is instant. The colours it implies are not: app.css transitions
-      background-color, color and border-color on body and on several block classes, so
-      the swap starts a transition and everything reads the old colour until that
-      transition's first frame lands. reducedMotion 'reduce' collapses the duration to
-      .01ms, which is not the same as collapsing it to nothing, and a frame on a loaded
-      CI runner can be a long way off.
-
-      That is what was failing this gate at random. Measured with the CPU throttled 8x,
-      one run in eight reported color-contrast on the home page with fgColor #1b1a18 and
-      bgColor #15171a: the foreground of the theme being left and the background of the
-      theme being arrived at, 1.03:1, on text nobody has ever seen rendered that way. The
-      earlier note in this file guessed at the transition and cleared it. The evidence
-      now says it was the transition, and that a 50ms sleep is the wrong instrument.
-
-      So this waits for the thing itself rather than for a number of milliseconds. Two
-      frames to get the change through style, layout and paint, then the transitions it
-      started, awaited by their own promises. Animations are left alone deliberately: a
-      looping one never finishes and would hang the gate.
-    */
-    const applyTheme = async (theme) => {
-      await page.evaluate(async (t) => {
-        document.documentElement.setAttribute('data-theme', t);
-
-        await new Promise((resolve) =>
-          requestAnimationFrame(() => requestAnimationFrame(resolve))
+    // Keep measured colors and ratios in the failure output so contrast errors are actionable.
+    const record = (results, where) => {
+      for (const v of results.violations) {
+        failures.push(
+          `${label}${where} [${vpName}] ${v.id} (${v.impact}): ${v.help}\n` +
+            v.nodes
+              .slice(0, 3)
+              .map((n) => {
+                const why = [...n.any, ...n.all, ...n.none]
+                  .filter((c) => c.data && typeof c.data === 'object')
+                  .map((c) => JSON.stringify(c.data))
+                  .join(' ');
+                return `      ${n.target.join(' ')}${why ? `\n        ${why}` : ''}`;
+              })
+              .join('\n')
         );
-
-        await Promise.all(
-          document
-            .getAnimations()
-            .filter((a) => a instanceof CSSTransition)
-            /* A transition on an element that goes away rejects. That is settled too. */
-            .map((a) => a.finished.catch(() => {}))
-        );
-      }, theme);
-
-      /*
-        Then prove it, rather than assume it. body is color: var(--fg), so the computed
-        colour of body and the --fg of the theme now on the document have to agree. If
-        they ever do not, this reports which two disagree, which is a diagnosis. The
-        alternative is what CI got: a serious contrast violation on three headings and
-        no way to tell it was never real.
-      */
-      return page.evaluate((t) => {
-        const root = document.documentElement;
-        const applied = root.getAttribute('data-theme');
-        if (applied !== t) return `theme was set to ${t} but the document is wearing ${applied}`;
-
-        const hex = getComputedStyle(root).getPropertyValue('--fg').trim();
-        const n = parseInt(hex.slice(1), 16);
-        const want = `rgb(${(n >> 16) & 255}, ${(n >> 8) & 255}, ${n & 255})`;
-        const got = getComputedStyle(document.body).color;
-
-        return got === want ? null : `body is ${got} but ${t} says --fg is ${want}`;
-      }, theme);
+      }
     };
 
-    for (const theme of THEMES) {
-      const unsettled = await applyTheme(theme);
-      if (unsettled) {
-        failures.push(`${label} [${vpName}, ${theme}] never settled: ${unsettled}`);
-        continue;
-      }
+    record(await audit().analyze(), '');
+    checks++;
 
-      const audit = () =>
-        new AxeBuilder({ page })
-          .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa', 'best-practice'])
-          /* YouTube's own player markup, which we do not control and cannot fix. The iframe
-             element itself is still audited, and the title assertion below covers the part
-             that is actually ours. */
-          .exclude('iframe[src*="youtube"]');
+    // Audit one open panel at a time so it cannot obscure the next panel's contents.
+    for (const panel of panels) {
+      await page.evaluate(setDisclosure, { index: panel.index, open: true });
 
-      /*
-        Whatever axe measured, printed next to what it measured it on.
-
-        The contrast rule carries the two colours, the ratio it got and the one it wanted,
-        and without them a failure is a selector and a shrug. This gate has now twice
-        produced a finding nobody could act on, and both times the data that explains it
-        was sitting in the results object being thrown away.
-      */
-      const record = (results, where) => {
-        for (const v of results.violations) {
-          failures.push(
-            `${label}${where} [${vpName}, ${theme}] ${v.id} (${v.impact}): ${v.help}\n` +
-              v.nodes
-                .slice(0, 3)
-                .map((n) => {
-                  const why = [...n.any, ...n.all, ...n.none]
-                    .filter((c) => c.data && typeof c.data === 'object')
-                    .map((c) => JSON.stringify(c.data))
-                    .join(' ');
-                  return `      ${n.target.join(' ')}${why ? `\n        ${why}` : ''}`;
-                })
-                .join('\n')
-          );
-        }
-      };
-
-      /* The page as it actually ships, with every disclosure shut. */
-      record(await audit().analyze(), '');
+      record(
+        await audit().include(`[data-a11y-disclosure="${panel.index}"]`).analyze(),
+        ` (${panel.label} open)`
+      );
       checks++;
+      disclosuresOpened++;
 
-      /*
-        Then each disclosure's own contents, scoped to the panel. Scoping is what keeps the
-        two questions apart: whether the page is accessible, and whether the thing a reader
-        opens on top of it is. Auditing the whole page with a panel open answers neither
-        cleanly, because half the page is behind an opaque box.
-      */
-      for (const panel of panels) {
-        await page.evaluate(setDisclosure, { index: panel.index, open: true });
-
-        record(
-          await audit().include(`[data-a11y-disclosure="${panel.index}"]`).analyze(),
-          ` (${panel.label} open)`
-        );
-        checks++;
-        disclosuresOpened++;
-
-        await page.evaluate(setDisclosure, { index: panel.index, open: false });
-      }
+      await page.evaluate(setDisclosure, { index: panel.index, open: false });
     }
 
     /* Excluding the embed's insides means nothing checks the frame itself any more, and
@@ -439,11 +314,7 @@ if (failures.length) {
 }
 
 if (disclosuresOpened === 0) {
-  /*
-    Fail closed. Every page carries the theme picker, so zero here means the opening step
-    stopped matching anything and the gate has gone back to auditing only what was already
-    on screen, which is the state this was written to end.
-  */
+  // Article share menus give this check real disclosures to open.
   console.error('no disclosures were opened, so their contents were never audited.');
   process.exit(1);
 }

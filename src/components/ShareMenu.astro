@@ -4,30 +4,8 @@ import type { TargetKind } from '../lib/reader';
 import ShareMark from './ShareMark.astro';
 
 /*
-  Decision 121. The share menu.
-
-  Not an island, for the same reason the theme picker is not one: this is a disclosure
-  with five destinations and one clipboard write, and Preact would be paying framework
-  rent for a control that has no state worth managing. The five links are real HTML.
-
-  It is a details element rather than a button and a hidden div, which is the one place
-  this leaves the mockup. A details disclosure opens with no JavaScript at all, so four of
-  the five destinations work for a reader who has it turned off. The mockup could not have
-  known that, because it built its urls from location.href at click time and therefore had
-  nothing to put in an href.
-
-  Building them here instead of at click time also fixes something that would have been
-  found much later. location.href on the Netlify branch deploy is a preview address, so
-  every share taken from staging would have pointed at staging. These are built from
-  Astro.site, so a share always points at the real page.
-
-  Decision 128 reversed half of that. Brand marks go in, monochrome, inheriting the row
-  colour. The two halves of the original ruling were never two decisions, and only the
-  colour half had a reason under it: drawing a mark properly meant hardcoding X black and
-  Bluesky #0285FF into a codebase with zero literal colours, and those two values fight
-  fifteen of the sixteen themes. currentColor removes the objection exactly, and monochrome
-  is the alternate treatment all four brand guidelines already permit for a mark sitting on
-  a surface whose colour is not known in advance.
+  Native details and links keep sharing usable without JavaScript or a Preact island.
+  URLs come from Astro.site so preview builds still share production addresses.
 */
 
 interface Props {

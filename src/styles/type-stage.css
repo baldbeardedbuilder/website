@@ -65,8 +65,7 @@ body,
 .card,
 .prow,
 .chip,
-.btn,
-.swatch i {
+.btn {
   transition: none;
 }
 

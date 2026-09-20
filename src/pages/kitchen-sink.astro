@@ -1,12 +1,7 @@
 ---
-/*
-  Design system proof page. It exists so every primitive in app.css can be checked under
-  all sixteen themes, at 390px and at desktop, with axe pointed at it. Not linked from
-  anywhere and kept out of the index, but built on purpose so CI can assert against it.
-*/
+/* Keep the component samples built and out of the index so changes can be inspected. */
 import Base from '../layouts/Base.astro';
 import { Code } from 'astro-expressive-code/components';
-import { THEMES } from '../lib/themes.generated';
 import { SEVERITIES } from '../config/site';
 
 const sample = `public sealed record Disaster(string Slug, Severity Severity)
@@ -27,8 +22,7 @@ const sample = `public sealed record Disaster(string Slug, Severity Severity)
         <p class="eyebrow">Design system</p>
         <h1>Kitchen <span class="slash">/</span> sink</h1>
         <p class="lede">
-          Every primitive in one place, so a theme that breaks one of them breaks
-          visibly instead of quietly.
+          The site's shared components in one place.
         </p>
       </div>
 
@@ -64,13 +58,13 @@ const sample = `public sealed record Disaster(string Slug, Severity Severity)
       <div class="rule major"><h2>Prose and code</h2></div>
       <div class="prose">
         <p>
-          Body copy sets in Atkinson Hyperlegible Next. Inline <code>var(--tok-key)</code>
+          Body copy sets in Chivo. Inline <code>var(--tok-key)</code>
           should read against the inset surface, and the fenced block below is rendered by
-          Expressive Code using the same resolved tokens.
+          Expressive Code using the site's palette.
         </p>
         <h2>A second level heading</h2>
         <blockquote>
-          A pull quote, which is the only place the display face shows up inside prose.
+          A pull quote gives an idea room to breathe.
         </blockquote>
         <Code code={sample} lang="csharp" title="Disaster.cs" />
       </div>
@@ -94,10 +88,6 @@ const sample = `public sealed record Disaster(string Slug, Severity Severity)
         </article>
       </div>
 
-      <div class="rule major"><h2>Themes in this build</h2></div>
-      <ul class="fine">
-        {THEMES.map((t) => <li>{t.name} <code>{t.id}</code> ({t.scheme})</li>)}
-      </ul>
     </section>
   </main>
 </Base>

@@ -10,14 +10,12 @@
   it is fed. Anything marked hands over that is not on the list becomes escaped text, so
   the worst case for a comment full of markup is that the reader sees the markup.
 
-  Fenced code goes through shiki with the same theme the rest of the site uses, so a loop
-  pasted into a comment is coloured the same as a loop in an article, and follows the
-  theme picker for free because the colours are variables rather than values.
+  Fenced code uses the same syntax scopes and palette variables as article code blocks.
 */
 
 import { marked, type Token, type Tokens } from 'marked';
-import { createHighlighter, type Highlighter, type ThemeRegistration } from 'shiki';
-import ecThemes from './ec-themes.generated.mjs';
+import { createHighlighter, type Highlighter } from 'shiki';
+import codeTheme from './code-theme.mjs';
 
 /*
   Languages a comment can ask for. Every grammar loaded is weight in the function that
@@ -62,21 +60,16 @@ let highlighter: Highlighter | null = null;
 
 async function getHighlighter(): Promise<Highlighter> {
   if (!highlighter) {
-    /*
-      Cloned because shiki mutates the theme it is handed while resolving it, and this one
-      is a module level object shared with the Expressive Code config. Cast because the
-      generated theme is a plain object literal with no TextMate settings array, which is
-      the older shape shiki still accepts but no longer describes in its narrowest type.
-    */
+    // Shiki mutates its theme, so keep the source shared with Expressive Code untouched.
     highlighter = await createHighlighter({
-      themes: [structuredClone(ecThemes[0]) as ThemeRegistration],
+      themes: [structuredClone(codeTheme)],
       langs: [...CODE_LANGS]
     });
   }
   return highlighter;
 }
 
-const THEME_NAME = ecThemes[0].name;
+const THEME_NAME = codeTheme.name;
 
 /** Text going into an HTML body. Ampersand first, or the others get double escaped. */
 function esc(text: string): string {

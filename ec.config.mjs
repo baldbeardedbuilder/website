@@ -1,24 +1,16 @@
 import { defineEcConfig, ExpressiveCodeTheme } from 'astro-expressive-code';
-import ecThemes from './src/lib/ec-themes.generated.mjs';
+import codeTheme from './src/lib/code-theme.mjs';
 
 /*
   Expressive Code lives here rather than in astro.config.mjs because the Code component
   needs the whole options object to survive a JSON round trip, and a separate config
   file is how Expressive Code supports options that cannot.
 
-  One theme, not sixteen. Expressive Code inlines one CSS custom property per configured
-  theme onto every syntax span, so sixteen themes multiplied every code heavy article by
-  sixteen. One real article measured 926 KB of HTML that way, which breaks decision 32
-  far harder than any JavaScript budget would have. The generated theme instead sets
-  every token foreground to var(--tok-*), so the existing [data-theme] cascade in
-  themes.css does all the switching for free and the code always matches the chrome
-  exactly rather than approximately. The same article is 56 KB.
-
-  Every surface color is overridden here rather than left to the theme, because theme
-  workbench colors have to be hex for Expressive Code to parse them, while style
-  overrides accept variables. Nothing hex reaches the page.
+  Syntax colors come from type-stage.css through the shared code theme.
+  Surface overrides use variables too, because Expressive Code's theme parser only
+  accepts hex values for workbench colors.
 */
-const theme = new ExpressiveCodeTheme(ecThemes[0]);
+const theme = new ExpressiveCodeTheme(structuredClone(codeTheme));
 
 /*
   Expressive Code's own script promotes a horizontally scrollable code block to a focusable
@@ -114,17 +106,10 @@ theme.bg = 'var(--bg-inset)';
 export default defineEcConfig({
   themes: [theme],
   plugins: [accessibleCodeBlocks],
-  // One theme means nothing to scope and nothing to switch, so neither a per theme
-  // selector nor the media query default has a job to do. Leaving the selector on would
-  // emit a dead [data-theme="bbb"] block that no page ever matches.
+  // The fixed palette needs neither a theme selector nor a system color-scheme override.
   themeCssSelector: false,
   useDarkModeMediaQuery: false,
-  /*
-    Expressive Code runs its own contrast pass over syntax colors. It cannot evaluate a
-    CSS variable, and gen-themes.mjs already clears 4.5 to 1 against all three surfaces
-    rather than just the code background, so this hands the job to the guard that can
-    actually see the colors.
-  */
+  // Expressive Code cannot measure CSS variables. The palette tests and axe check them.
   minSyntaxHighlightingColorContrast: 0,
   styleOverrides: {
     uiFontFamily: 'var(--mono)',

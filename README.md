@@ -51,7 +51,6 @@ It writes:
 
 | Output | From |
 | :-- | :-- |
-| `src/styles/themes.css`, `src/lib/themes.generated.ts`, `src/lib/ec-themes.generated.mjs` | `scripts/gen-themes.mjs`, which resolves real VS Code themes through shiki |
 | `src/styles/fonts.generated.css` | `scripts/gen-fonts.mjs` |
 | `src/config/taxonomy.json` | `scripts/gen-taxonomy.mjs` |
 | `public/_redirects` | `scripts/gen-redirects.mjs` |
@@ -59,6 +58,12 @@ It writes:
 **Never hand edit any of those.** Edit the generator. `pnpm gen:check` fails the
 build if a generated file differs from what its generator produces, which is
 what stops a hand edit surviving to production.
+
+## Site colors and code highlighting
+
+Edit `src/styles/type-stage.css` to change the fixed site palette. Article code
+blocks and comments share the syntax scopes in `src/lib/code-theme.mjs`, which
+reference those CSS variables. Neither file is generated.
 
 ## Checks
 
