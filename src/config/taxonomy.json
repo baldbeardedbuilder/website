@@ -223,6 +223,17 @@
       "slug": "environment-variables-in-azure-functions-with-key-vault",
       "url": "/cloud/environment-variables-in-azure-functions-with-key-vault/"
     },
+    "blog:field-unlocked-in-c-14-property-logic-without-the-boilerplate": {
+      "primaryTopic": "csharp",
+      "alsoFiled": [],
+      "source": "keyword",
+      "confidence": 8,
+      "needsReview": false,
+      "reviewed": false,
+      "title": "Field Unlocked in C# 14: Property Logic Without the Boilerplate",
+      "slug": "field-unlocked-in-c-14-property-logic-without-the-boilerplate",
+      "url": "/csharp/field-unlocked-in-c-14-property-logic-without-the-boilerplate/"
+    },
     "blog:five-di-anti-patterns-haunting-net-apps-and-how-to-fix-them": {
       "primaryTopic": "aspnetcore",
       "alsoFiled": [
