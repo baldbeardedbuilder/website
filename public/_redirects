@@ -14,7 +14,7 @@
 # Resolving from the id fixes it and stops the same rot recurring, because a
 # destination that stops existing now fails the build test instead of the visitor.
 
-# 171 explicit rules
+# 173 explicit rules
 
 /blog/ef-core-audit-logging-with-interceptors-that-do-not-clutter-your-dbcontext/    /data/ef-core-audit-logging-with-interceptors-that-do-not-clutter-your-dbcontext/    301!
 /blog/virtual-vs-override-vs-partial-in-c-explained-with-small-runnable-examples/    /csharp/virtual-vs-override-vs-partial-in-c-explained-with-small-runnable-examples/  301!
@@ -93,12 +93,14 @@
 /posts/release-notes-with-github-appveyor-octopus-deploy/                            /cloud/automating-release-notes-with-git-hub-app-veyor-and-octopus-deploy/           301!
 /posts/sql-server-in-a-linux-container-to-do-quick-tasks/                            /cloud/using-sql-server-in-docker-containers-for-basic-tasks/                        301!
 /blog/making-a-man-lessons-learned-from-my-single-mother                             /dev-life/making-a-man-lessons-learned-from-my-single-mother/                        301!
+/blog/minimal-cqrs-for-net-small-interfaces-big-clarity/                             /csharp/minimal-cqrs-for-net-small-interfaces-big-clarity/                           301!
 /blog/sentiment-analysis-with-opentok-and-azure-face-api                             /cloud/sentiment-analysis-with-opentok-and-azure-face-api/                           301!
 /blog/stop-sprinkling-async-on-everything-in-aspnet-core                             /csharp/stop-sprinkling-async-on-everything-in-aspnet-core/                          301!
 /blog/unit-of-work-with-entity-framework-core-done-right                             /data/unit-of-work-with-entity-framework-core-done-right/                            301!
 /posts/release-notes-with-github-appveyor-octopus-deploy                             /cloud/automating-release-notes-with-git-hub-app-veyor-and-octopus-deploy/           301!
 /posts/sql-server-in-a-linux-container-to-do-quick-tasks                             /cloud/using-sql-server-in-docker-containers-for-basic-tasks/                        301!
 /blog/how-to-update-notion-cover-image-with-javascript/                              /cloud/how-to-update-notion-cover-image-with-javascript/                             301!
+/blog/minimal-cqrs-for-net-small-interfaces-big-clarity                              /csharp/minimal-cqrs-for-net-small-interfaces-big-clarity/                           301!
 /copilot/why-net-ai-smart-components-are-game-changing/                              /copilot-ai/                                                                         301!
 /blog/10-visual-studio-code-extensions-you-need-today/                               /vscode/10-visual-studio-code-extensions-you-need-today/                             301!
 /blog/how-to-update-notion-cover-image-with-javascript                               /cloud/how-to-update-notion-cover-image-with-javascript/                             301!

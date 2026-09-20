@@ -367,6 +367,17 @@
       "slug": "measure-twice-allocate-once-faster-lists-in-net",
       "url": "/csharp/measure-twice-allocate-once-faster-lists-in-net/"
     },
+    "blog:minimal-cqrs-for-net-small-interfaces-big-clarity": {
+      "primaryTopic": "csharp",
+      "alsoFiled": [],
+      "source": "keyword",
+      "confidence": 9,
+      "needsReview": false,
+      "reviewed": false,
+      "title": "Minimal CQRS for .NET: Small Interfaces, Big Clarity",
+      "slug": "minimal-cqrs-for-net-small-interfaces-big-clarity",
+      "url": "/csharp/minimal-cqrs-for-net-small-interfaces-big-clarity/"
+    },
     "blog:primary-constructors-in-csharp-12-dotnet": {
       "primaryTopic": "csharp",
       "alsoFiled": [],
