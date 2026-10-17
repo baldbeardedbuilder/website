@@ -22,6 +22,11 @@ test('the Astro site has no runtime API routes or Netlify adapter', () => {
   assert.doesNotMatch(read('package.json'), /"@astrojs\/netlify"/);
 });
 
+test('Astro type checks exclude Deno function sources, which Deno checks separately', () => {
+  const config = JSON.parse(read('tsconfig.json'));
+  assert.ok(config.exclude.includes('supabase/functions'));
+});
+
 test('each direct browser function call is configured for public invocation', () => {
   const config = read('supabase/config.toml');
   for (const name of ['like', 'comments', 'share']) {
