@@ -402,7 +402,6 @@ for (const [vpName, viewport] of VIEWPORTS) {
 
 await browser.close();
 server.close();
-dev.stop();
 
 if (failures.length) {
   console.error(`\naxe found ${failures.length} problems across ${checks} audits:\n`);
