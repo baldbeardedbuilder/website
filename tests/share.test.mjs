@@ -130,7 +130,7 @@ test('nothing calls a share intent a share', () => {
   const sources = [
     'supabase/migrations/20260804000000_share_intents.sql',
     'src/lib/share-links.ts',
-    'src/pages/api/share.ts',
+    'supabase/functions/share/index.ts',
     'src/components/ShareMenu.astro'
   ];
 
@@ -144,8 +144,8 @@ test('nothing calls a share intent a share', () => {
 });
 
 test('the share endpoint never answers with a count', () => {
-  const route = read('src/pages/api/share.ts');
-  assert.ok(!/export const GET/.test(route), 'the share endpoint grew a GET');
+  const route = read('supabase/functions/share/index.ts');
+  assert.ok(!/request\.method === 'GET'/.test(route), 'the share endpoint grew a GET');
   assert.ok(!/JSON\.stringify/.test(route), 'the share endpoint grew a response body');
 });
 

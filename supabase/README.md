@@ -82,14 +82,15 @@ migration and commit the result, so CI and a fresh clone never need a Supabase l
 
 ## How writes work
 
-They go through Astro API routes using the service role, not from the browser.
+Like writes, comment reads and share-intent writes go through Supabase Edge Functions, not
+Netlify runtime routes or direct database calls from the browser. The site is a static Astro
+build; the browser calls these public functions with the anon key where headers are
+available, while the functions use Supabase's injected secret key.
 
 That is a deliberate posture rather than an unfinished one. A like needs its IP hashed
-with a secret the browser must never hold. A comment needs a rate limit and a check on
-how old its author's GitHub account is. A submission needs a title written for it before
-it means anything. None of that can be expressed as a row level policy, and a policy
-permissive enough to allow the insert would be a policy permissive enough to skip all of
-it.
+with a secret the browser must never hold, and both likes and share intents are rate
+limited. Those checks live in the functions, not in a browser that can be changed by the
+person asking it to write.
 
 So the policies in `20260710000100_v2_rls` are read only, with exactly two exceptions,
 both called out in the file: a person editing their own profile, and a person changing
@@ -98,14 +99,14 @@ schema but is no longer used by the website.
 
 ## Environment
 
-The build and the routes need these. Never commit them.
+The static build and Edge Functions need these. Never commit them.
 
 | Name | Where | Why |
 |---|---|---|
-| `PUBLIC_SUPABASE_URL` | Netlify, local `.env` | Client and server |
+| `PUBLIC_SUPABASE_URL` | Netlify, local `.env` | Browser calls and static build |
 | `PUBLIC_SUPABASE_ANON_KEY` | Netlify, local `.env` | Client reads |
-| `SUPABASE_SERVICE_ROLE_KEY` | Netlify only, never `PUBLIC_` | Route writes |
-| `LIKE_IP_SECRET` | Netlify only | HMAC key for `likes.ip_hash` |
+| `SUPABASE_SERVICE_ROLE_KEY` | Netlify build only, never `PUBLIC_` | Build-time reads; never reaches the browser |
+| `LIKE_IP_SECRET` | Supabase Edge Function secrets | HMAC key for `likes.ip_hash` and share rate limits |
 | `SUPABASE_AUTH_GITHUB_CLIENT_ID` / `_SECRET` | Supabase dashboard | Sign in |
 | `SUPABASE_AUTH_DISCORD_CLIENT_ID` / `_SECRET` | Supabase dashboard | Sign in |
 | `SUPABASE_AUTH_TWITCH_CLIENT_ID` / `_SECRET` | Supabase dashboard | Sign in, and the badge shelf link |
@@ -113,6 +114,20 @@ The build and the routes need these. Never commit them.
 `LIKE_IP_SECRET` is rotatable. Rotating it does not lose any likes, it just means the
 people who already liked something could like it once more. That is the intended
 tradeoff: the column is a dedupe token with a shelf life, not a stored IP address.
+
+Deploy the public functions after setting `LIKE_IP_SECRET` in Supabase:
+
+```sh
+supabase secrets set LIKE_IP_SECRET=<long-random-value> --project-ref <ref>
+supabase functions deploy like --project-ref <ref>
+supabase functions deploy comments --project-ref <ref>
+supabase functions deploy share --project-ref <ref>
+```
+
+For local functions, put `LIKE_IP_SECRET=<long-random-value>` in the ignored file
+`supabase/functions/.env`. The function code reads Supabase's injected
+`SUPABASE_SECRET_KEYS` map for its database service key; do not create a custom secret
+whose name starts with `SUPABASE_`.
 
 ## Things worth knowing
 

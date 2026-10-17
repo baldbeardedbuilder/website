@@ -63,6 +63,10 @@ jobs:
           node-version: 24
           cache: pnpm
 
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+
       - run: pnpm install --frozen-lockfile
 
       # Fails if a generated artifact was hand edited. themes.css, the font CSS, the
@@ -83,6 +87,13 @@ jobs:
       # that changed shape under a query, a nullable view column read as if it were not.
       - name: Types
         run: pnpm check
+
+      - name: Supabase Edge Function types
+        run: |
+          deno check --no-lock \
+            supabase/functions/like/index.ts \
+            supabase/functions/comments/index.ts \
+            supabase/functions/share/index.ts
 
       - name: Build
         run: pnpm build

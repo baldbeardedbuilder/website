@@ -16,6 +16,12 @@
 */
 
 import { useEffect, useState } from 'preact/hooks';
+import {
+  browserToken,
+  edgeApiConfigured,
+  edgeFunctionUrl,
+  edgeHeaders
+} from '../../lib/edge-api';
 
 interface Props {
   kind: 'content' | 'comment';
@@ -47,8 +53,12 @@ export default function LikeButton({ kind, targetKey, initial, label, compact }:
   useEffect(() => {
     setReady(true);
 
+    const endpoint = edgeFunctionUrl('like');
+    if (!endpoint || !edgeApiConfigured()) return;
+
     let live = true;
-    fetch(`/api/like/?kind=${kind}&key=${encodeURIComponent(targetKey)}`)
+    const params = new URLSearchParams({ kind, key: targetKey, token: browserToken() });
+    fetch(`${endpoint}?${params.toString()}`, { headers: edgeHeaders() })
       .then((r) => (r.ok ? r.json() : null))
       .then((state) => {
         if (!live || !state) return;
@@ -83,10 +93,13 @@ export default function LikeButton({ kind, targetKey, initial, label, compact }:
     setLikes(wasCount + (wasLiked ? -1 : 1));
 
     try {
-      const response = await fetch('/api/like/', {
+      const endpoint = edgeFunctionUrl('like');
+      if (!endpoint || !edgeApiConfigured()) throw new Error('Supabase is not configured.');
+
+      const response = await fetch(endpoint, {
         method: 'POST',
-        headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ kind, key: targetKey })
+        headers: { ...edgeHeaders(), 'content-type': 'application/json' },
+        body: JSON.stringify({ kind, key: targetKey, token: browserToken() })
       });
 
       if (!response.ok) throw new Error(String(response.status));

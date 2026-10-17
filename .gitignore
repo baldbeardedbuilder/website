@@ -53,6 +53,7 @@ shots-*/
 
 # Supabase CLI scratch, holds the linked project ref
 supabase/.temp/
+supabase/functions/.env
 
 # Resumable transcript cache and Supabase import files. These are large backfill artifacts,
 # not application source, and can be regenerated from the video catalogue.

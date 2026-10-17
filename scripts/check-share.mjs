@@ -47,9 +47,9 @@ const context = await browser.newContext({ permissions: ['clipboard-write'] });
 const page = await context.newPage();
 
 /*
-  Beacons are counted in the page rather than at the server. /api/share is an on demand
-  route and is not in dist, so a real request would 404, and counting 404s would be
-  measuring the wrong thing anyway. What is under test is how many times the handler runs.
+  Beacons are counted in the page rather than at Supabase. The edge function is external
+  to this static build, so a real request would depend on deployment configuration.
+  What is under test is how many times the handler runs.
 */
 await page.addInitScript(() => {
   window.__beacons = [];
@@ -118,8 +118,8 @@ function expectOne(sent, label, platform, key) {
     );
   }
 
-  if (sent[0].url !== '/api/share/') {
-    failures.push(`${label}: beaconed ${sent[0].url}, expected /api/share/.`);
+  if (!sent[0].url.endsWith('/functions/v1/share')) {
+    failures.push(`${label}: beaconed ${sent[0].url}, expected the Supabase share function.`);
   }
 }
 

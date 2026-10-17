@@ -117,3 +117,14 @@ file_size_limit = "5MiB"
 
 [analytics]
 enabled = false
+
+# Public endpoints call these functions directly from the browser. They validate inputs,
+# hash addresses and apply the same rate limits as the former Astro routes.
+[functions.like]
+verify_jwt = false
+
+[functions.comments]
+verify_jwt = false
+
+[functions.share]
+verify_jwt = false

@@ -6,7 +6,6 @@ import { defineConfig } from 'astro/config';
 import expressiveCode from 'astro-expressive-code';
 import sitemap from '@astrojs/sitemap';
 import preact from '@astrojs/preact';
-import netlify from '@astrojs/netlify';
 import { rehypeDemoteHeadings } from './src/lib/rehype-demote-headings.mjs';
 
 /*
@@ -77,7 +76,6 @@ export default defineConfig({
   site: 'https://baldbeardedbuilder.com',
   trailingSlash: 'always',
   output: 'static',
-  adapter: netlify(),
   devToolbar: {
     enabled: false
   },

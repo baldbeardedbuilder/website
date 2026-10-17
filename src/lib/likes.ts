@@ -10,92 +10,13 @@
   block that matters, which is one browser hammering the button, without punishing people
   for sharing a connection.
 
-  How a reader is identified lives in reader.ts. This file is only the queries.
+  The Edge Function owns live reads and writes. This file only loads counts for the build.
 */
 
 import { serviceClient, supabaseWritable } from './supabase';
-import { hashIp, isLikeTarget, LIKE_TARGETS, type LikeTarget } from './reader';
+import { isLikeTarget, LIKE_TARGETS, type LikeTarget } from './reader';
 
 export type { TargetKind, LikeTarget } from './reader';
-export { isTargetKind, isLikeTarget, isTargetKey, browserToken, clientIp, hashIp, TOKEN_COOKIE } from './reader';
-
-export interface LikeState {
-  likes: number;
-  liked: boolean;
-}
-
-export async function readLike(
-  kind: LikeTarget,
-  key: string,
-  token: string
-): Promise<LikeState> {
-  if (!supabaseWritable) return { likes: 0, liked: false };
-
-  const db = serviceClient();
-
-  const [{ count }, { data: mine }] = await Promise.all([
-    db
-      .from('likes')
-      .select('id', { count: 'exact', head: true })
-      .eq('target_kind', kind)
-      .eq('target_key', key),
-    db
-      .from('likes')
-      .select('id')
-      .eq('target_kind', kind)
-      .eq('target_key', key)
-      .eq('browser_token', token)
-      .maybeSingle()
-  ]);
-
-  return { likes: count ?? 0, liked: Boolean(mine) };
-}
-
-/**
- * Adds a like, or removes it if this browser already left one.
- *
- * A toggle rather than an add, because a control that cannot be undone is a control
- * people are afraid to press.
- */
-export async function toggleLike(
-  kind: LikeTarget,
-  key: string,
-  token: string,
-  ip: string,
-  profileId: string | null
-): Promise<LikeState> {
-  if (!supabaseWritable) return { likes: 0, liked: false };
-
-  const db = serviceClient();
-
-  const { data: existing } = await db
-    .from('likes')
-    .select('id')
-    .eq('target_kind', kind)
-    .eq('target_key', key)
-    .eq('browser_token', token)
-    .maybeSingle();
-
-  if (existing) {
-    await db.from('likes').delete().eq('id', existing.id);
-  } else {
-    /*
-      Ignoring the error rather than reporting it. The only way this fails is the unique
-      index firing, which means this browser and address already liked this thing, which
-      is the state the reader was asking for anyway. Telling them it went wrong when the
-      outcome is what they wanted would be a lie about a success.
-    */
-    await db.from('likes').insert({
-      target_kind: kind,
-      target_key: key,
-      browser_token: token,
-      ip_hash: hashIp(ip),
-      profile_id: profileId
-    });
-  }
-
-  return readLike(kind, key, token);
-}
 
 /*
   Every count on the site, read once per build and grouped by kind.
