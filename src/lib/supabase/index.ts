@@ -6,12 +6,10 @@
 
   browserClient   anon key, runs in the reader's browser, sees only what RLS allows
   serverClient    anon key plus the reader's cookies, for rendering as that person
-  serviceClient   service role, bypasses RLS entirely, never leaves the server
+  serviceClient   service role, bypasses RLS entirely, never leaves the build server
 
-  The service client is the only thing that writes. That is deliberate and the reasoning
-  lives in supabase/README.md: a like needs its IP hashed with a secret the browser must
-  never hold, and a comment needs a rate limit and a check on the age of its author's
-  GitHub account. None of that survives being enforced in a browser.
+  Astro uses the service client for build-time reads. Live likes and share intents are
+  written by Supabase Edge Functions, where the IP secret stays off the browser.
 */
 
 import { createBrowserClient, createServerClient, parseCookieHeader } from '@supabase/ssr';

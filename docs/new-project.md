@@ -33,7 +33,7 @@ In the Supabase dashboard, **New project**.
 |---|---|---|
 | Organisation | The same one that owns `bvyerlczpakdlfvybkev` | Keeps billing and access in one place. Nothing technical depends on it |
 | Name | `baldbeardedbuilder-v2` | `supabase/config.toml` sets `project_id = "baldbeardedbuilder"`, which is only the local dev container name. The dashboard name is free |
-| Region | **East US (North Virginia)**, `us-east-1` | This one does matter. Netlify functions default to `us-east-1`, and every write on this site goes through an on demand route rather than from the browser. A project in Europe puts a transatlantic round trip inside the request that posts a comment |
+| Region | **East US (North Virginia)**, `us-east-1` | Every database write passes through a Supabase Edge Function rather than going directly from the browser. Keeping the database and functions in the same region avoids adding a round trip to every write |
 | Postgres version | 17 | Matches `major_version = 17` in `config.toml`. Take the default if it is already 17 |
 | Database password | Generate one, store it in the password manager | Needed by `supabase db push`. You will be asked for it once |
 
@@ -93,12 +93,12 @@ Dashboard, **Project Settings**, **API**.
 |---|---|---|
 | Project URL, `https://<ref>.supabase.co` | `PUBLIC_SUPABASE_URL` | Public. Safe in the browser |
 | `anon` `public` key | `PUBLIC_SUPABASE_ANON_KEY` | Public. Safe in the browser |
-| `service_role` `secret` key | `SUPABASE_SERVICE_ROLE_KEY` | **Never** prefixed `PUBLIC_`. Server only |
+| `service_role` `secret` key | `SUPABASE_SERVICE_ROLE_KEY` | **Never** prefixed `PUBLIC_`. Static build only |
 
-The `service_role` key bypasses row level security completely. Every write on this site
-uses it from an API route, which is why the RLS policies are read only. If it ever reaches
-a browser bundle, anybody can write anything. The `PUBLIC_` prefix is the only thing Astro
-uses to decide what ships to the client, so the naming is the guard rail.
+The `service_role` key bypasses row level security completely. Astro uses it during the
+static build to read build-time data, and Supabase Edge Functions use Supabase's injected
+secret-key map for live writes. The browser only receives the anon key. If the service
+key reaches a browser bundle, anybody can write anything.
 
 ---
 
@@ -223,25 +223,46 @@ Netlify, **Site configuration**, **Environment variables**.
 
 Everything below is scoped to **all deploy contexts**: production, deploy previews and
 branch deploys. There is one Supabase project, so staging and production share it. That is
-a deliberate simplification and it has one consequence worth naming out loud: a comment
-posted on the branch deploy is a real comment on the real site. Test with that in mind.
+a deliberate simplification and it has one consequence worth naming out loud: likes and
+share intents from a branch deploy write to the production database. Test with that in
+mind.
 
 | Name | Value | Secret |
 |---|---|---|
 | `PUBLIC_SUPABASE_URL` | `https://<ref>.supabase.co` | No |
 | `PUBLIC_SUPABASE_ANON_KEY` | the `anon` key from step 3 | No |
 | `SUPABASE_SERVICE_ROLE_KEY` | the `service_role` key from step 3 | **Yes** |
-| `LIKE_IP_SECRET` | any long random string you generate | **Yes** |
 
-Mark the secret ones as secret in Netlify so their values are hidden after saving.
-
-`LIKE_IP_SECRET` is the HMAC key behind `likes.ip_hash`. It is rotatable and rotating it
-loses nothing: it just means somebody who already liked a thing could like it once more.
-The column is a dedupe token with a shelf life, not a stored IP address.
+The service role key is used during the static build for private, build-time reads. Mark it
+as secret in Netlify so its value is hidden after saving. Supabase supplies the function
+service key inside Edge Functions; do not copy it into the browser or into a custom
+`SUPABASE_`-prefixed function secret.
 
 ---
 
-## Step 8. Local `.env`, for whoever is developing
+## Step 8. Deploy the Edge Functions
+
+The website is a static Astro build with no Netlify adapter or runtime API routes. Likes,
+comment reads and share-intent tracking call Supabase Edge Functions directly.
+
+Set a long random value as the `LIKE_IP_SECRET` function secret. Supabase rejects custom
+secret names beginning with `SUPABASE_`; this name is intentionally separate from the
+service key that Supabase injects.
+
+```sh
+supabase secrets set LIKE_IP_SECRET=<long-random-value> --project-ref <ref>
+supabase functions deploy like --project-ref <ref>
+supabase functions deploy comments --project-ref <ref>
+supabase functions deploy share --project-ref <ref>
+```
+
+The functions use Supabase's `SUPABASE_SECRET_KEYS` map for privileged database access.
+Set the same `LIKE_IP_SECRET` in `supabase/functions/.env` for local functions. That file
+is ignored by Git.
+
+---
+
+## Step 9. Local `.env`, for whoever is developing
 
 Not committed. Same values, plus one the deploy does not need.
 
@@ -250,16 +271,16 @@ PUBLIC_SUPABASE_URL=https://<ref>.supabase.co
 PUBLIC_SUPABASE_ANON_KEY=<anon key>
 SUPABASE_SERVICE_ROLE_KEY=<service role key>
 SUPABASE_PROJECT_REF=<ref>
-LIKE_IP_SECRET=<any long random string>
 ```
 
 `SUPABASE_PROJECT_REF` is only read by `pnpm types`, which rewrites
 `src/lib/supabase/database.types.ts` from the live schema. That script refuses to run
-against the legacy ref.
+against the legacy ref. For local Edge Functions, copy `LIKE_IP_SECRET=<long random
+value>` into `supabase/functions/.env` instead.
 
 ---
 
-## Step 9. Regenerate the types and commit them
+## Step 10. Regenerate the types and commit them
 
 ```
 pnpm types
@@ -286,7 +307,8 @@ there would describe the old production schema rather than v2.
 6. **Redirect URLs.** Needs the Netlify site name. Do it before anybody tries to sign in
    on a branch deploy, or the failure looks like a bug in the site.
 7. **Netlify variables.** Needs steps 3, and a redeploy to take effect.
-8. **Local `.env`**, then `pnpm types`, then commit.
+8. **Deploy Edge Functions and set `LIKE_IP_SECRET`.** Needs the project ref.
+9. **Local `.env`**, then `pnpm types`, then commit.
 
 Steps 4, 5 and 6 are all "sign in does not work" if any one of them is missed, and they
 fail in ways that look like each other. If sign in misbehaves, check all three before

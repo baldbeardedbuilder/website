@@ -3,6 +3,9 @@
 Everything on this branch is behaviour preserving except one thing, and it is not the
 thing that looks risky.
 
+Netlify serves the static Astro build only. Likes, comment reads, and share-intent tracking
+run in Supabase Edge Functions; deploy them with the steps in `docs/new-project.md`.
+
 ## The change nobody asked for
 
 `netlify.toml` moved from `public/` to the repository root. That part is a tidy up.

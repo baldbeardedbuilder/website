@@ -6,8 +6,8 @@
   nothing about a unique index.
 
   What is worth pinning down is the validation, because both validators guard a write to a
-  table with a unique index on four columns, and the address hash, because it is the one
-  piece of reader data the site touches at all.
+  table with a unique index, and the address hash, because it must remain compatible with
+  the values already stored in Supabase.
 */
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -48,23 +48,24 @@ test('a key longer than a real key is refused', () => {
   assert.equal(isTargetKey('a'.repeat(129)), false);
 });
 
-test('the same address always hashes to the same token', () => {
-  assert.equal(hashIp('203.0.113.7', 's3cret'), hashIp('203.0.113.7', 's3cret'));
+test('the same address always hashes to the same token', async () => {
+  assert.equal(await hashIp('203.0.113.7', 's3cret'), await hashIp('203.0.113.7', 's3cret'));
+  assert.equal(await hashIp('203.0.113.7', 's3cret'), 'eqx8kiJh7sY6jLALuk3hP0pLSFnJ7_LZ');
 });
 
-test('two addresses do not collide', () => {
-  assert.notEqual(hashIp('203.0.113.7', 's3cret'), hashIp('203.0.113.8', 's3cret'));
+test('two addresses do not collide', async () => {
+  assert.notEqual(await hashIp('203.0.113.7', 's3cret'), await hashIp('203.0.113.8', 's3cret'));
 });
 
-test('the hash never contains the address it came from', () => {
-  assert.equal(hashIp('203.0.113.7', 's3cret').includes('203.0.113.7'), false);
+test('the hash never contains the address it came from', async () => {
+  assert.equal((await hashIp('203.0.113.7', 's3cret')).includes('203.0.113.7'), false);
 });
 
-test('rotating the secret forgets who liked what', () => {
-  assert.notEqual(hashIp('203.0.113.7', 'old'), hashIp('203.0.113.7', 'new'));
+test('rotating the secret forgets who liked what', async () => {
+  assert.notEqual(await hashIp('203.0.113.7', 'old'), await hashIp('203.0.113.7', 'new'));
 });
 
-test('with no secret set, the address half collapses instead of pretending to protect', () => {
-  assert.equal(hashIp('203.0.113.7', undefined), 'no-secret');
-  assert.equal(hashIp('198.51.100.1', ''), 'no-secret');
+test('with no secret set, the address half collapses instead of pretending to protect', async () => {
+  assert.equal(await hashIp('203.0.113.7', undefined), 'no-secret');
+  assert.equal(await hashIp('198.51.100.1', ''), 'no-secret');
 });

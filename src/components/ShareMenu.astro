@@ -1,5 +1,6 @@
 ---
 import { OUTBOUND_PLATFORMS, SHARE_LABELS, shareIntentUrl, shareableUrl } from '../lib/share-links';
+import { edgeFunctionUrl } from '../lib/edge-api';
 import type { TargetKind } from '../lib/reader';
 import ShareMark from './ShareMark.astro';
 
@@ -48,9 +49,17 @@ const { path, title, kind, targetKey } = Astro.props;
   as a crash during getStaticPaths.
 */
 const url = shareableUrl(new URL(path, Astro.site ?? 'https://baldbeardedbuilder.com').href);
+const shareEndpoint = edgeFunctionUrl('share') ?? '/functions/v1/share';
 ---
 
-<details class="share" data-share data-kind={kind} data-key={targetKey} data-url={url}>
+<details
+  class="share"
+  data-share
+  data-kind={kind}
+  data-key={targetKey}
+  data-url={url}
+  data-share-endpoint={shareEndpoint}
+>
   <summary class="share-btn">
     <span>Share</span>
     <span class="caret" aria-hidden="true">&#9662;</span>
@@ -141,7 +150,10 @@ const url = shareableUrl(new URL(path, Astro.site ?? 'https://baldbeardedbuilder
       const record = (platform) => {
         if (!navigator.sendBeacon) return;
         try {
-          navigator.sendBeacon('/api/share/', new Blob([body(platform)], { type: 'application/json' }));
+          navigator.sendBeacon(
+            host.dataset.shareEndpoint,
+            new Blob([body(platform)], { type: 'text/plain' })
+          );
         } catch {
           /* Blocked, offline, or a browser that dislikes the type. Nothing to tell anybody. */
         }

@@ -36,14 +36,15 @@ test('shared navigation and bylines do not link to retired account routes', () =
 });
 
 test('anonymous likes never attach retired account ids', () => {
-  const like = read('src', 'pages', 'api', 'like.ts');
+  const like = read('supabase', 'functions', 'like', 'index.ts');
 
-  assert.match(like, /toggleLike\(kind, key, token, ip, null\)/);
+  assert.match(like, /profile_id:\s*null/);
 });
 
 test('retired comment mutations return gone instead of asking for a sign in', () => {
-  const comments = read('src', 'pages', 'api', 'comments.ts');
+  const comments = read('supabase', 'functions', 'comments', 'index.ts');
 
-  assert.match(comments, /Comments are no longer available\.', 410/);
+  assert.match(comments, /Comments are no longer available\./);
+  assert.match(comments, /return json\(\{ error: 'Comments are no longer available\.' \}, 410\)/);
   assert.doesNotMatch(comments, /Sign in to/);
 });
