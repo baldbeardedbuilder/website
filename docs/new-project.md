@@ -65,8 +65,7 @@ leaves those tables missing and every badge migration lands on nothing.
 Both tables arrive empty. `docs/backfill.md` is the spec for filling them, and it is worth
 reading before the load rather than during it.
 
-**Check it worked:** the dashboard table editor should include the tables below, including
-the email outbox.
+**Check it worked:** the dashboard table editor should include the tables below.
 
 ```
 badges            badge_rules       badge_grants      bans
@@ -76,9 +75,10 @@ reserved_handles  streamEvents      streamUsers
 video_pages       video_transcripts
 ```
 
-`email_outbox` and `notification_prefs` arrive together with the rest of the applied chain.
-The queue remains inert until the production delivery variables are configured. See
-`docs/notifications.md`.
+`disasters`, `email_outbox` and `notification_prefs` remain in the schema for existing
+database records and migration history. The website no longer reads or writes them.
+Database triggers may still enqueue notification rows, but the site no longer delivers
+those emails.
 
 `streamEvents` and `streamUsers` keep their camel case quoting from the legacy schema.
 That is not a slip, it is what the columns the badge engine queries are actually called.
@@ -232,21 +232,12 @@ posted on the branch deploy is a real comment on the real site. Test with that i
 | `PUBLIC_SUPABASE_ANON_KEY` | the `anon` key from step 3 | No |
 | `SUPABASE_SERVICE_ROLE_KEY` | the `service_role` key from step 3 | **Yes** |
 | `LIKE_IP_SECRET` | any long random string you generate | **Yes** |
-| `RESEND_API_KEY` | a sending-only Resend key | **Yes** |
-| `MAIL_DELIVERY_ENABLED` | `true` in production only | No |
-| `MAIL_FROM` | `Bald Bearded Builder <hello@baldbeardedbuilder.com>` | No |
-| `MAIL_REPLY_TO` | `hello@baldbeardedbuilder.com` | No |
-| `NOTIFY_SECRET` | a separate long random string | **Yes** |
 
 Mark the secret ones as secret in Netlify so their values are hidden after saving.
 
 `LIKE_IP_SECRET` is the HMAC key behind `likes.ip_hash`. It is rotatable and rotating it
 loses nothing: it just means somebody who already liked a thing could like it once more.
 The column is a dedupe token with a shelf life, not a stored IP address.
-
-Scope the mail variables to production. Delivery still requires Netlify's production
-context in code, but correct scoping prevents a preview from holding credentials it cannot
-use. Follow `docs/notifications.md` for the staged enablement sequence.
 
 ---
 

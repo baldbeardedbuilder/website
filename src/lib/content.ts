@@ -214,18 +214,6 @@ export async function pagedItems(): Promise<Item[]> {
   return (await allItemsIncludingDrafts()).filter((i) => i.url !== null);
 }
 
-/**
- * One item by key, or undefined, drafts included.
- *
- * This is a lookup and not a listing. It exists because a comment can be left on a draft's
- * page, so the notification pointing back at that comment has to resolve an item its own
- * listings would not show. Callers get undefined rather than a throw because an event that
- * no longer resolves is a row to settle, not a build to fail.
- */
-export async function itemByKey(key: string): Promise<Item | undefined> {
-  return (await allItemsIncludingDrafts()).find((i) => i.key === key);
-}
-
 /*
   Decision 111. A CURATED PICK THAT IS NOT PUBLISHED IS AN ERROR, NOT A GAP.
 

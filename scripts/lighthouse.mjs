@@ -15,7 +15,7 @@ import { chromium } from 'playwright';
 import { launch } from 'chrome-launcher';
 import lighthouse from 'lighthouse';
 import { serveDist } from './lib/serve-dist.mjs';
-import { firstArticlePage, firstDisasterPage, firstVideoPage } from './lib/archetypes.mjs';
+import { firstArticlePage, firstVideoPage } from './lib/archetypes.mjs';
 import { provenanceSuffix } from './lib/provenance.mjs';
 
 const videoPages = firstVideoPage();
@@ -28,8 +28,6 @@ const PAGES = [
   ['topic index', '/csharp/'],
   ...firstArticlePage(),
   ...(videoPages.length ? videoPages : [['videos', '/videos/']]),
-  ['disaster archive', '/dev-disasters/'],
-  ...firstDisasterPage()
 ];
 
 if (!PAGES.some(([label]) => label === 'article')) {
@@ -62,10 +60,8 @@ const MAX_SCRIPT_BYTES = {
   home: 1_000,
   'topic index': 1_000,
   videos: 1_000,
-  'disaster archive': 1_000,
   article: 30_000,
-  video: 30_000,
-  disaster: 30_000
+  video: 30_000
 };
 
 const { server, base } = await serveDist();

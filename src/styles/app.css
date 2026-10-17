@@ -30,7 +30,7 @@ body {
   font-synthesis-weight: none;
 }
 
-body, .card, .prow, .chip, .btn, .swatch i {
+body, .card, .chip, .btn, .swatch i {
   transition: background-color .18s ease, color .18s ease, border-color .18s ease;
 }
 
@@ -240,7 +240,7 @@ html:not(.js) .themer { display: none; }
 .themer-menu button[aria-current="true"] { color: var(--fg); }
 .themer-menu button[aria-current="true"]::after { content: "\2713"; margin-left: auto; color: var(--accent); }
 
-/* ---------- hero: the lead dev disaster as a diagnostic ---------- */
+/* ---------- hero ---------- */
 
 .hero { padding: 4.5rem 0 3rem; }
 .hero-top {
@@ -254,9 +254,6 @@ html:not(.js) .themer { display: none; }
   max-width: 18ch;
   margin-bottom: 1.5rem;
 }
-.hero h1 .squiggle { color: var(--sev-error); }
-.hero h1 .squiggle > span { color: var(--fg); }
-
 .hero-excerpt { font-size: 1.1875rem; color: var(--fg-dim); max-width: 46rem; margin: 0 0 2rem; }
 .hero-actions { display: flex; gap: .75rem; align-items: center; flex-wrap: wrap; }
 .hero-actions .by { font-family: var(--mono); font-size: .75rem; color: var(--fg-dim); margin-left: auto; }
@@ -283,48 +280,6 @@ html:not(.js) .themer { display: none; }
 .band-head h2 { font-size: 1.75rem; }
 .band-head .more { margin-left: auto; font-family: var(--mono); font-size: .8125rem; text-decoration: none; }
 .band-note { color: var(--fg-dim); margin: -.75rem 0 1.75rem; max-width: 44rem; }
-
-/* ---------- problems panel: the dev disasters list ---------- */
-
-.panel { border: 1px solid var(--line); border-radius: var(--r); overflow: hidden; }
-.panel-bar {
-  display: flex; align-items: center; gap: 1rem;
-  background: var(--bg-inset);
-  border-bottom: 1px solid var(--line);
-  padding: .55rem .9rem;
-  font-family: var(--mono); font-size: .6875rem;
-  letter-spacing: .14em; text-transform: uppercase; color: var(--fg-dim);
-}
-.panel-bar .count { margin-left: auto; letter-spacing: .04em; text-transform: none; }
-
-.panel-empty {
-  margin: 0;
-  padding: 1.1rem .9rem 1.2rem;
-  background: var(--bg-raised);
-  color: var(--fg-dim);
-  font-family: var(--mono);
-  font-size: .8125rem;
-  line-height: 1.65;
-}
-
-.prow {
-  display: grid;
-  grid-template-columns: 7.5rem 1fr auto;
-  gap: 1.5rem; align-items: center;
-  padding: .85rem .9rem;
-  text-decoration: none; color: inherit;
-  border-bottom: 1px solid var(--line);
-}
-.prow:last-child { border-bottom: 0; }
-.prow:hover { background: var(--bg-raised); }
-.prow .msg { font-size: 1rem; line-height: 1.35; }
-.prow:hover .msg { color: var(--accent); }
-.prow .loc { font-family: var(--mono); font-size: .75rem; color: var(--fg-dim); white-space: nowrap; }
-.prow .tag {
-  font-family: var(--mono); font-size: .625rem; letter-spacing: .1em; text-transform: uppercase;
-  border: 1px solid currentColor; border-radius: 2px; padding: .1rem .35rem;
-  color: var(--sev-warn); margin-left: .5rem; vertical-align: .1em;
-}
 
 /* ---------- latest grid ---------- */
 
@@ -638,9 +593,6 @@ html:not(.js) .themer { display: none; }
 
 .storyhead { margin-bottom: 2rem; }
 .storyhead h1 { font-size: clamp(2rem, 4vw, 3rem); margin: 1rem 0; }
-.storyhead h1 .squiggle { color: var(--sev-error); }
-.storyhead h1 .squiggle > span { color: var(--fg); }
-
 .prose > * { margin: 0; }
 .prose > * + * { margin-top: 1.35rem; }
 .prose h2 { font-size: 1.4rem; margin-top: 2.5rem; }
@@ -947,74 +899,11 @@ footer.foot .tagline { color: var(--fg-dim); font-size: .875rem; margin: 0; max-
 .below .story-cta { display: flex; gap: .9rem; align-items: center; flex-wrap: wrap; margin-top: 1.25rem; }
 .below .story-cta .fine { font-family: var(--mono); font-size: .6875rem; color: var(--fg-dim); }
 
-/* ---------- dev disasters archive ---------- */
-/* Two candidate treatments share one rule: every entry is the same size. Ranking the
-   severities against each other set the funniest stories smallest, which reads as "your
-   embarrassment matters less" on a page that promises nobody gets dunked on. */
-
-/* Version B, the wall. Same data, opposite editorial position: the sentence you remember
-   is the headline and the title drops to a label, because the line is the reason anybody
-   reads these. Severity survives as the rule down the left of each quote. */
-
-.wall { margin-top: 2.25rem; columns: 2; column-gap: 3.5rem; }
-
-.wq {
-  position: relative;
-  break-inside: avoid; -webkit-column-break-inside: avoid;
-  padding: 1.6rem 1.35rem 1.6rem 1.4rem;
-  border-left: 2px solid var(--wqc);
-  border-top: 1px solid var(--line);
-}
-.wall > .wq:first-child { border-top: 0; }
-.wq-error { --wqc: var(--sev-error); }
-.wq-warn  { --wqc: var(--sev-warn); }
-.wq-info  { --wqc: var(--sev-info); }
-.wq-hint  { --wqc: var(--sev-hint); }
-.wq:hover { background: var(--bg-raised); }
-
-.wq-lab { display: flex; align-items: center; gap: .75rem; }
-.wq-lab b {
-  font-family: var(--mono); font-size: .75rem; font-weight: 400;
-  font-variant-numeric: tabular-nums; color: var(--fg-dim);
-}
-.wq-lab .sev { font-size: .625rem; }
-
-/* Likes and replies read at full strength while their markers stay quiet, so the number
-   is what you scan and the glyph only tells you which number it is. */
-.wq-stats { margin-left: auto; display: flex; align-items: baseline; gap: 1.1rem; }
-.wq-stats .st {
-  display: inline-flex; align-items: baseline; gap: .35rem;
-  font-family: var(--mono); font-size: .875rem; font-variant-numeric: tabular-nums;
-  color: var(--fg);
-}
-.wq-stats i { font-style: normal; font-size: .75rem; color: var(--fg-dim); }
-.wq-stats i.cm { font-style: italic; color: var(--tok-com); }
-
-.wq-line {
-  margin: .7rem 0 0;
-  font-family: var(--display); font-variation-settings: "SOFT" 40, "WONK" 1;
-  font-size: 1.375rem; line-height: 1.25; font-weight: 500;
-}
-.wq-line a { color: inherit; text-decoration: none; }
-.wq:hover .wq-line a { color: var(--accent); }
-.wq-line .stretch::after { content: ""; position: absolute; inset: 0; }
-.wq-line .stretch:focus-visible { outline: none; }
-.wq:has(.stretch:focus-visible) { outline: 2px solid var(--accent); outline-offset: -2px; }
-
-.wq-f {
-  display: block; margin-top: .9rem;
-  font-family: var(--mono); font-size: .6875rem; line-height: 1.7; color: var(--fg-dim);
-}
-.wq-f a { position: relative; z-index: 1; color: var(--fg-dim); text-underline-offset: 2px; }
-.wq-f a:hover { color: var(--accent); }
-
 /* ---------- page heads and filters ---------- */
 
 .pagehead { padding: 0rem 0 1.5rem; }
 .pagehead h1 { font-size: clamp(2rem, 4vw, 3rem); margin: .9rem 0; }
 .pagehead h1 .slash { color: var(--accent); font-weight: 400; }
-.pagehead h1 .squiggle { color: var(--sev-error); }
-.pagehead h1 .squiggle > span { color: var(--fg); }
 .pagehead .lede { max-width: 44rem; }
 
 .topichead { margin-top: 2.5rem; }
@@ -1295,11 +1184,6 @@ input.switch:focus-visible { outline: 2px solid var(--accent); outline-offset: 2
   .drip { grid-template-columns: 1fr; gap: 1.75rem; }
   .masthead .shell { flex-wrap: wrap; height: auto; padding-top: .75rem; padding-bottom: .75rem; gap: .75rem 1.25rem; }
   .masthead nav { order: 3; width: 100%; margin-left: 0; }
-  /*
-    Topics stay on one line and leave from the right as space tightens. Dev disasters is
-    the final item and is never part of that priority ladder, so it remains the last
-    visible destination at every width.
-  */
   .nav {
     order: 3; width: 100%; margin-left: 0;
     flex-wrap: nowrap; overflow: visible;
@@ -1341,8 +1225,6 @@ input.switch:focus-visible { outline: 2px solid var(--accent); outline-offset: 2
   .grid { grid-template-columns: 1fr; }
   .card.wide { grid-template-columns: 1fr; gap: .6rem; }
   .card.wide .thumb { max-height: 10rem; }
-  .prow { grid-template-columns: 1fr; gap: .5rem; }
-  .prow .loc { text-align: left; }
   .hero-actions .by { margin-left: 0; width: 100%; }
   .themer-menu { position: fixed; left: 1rem; right: 1rem; width: auto; top: 4rem; }
   /* The rail is full width under the article at this size, so the menu can be too rather
@@ -1358,10 +1240,6 @@ input.switch:focus-visible { outline: 2px solid var(--accent); outline-offset: 2
      on the filter rule. Match the space above the breadcrumb instead. */
   .pagehead { padding-bottom: 2.25rem; }
   .rule.major h2 { font-size: 1.5rem; }
-  /* The wall drops to one column. Two columns of quotes at phone width is one column
-     of fragments. */
-  .wall { columns: 1; }
-  .wq { padding-left: 1rem; padding-right: 1rem; }
   /* Let the header labels stack instead of forcing a horizontal scroll. A four column
      benchmark table fits a phone if "Peak threads" is allowed to be two lines. */
   .prose table { font-size: .875rem; }

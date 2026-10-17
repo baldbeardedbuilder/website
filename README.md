@@ -1,7 +1,7 @@
 # baldbeardedbuilder.com
 
-The personal site of Michael Jolley, the Bald Bearded Builder. Articles, videos,
-dev disasters and the .NET Drip signup. Built with Astro, deployed on Netlify,
+The personal site of Michael Jolley, the Bald Bearded Builder. Articles, videos
+and the .NET Drip signup. Built with Astro, deployed on Netlify,
 with Supabase behind the parts that need an account.
 
 ## Running it
@@ -85,4 +85,4 @@ else passes happily on a machine where those settings do not apply.
 - `docs/new-project.md` for standing up the Supabase project, including the
   GitHub OAuth callback trap that repoints production sign in if you get it
   wrong.
-- `docs/backfill.md` for data imports and `docs/notifications.md` for email operations.
+- `docs/backfill.md` for data imports.

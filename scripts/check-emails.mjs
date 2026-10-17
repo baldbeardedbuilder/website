@@ -42,7 +42,6 @@ import { provenanceSuffix } from './lib/provenance.mjs';
 const ROOT = path.resolve('.');
 const DIST = path.join(ROOT, 'dist');
 const SITE_CONFIG = path.join(ROOT, 'src', 'config', 'site.ts');
-const MAIL_LIB = path.join(ROOT, 'src', 'lib', 'mail.ts');
 
 /** The domain we control. Only addresses here are held to the closed set. */
 const OWN_DOMAIN = 'baldbeardedbuilder.com';
@@ -73,14 +72,12 @@ function isPersonal(localPart) {
   );
 }
 
-/** Reads the role addresses out of site.ts and mail.ts rather than restating them. */
+/** Reads the role addresses out of site.ts rather than restating them. */
 function declaredAddresses() {
   const found = new Set();
-  for (const file of [SITE_CONFIG, MAIL_LIB]) {
-    if (!fs.existsSync(file)) continue;
-    const text = fs.readFileSync(file, 'utf8');
-    for (const match of text.matchAll(EMAIL)) found.add(match[0].toLowerCase());
-  }
+  if (!fs.existsSync(SITE_CONFIG)) return found;
+  const text = fs.readFileSync(SITE_CONFIG, 'utf8');
+  for (const match of text.matchAll(EMAIL)) found.add(match[0].toLowerCase());
   return found;
 }
 

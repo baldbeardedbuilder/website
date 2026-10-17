@@ -149,7 +149,7 @@ const ALSO_FILED_RATIO = 0.5;
  * by tests/taxonomy.test.mjs rather than by importing across the ts boundary.
  */
 const RESERVED = new Set([
-  '404', 'about', 'blog', 'builders', 'conduct', 'dev-disasters', 'images',
+  '404', 'about', 'blog', 'builders', 'conduct', 'images',
   'kitchen-sink', 'privacy', 'rss.xml', 'search', 'settings',
   'sitemap-index.xml', 'submit', 'terms', 'uses', 'videos'
 ]);

@@ -33,8 +33,7 @@ const consumers = [
   path.join('src', 'pages', 'index.astro'),
   path.join('src', 'pages', 'videos.astro'),
   path.join('src', 'pages', 'rss.xml.js'),
-  path.join('src', 'lib', 'starters.ts'),
-  path.join('src', 'lib', 'notifications.ts')
+  path.join('src', 'lib', 'starters.ts')
 ];
 
 test('allItems returns published items only', () => {
@@ -58,21 +57,20 @@ test('wanting drafts requires a name that says so', () => {
 test('the surfaces that build pages are the only ones taking drafts', () => {
   /*
     pagedItems feeds getStaticPaths, and a draft has a real page so it can be previewed
-    before its date. itemByKey resolves a comment notification, which can point at that
-    page. Those are the two, and both are lookups or path builders rather than listings.
+    before its date. itemsByKeys resolves curated picks. Both are lookups or path builders
+    rather than listings.
   */
   const callers = [...content.matchAll(/allItemsIncludingDrafts\(\)/g)];
 
-  /* One definition plus one call each from pagedItems, itemByKey and itemsByKeys. */
+  /* One definition plus one call each from pagedItems and itemsByKeys. */
   assert.equal(
     callers.length,
-    4,
-    `allItemsIncludingDrafts() is referenced ${callers.length} times in content.ts, not 4. ` +
+    3,
+    `allItemsIncludingDrafts() is referenced ${callers.length} times in content.ts, not 3. ` +
       'A new caller has to justify itself here: listings do not take drafts, only page ' +
       'builders and lookups do.'
   );
   assert.match(content, /pagedItems\(\)[\s\S]{0,160}allItemsIncludingDrafts\(\)/);
-  assert.match(content, /itemByKey\(key: string\)[\s\S]{0,300}allItemsIncludingDrafts\(\)/);
 });
 
 test('no consumer filters drafts by hand any more', () => {
@@ -117,7 +115,7 @@ test('itemByUrl is gone', () => {
   /*
     Decision 112. Zero call sites and no draft filter, so the first person to reach for it
     would have inherited the original defect fully formed. Second dead export in two days
-    after RESERVED_DISASTER_SLUGS, which at least claimed a call site it did not have.
+    but no call sites, which would let an unused helper's draft behaviour go unexamined.
   */
   assert.doesNotMatch(
     content,

@@ -3,8 +3,7 @@
 
   Decision 16 is post moderation: a comment publishes the moment it is written, with rate
   limits, a hold on brand new GitHub accounts, an auto hide once enough people report it,
-  and a ban flag. Nothing waits in a queue for approval, which is the opposite of how dev
-  disasters work. Both of those are correct and it is worth keeping them straight.
+  and a ban flag.
 
   Decision 9 allows one level of threading. The database enforces it with a trigger, so
   this file does not have to be the only thing standing between a reply and a reply to a
@@ -308,10 +307,7 @@ let allReplies: Map<TargetKind, Map<string, number>> | null = null;
 async function loadReplies(): Promise<Map<TargetKind, Map<string, number>>> {
   if (allReplies) return allReplies;
 
-  const built = new Map<TargetKind, Map<string, number>>([
-    ['content', new Map()],
-    ['disaster', new Map()]
-  ]);
+  const built = new Map<TargetKind, Map<string, number>>([['content', new Map()]]);
 
   if (supabaseWritable) {
     const { data } = await serviceClient()

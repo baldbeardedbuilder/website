@@ -7,15 +7,15 @@
 import Base from '../layouts/Base.astro';
 import { Code } from 'astro-expressive-code/components';
 import { THEMES } from '../lib/themes.generated';
-import { SEVERITIES } from '../config/site';
+import { STATUS_TONES } from '../config/site';
 
-const sample = `public sealed record Disaster(string Slug, Severity Severity)
+const sample = `public sealed record BuildJob(string Name, Status Status)
 {
-    public static Disaster Parse(string raw)
+    public static BuildJob Parse(string raw)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(raw);
-        var parts = raw.Split(':', 2);
-        return new Disaster(parts[0], Enum.Parse<Severity>(parts[1], true));
+        var parts = raw.Split('=', 2);
+        return new BuildJob(parts[0], Enum.Parse<Status>(parts[1], true));
     }
 }`;
 ---
@@ -32,10 +32,10 @@ const sample = `public sealed record Disaster(string Slug, Severity Severity)
         </p>
       </div>
 
-      <div class="rule major"><h2>Severities</h2></div>
+      <div class="rule major"><h2>Status tones</h2></div>
       <div class="chips">
         {
-          SEVERITIES.map((s) => (
+          STATUS_TONES.map((s) => (
             <span class={`sev sev-${s.id === 'warning' ? 'warn' : s.id}`}>{s.label}</span>
           ))
         }
@@ -72,7 +72,7 @@ const sample = `public sealed record Disaster(string Slug, Severity Severity)
         <blockquote>
           A pull quote, which is the only place the display face shows up inside prose.
         </blockquote>
-        <Code code={sample} lang="csharp" title="Disaster.cs" />
+        <Code code={sample} lang="csharp" title="BuildJob.cs" />
       </div>
       <div class="rule major"><h2>Callout</h2></div>
       <div class="callout">

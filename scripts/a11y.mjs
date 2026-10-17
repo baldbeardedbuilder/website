@@ -11,8 +11,7 @@
 import { chromium } from 'playwright';
 import { AxeBuilder } from '@axe-core/playwright';
 import { serveDist } from './lib/serve-dist.mjs';
-import { serveDev } from './lib/serve-dev.mjs';
-import { firstArticlePage, firstDisasterPage } from './lib/archetypes.mjs';
+import { firstArticlePage } from './lib/archetypes.mjs';
 import { provenanceSuffix } from './lib/provenance.mjs';
 
 /* One of each archetype rather than all 199 pages. Adding a new archetype means adding
@@ -27,7 +26,7 @@ const PAGES = [
   ['topic filtered', '/csharp/articles/'],
   /*
     The article archetype is discovered rather than named. It used to be a hardcoded slug
-    sitting in this file alongside the disaster function that exists to avoid exactly that,
+    sitting in this file alongside the discovery function that exists to avoid exactly that,
     and it named a post in the src/content submodule, which Michael edits without touching
     this repo. One rename for SEO and this gate went red on a build where no site code
     changed, which is decision 117 straight through the middle.
@@ -39,15 +38,6 @@ const PAGES = [
     hardcoding a URL here just makes the gate fail on a page nobody asked for. The videos
     index above is the surface every video actually has.
   */
-  ['disaster archive', '/dev-disasters/'],
-  ['disaster filtered', '/dev-disasters/error/newest/'],
-  /*
-    The disaster detail archetype is discovered rather than named, for the same reason the
-    video page above is absent: it only exists once somebody has told a story and Michael
-    has published it, and there are none yet. Both discoveries live in scripts/lib/archetypes.mjs
-    with the history of why.
-  */
-  ...firstDisasterPage(),
   ['about', '/about/'],
   ['conduct', '/conduct/'],
   ['privacy', '/privacy/'],
@@ -70,18 +60,6 @@ if (!PAGES.some(([label]) => label === 'article')) {
   );
   process.exit(1);
 }
-
-/*
-  Pages that are rendered on demand, so they are not in dist and a static audit cannot see
-  them. Unsubscribe reads and validates its token on the server, so it needs a real render.
-*/
-const ON_DEMAND = [
-  ['unsubscribe missing token', '/unsubscribe/'],
-  [
-    'unsubscribe confirmation',
-    '/unsubscribe/?token=00000000-0000-4000-8000-000000000000&kind=comment_reply'
-  ]
-];
 
 const VIEWPORTS = [
   ['phone', { width: 390, height: 844 }],
@@ -120,15 +98,9 @@ const THEMES = ['type-stage'];
 */
 
 const { server, base } = await serveDist();
-const dev = await serveDev();
 const browser = await chromium.launch();
 
-/* One list of absolute URLs, so the audit loop does not have to care which server a page
-   came from. Everything after this point treats them identically, which is the point. */
-const TARGETS = [
-  ...PAGES.map(([label, path]) => [label, base + path]),
-  ...ON_DEMAND.map(([label, path]) => [label, dev.base + path])
-];
+const TARGETS = PAGES.map(([label, path]) => [label, base + path]);
 
 const failures = [];
 let checks = 0;
@@ -430,7 +402,6 @@ for (const [vpName, viewport] of VIEWPORTS) {
 
 await browser.close();
 server.close();
-dev.stop();
 
 if (failures.length) {
   console.error(`\naxe found ${failures.length} problems across ${checks} audits:\n`);

@@ -11,11 +11,11 @@
 */
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { isTargetKind, isTargetKey, hashIp } from '../src/lib/reader.ts';
+import { isTargetKind, isLikeTarget, isTargetKey, hashIp } from '../src/lib/reader.ts';
 
-test('the two kinds in the schema are the two kinds accepted', () => {
+test('only content pages can be comment targets', () => {
   assert.equal(isTargetKind('content'), true);
-  assert.equal(isTargetKind('disaster'), true);
+  assert.equal(isTargetKind('disaster'), false);
 });
 
 test('a kind that is not in the enum is refused before it reaches Postgres', () => {
@@ -24,7 +24,13 @@ test('a kind that is not in the enum is refused before it reaches Postgres', () 
   }
 });
 
-test('a content key keeps its collection prefix and a disaster key is a number', () => {
+test('likes are limited to content pages and comments', () => {
+  assert.equal(isLikeTarget('content'), true);
+  assert.equal(isLikeTarget('comment'), true);
+  assert.equal(isLikeTarget('disaster'), false);
+});
+
+test('a key keeps its collection prefix or is a comment id', () => {
   assert.equal(isTargetKey('blog:the-traps-of-nullable-in-c-sharp'), true);
   assert.equal(isTargetKey('videos:dQw4w9WgXcQ'), true);
   assert.equal(isTargetKey('12'), true);

@@ -142,7 +142,6 @@ export const RESERVED_SLUGS = [
   'blog',
   'builders',
   'conduct',
-  'dev-disasters',
   'images',
   'kitchen-sink',
   'privacy',
@@ -157,60 +156,14 @@ export const RESERVED_SLUGS = [
   'videos'
 ] as const;
 
-/**
- * The four diagnostic severities, which are the ones the editor already draws. They
- * replace the rejected SEV-1 through SEV-4 scale, because a developer reading "Warning"
- * already knows roughly how bad it was.
- */
-export const SEVERITIES = [
-  { id: 'error', label: 'Error', blurb: 'Took production down.' },
-  { id: 'warning', label: 'Warning', blurb: 'Nearly took production down.' },
-  { id: 'info', label: 'Info', blurb: 'Expensive lesson everybody lived through.' },
-  { id: 'hint', label: 'Hint', blurb: 'Just embarrassing.' }
+/** Status tones used by the design-system proof page and badge metadata. */
+export const STATUS_TONES = [
+  { id: 'error', label: 'Error' },
+  { id: 'warning', label: 'Warning' },
+  { id: 'info', label: 'Info' },
+  { id: 'hint', label: 'Hint' }
 ] as const;
-
-export type SeverityId = (typeof SEVERITIES)[number]['id'];
-
-/**
- * The severity id and the severity CSS class are not the same word. The design system
- * writes `sev-warn` and `wq-warn`, the id is `warning`, and every template that forgets
- * that renders an unstyled chip that still looks almost right. One map, used everywhere.
- */
-const SEV_CLASS: Record<SeverityId, string> = {
-  error: 'error',
-  warning: 'warn',
-  info: 'info',
-  hint: 'hint'
-};
-
-/** `sev-error`, `sev-warn`, `sev-info`, `sev-hint`. */
-export const sevClass = (id: SeverityId) => `sev-${SEV_CLASS[id]}`;
-
-/** `wq-error`, `wq-warn`, `wq-info`, `wq-hint`, the wall card modifier. */
-export const wqClass = (id: SeverityId) => `wq-${SEV_CLASS[id]}`;
-
-export const sevLabel = (id: SeverityId) => SEVERITIES.find((s) => s.id === id)?.label ?? id;
-
-
-/** One sort for the whole dev disasters list. Severity filters it, never groups it. */
-export const DISASTER_SORTS = [
-  { id: 'liked', label: 'Most liked' },
-  { id: 'replies', label: 'Most replies' },
-  { id: 'newest', label: 'Newest' }
-] as const;
-
-/**
- * Words a dev disaster slug can never be, because the archive serves its severity and
- * sort views from those same segments.
- *
- * The submission route is retired, but these words still belong to archive routes and
- * remain reserved for stored story slugs.
- */
-export const RESERVED_DISASTER_SLUGS = [
-  'all',
-  ...SEVERITIES.map((s) => s.id),
-  ...DISASTER_SORTS.map((s) => s.id)
-] as string[];
+export type StatusTone = (typeof STATUS_TONES)[number]['id'];
 
 export const SITE = {
   name: 'Bald Bearded Builder',

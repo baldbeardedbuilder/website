@@ -39,7 +39,6 @@ const pages = new Set([
   '/',
   '/about/',
   '/conduct/',
-  '/dev-disasters/',
   '/privacy/',
   '/search/',
   '/terms/',
@@ -158,7 +157,7 @@ test('the legacy posts aliases measured on production are all still covered', ()
 
 test('no taxonomy URL collides with a reserved top level path', () => {
   const reserved = new Set([
-    '404', 'about', 'blog', 'builders', 'conduct', 'dev-disasters', 'images',
+    '404', 'about', 'blog', 'builders', 'conduct', 'images',
     'kitchen-sink', 'privacy', 'rss.xml', 'search', 'settings',
     'sitemap-index.xml', 'submit', 'terms', 'uses', 'videos'
   ]);

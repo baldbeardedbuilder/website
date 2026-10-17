@@ -1,4 +1,4 @@
-/* Older thread data stays readable for compatibility, but retired accounts cannot mutate it. */
+/* Older thread data stays readable for compatibility, but comments cannot be mutated. */
 
 import type { APIRoute } from 'astro';
 import { readThread, BODY_MAX, EDIT_WINDOW_MINUTES } from '../../lib/comments';

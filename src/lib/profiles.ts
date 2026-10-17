@@ -11,19 +11,10 @@
 */
 
 import { serviceClient, supabaseWritable } from './supabase';
-import type { SeverityId } from '../config/site';
 import { shapeShelf } from './shelf';
 import type { ProgressRow, ShelfBadge } from './shelf';
 
 export type { ShelfBadge } from './shelf';
-
-export interface ProfileDisaster {
-  id: number;
-  slug: string;
-  severity: SeverityId;
-  line: string;
-  likes: number;
-}
 
 export interface BuilderProfile {
   id: string;
@@ -36,13 +27,10 @@ export interface BuilderProfile {
   twitchLinked: boolean;
   joined: Date;
   stats: {
-    disasters: number;
-    likesReceived: number;
     comments: number;
     streamsWatched: number;
   };
   badges: ShelfBadge[];
-  disasters: ProfileDisaster[];
 }
 
 export async function getBuilderProfile(handle: string): Promise<BuilderProfile | null> {
@@ -63,7 +51,7 @@ export async function getBuilderProfile(handle: string): Promise<BuilderProfile 
 
   if (!profile || profile.is_private || profile.deleted_at) return null;
 
-  const [progress, shelf, disasters, commentCount, streamCount, firstSeen] = await Promise.all([
+  const [progress, shelf, commentCount, streamCount, firstSeen] = await Promise.all([
     /*
       One call rather than two. badge_progress answers both "which of these has this person
       got" and "how close are they to the next one", from the same counter the triggers
@@ -71,13 +59,6 @@ export async function getBuilderProfile(handle: string): Promise<BuilderProfile 
     */
     db.rpc('badge_progress', { p_profile: profile.id }),
     db.from('badge_shelf').select('badge_id, family, tier, name, description, category, tone, sort_order'),
-    db
-      .from('disasters')
-      .select('id, slug, severity, line')
-      .eq('author_id', profile.id)
-      .eq('status', 'published')
-      .eq('is_anonymous', false)
-      .order('published_at', { ascending: false }),
     db
       .from('comments')
       .select('id', { count: 'exact', head: true })
@@ -109,23 +90,6 @@ export async function getBuilderProfile(handle: string): Promise<BuilderProfile 
 
   const badges = shapeShelf(shelf.data ?? [], (progress.data ?? []) as ProgressRow[]);
 
-  const rows = disasters.data ?? [];
-  const ids = rows.map((r) => String(r.id));
-
-  const { data: likeRows } = ids.length
-    ? await db.from('like_counts').select('target_key, likes').eq('target_kind', 'disaster').in('target_key', ids)
-    : { data: [] };
-
-  const likeByKey = new Map((likeRows ?? []).map((r) => [r.target_key, Number(r.likes)]));
-
-  const list: ProfileDisaster[] = rows.map((r) => ({
-    id: r.id,
-    slug: r.slug ?? '',
-    severity: r.severity as SeverityId,
-    line: r.line ?? '',
-    likes: likeByKey.get(String(r.id)) ?? 0
-  }));
-
   return {
     id: profile.id,
     handle: profile.handle,
@@ -137,13 +101,10 @@ export async function getBuilderProfile(handle: string): Promise<BuilderProfile 
     twitchLinked: Boolean(profile.twitch_user_id),
     joined: firstSeen.data ? new Date(String(firstSeen.data)) : new Date(profile.created_at),
     stats: {
-      disasters: list.length,
-      likesReceived: list.reduce((sum, d) => sum + d.likes, 0),
       comments: commentCount.count ?? 0,
       streamsWatched: streamCount.data ?? 0
     },
-    badges,
-    disasters: list
+    badges
   };
 }
 

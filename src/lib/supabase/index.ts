@@ -10,9 +10,8 @@
 
   The service client is the only thing that writes. That is deliberate and the reasoning
   lives in supabase/README.md: a like needs its IP hashed with a secret the browser must
-  never hold, a comment needs a rate limit and a check on the age of its author's GitHub
-  account, and a submission needs a title written for it. None of that survives being
-  enforced in a browser.
+  never hold, and a comment needs a rate limit and a check on the age of its author's
+  GitHub account. None of that survives being enforced in a browser.
 */
 
 import { createBrowserClient, createServerClient, parseCookieHeader } from '@supabase/ssr';

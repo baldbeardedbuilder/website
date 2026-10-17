@@ -17,7 +17,7 @@ import { rehypeDemoteHeadings } from './src/lib/rehype-demote-headings.mjs';
   serialize below is the real one. It runs after the build has written dist, so it can
   read the robots meta each page actually emitted and drop anything that says noindex.
   That is the only thing that catches dynamic routes, and dynamic routes were where the
-  damage was: draft posts, filtered topic views and every dev disaster sort permutation
+  damage was: draft posts and filtered topic views
   were all correctly marked noindex in their own markup and all listed in the sitemap
   anyway. Five unpublished drafts were being submitted to Google.
 
@@ -106,14 +106,6 @@ export default defineConfig({
       */
       serialize: (item) => (builtNoindex(new URL(item.url).pathname) ? undefined : item),
 
-      /*
-        Submit is rendered on demand, because it has to know whether the reader is signed
-        in before it draws a form that needs a sign in. It is a page people should be able
-        to find, so it is named here as well. Astro dedupes, so listing it twice is
-        harmless, and naming it keeps it in the sitemap if it is ever prerendered behind a
-        different route shape.
-      */
-      customPages: ['https://baldbeardedbuilder.com/submit/']
     })
   ]
 });
