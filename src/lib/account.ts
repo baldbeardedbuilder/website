@@ -9,7 +9,6 @@
 */
 
 import { serviceClient, supabaseWritable } from './supabase';
-import type { Submission, SubmissionStatus } from './submissions';
 import {
   PROVIDERS,
   PROVIDER_ID_COLUMNS,
@@ -50,11 +49,6 @@ export interface AccountView {
    */
   connections: Record<Provider, Connection>;
   email: string | null;
-  preferences: {
-    storyPublished: boolean;
-    storyFeatured: boolean;
-    commentReply: boolean;
-  } | null;
 }
 
 /*
@@ -114,30 +108,19 @@ export async function readAccount(profileId: string): Promise<AccountView | null
 
   const db = serviceClient();
 
-  const [
-    { data: profile, error: profileError },
-    { data: preferences, error: preferencesError },
-    { data: authUser, error: authError }
-  ] = await Promise.all([
-    db
-      .from('profiles')
-      .select(
-        'id, handle, display_name, bio, links, is_private, github_id, github_login, discord_id, discord_login, twitch_user_id, twitch_login'
-      )
-      .eq('id', profileId)
-      .maybeSingle(),
-    db
-      .from('notification_prefs')
-      .select('story_published, story_featured, comment_reply')
-      .eq('profile_id', profileId)
-      .maybeSingle(),
-    db.auth.admin.getUserById(profileId)
-  ]);
+  const [{ data: profile, error: profileError }, { data: authUser, error: authError }] =
+    await Promise.all([
+      db
+        .from('profiles')
+        .select(
+          'id, handle, display_name, bio, links, is_private, github_id, github_login, discord_id, discord_login, twitch_user_id, twitch_login'
+        )
+        .eq('id', profileId)
+        .maybeSingle(),
+      db.auth.admin.getUserById(profileId)
+    ]);
 
   if (profileError) throw new Error(`Could not read account profile: ${profileError.code}`);
-  if (preferencesError) {
-    throw new Error(`Could not read notification preferences: ${preferencesError.code}`);
-  }
   if (authError) throw new Error(`Could not read account email: ${authError.status ?? 'unknown'}`);
 
   if (!profile) return null;
@@ -156,58 +139,8 @@ export async function readAccount(profileId: string): Promise<AccountView | null
     links,
     isPrivate: profile.is_private,
     connections: connectionsOf(profile, authUser.user?.identities),
-    email: authUser.user?.email ?? null,
-    preferences: preferences
-      ? {
-          storyPublished: preferences.story_published,
-          storyFeatured: preferences.story_featured,
-          commentReply: preferences.comment_reply
-        }
-      : null
+    email: authUser.user?.email ?? null
   };
-}
-
-/*
-  Your own submissions, newest first, every status.
-
-  This remains the complete feedback loop for a submitted story. Email reports publication
-  and featuring when enabled, but a submission that is not published sends nothing.
-  disasters_own_read in the RLS already allows a person to see their own rows in any state,
-  and disasters_author_idx already covers the filter.
-
-  What a person is told about each row lives in submissions.ts, which imports nothing so
-  the copy can be tested without a database.
-*/
-export async function readOwnSubmissions(profileId: string): Promise<Submission[]> {
-  if (!supabaseWritable) return [];
-
-  const { data } = await serviceClient()
-    .from('disasters')
-    .select('id, title, slug, status, is_anonymous, submitted_at, published_at, moderation_note')
-    .eq('author_id', profileId)
-    .order('submitted_at', { ascending: false });
-
-  const rows = (data ?? []) as unknown as {
-    id: string;
-    title: string | null;
-    slug: string | null;
-    status: string;
-    is_anonymous: boolean;
-    submitted_at: string;
-    published_at: string | null;
-    moderation_note: string | null;
-  }[];
-
-  return rows.map((r) => ({
-    id: r.id,
-    title: r.title,
-    slug: r.slug,
-    status: r.status as SubmissionStatus,
-    isAnonymous: r.is_anonymous,
-    submittedAt: new Date(r.submitted_at),
-    publishedAt: r.published_at ? new Date(r.published_at) : null,
-    note: r.moderation_note
-  }));
 }
 
 export interface SaveResult {
@@ -260,61 +193,17 @@ export async function saveAccount(profileId: string, form: FormData): Promise<Sa
   return { ok: true };
 }
 
-export async function saveNotificationPrefs(
-  profileId: string,
-  form: FormData
-): Promise<SaveResult> {
-  if (!supabaseWritable) {
-    return { ok: false, error: 'Email settings are not available right now.' };
-  }
-
-  const db = serviceClient();
-  const { data: authUser, error: authError } = await db.auth.admin.getUserById(profileId);
-
-  if (authError || !authUser.user?.email) {
-    return {
-      ok: false,
-      error: 'Your auth provider has not supplied an email address for notifications.'
-    };
-  }
-
-  const { data, error } = await db
-    .from('notification_prefs')
-    .update({
-      story_published: form.get('story_published') === 'on',
-      story_featured: form.get('story_featured') === 'on',
-      comment_reply: form.get('comment_reply') === 'on'
-    })
-    .eq('profile_id', profileId)
-    .select('profile_id')
-    .maybeSingle();
-
-  if (error || !data) {
-    return { ok: false, error: 'Could not save email settings. Try again in a moment.' };
-  }
-
-  return { ok: true };
-}
-
 /*
   Deleting means deleting.
 
   Decision 17 does not want a soft delete that quietly keeps the row so the site can go on
   showing a name. It wants the auth user gone, which cascades the profile, which cascades
-  the grants and the preferences. What survives is what somebody chose to make public: a
-  published story stays published, detached from its author and attributed to nobody.
+  the grants. Comments survive as tombstones rather than retaining account data.
 */
 export async function deleteAccount(profileId: string): Promise<SaveResult> {
   if (!supabaseWritable) return { ok: false, error: 'Accounts are not available right now.' };
 
   const db = serviceClient();
-
-  const { error: detachStories } = await db
-    .from('disasters')
-    .update({ author_id: null, is_anonymous: true })
-    .eq('author_id', profileId);
-
-  if (detachStories) return { ok: false, error: 'Could not delete the account. Nothing was changed.' };
 
   /* A comment is a conversation somebody else is still part of, so the thread keeps its
      shape and the comment becomes a tombstone rather than a hole. Both bodies go: the

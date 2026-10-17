@@ -8,7 +8,7 @@
 
   None of it needs a database. It needs a handle and some strings. So it lives here, in a
   module that imports nothing at all, where a test can call it. Same reasoning and same
-  shape as `disaster-rows.ts`, `grid-fill.ts` and `ownership.ts`.
+  shape as `grid-fill.ts` and `ownership.ts`.
 
   Importing nothing is the requirement rather than a nicety: `node --test` strips types but
   still resolves imports, and `./supabase` is a directory, so anything importing `account.ts`

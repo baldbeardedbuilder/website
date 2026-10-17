@@ -9,7 +9,7 @@
 
   None of it needs a database. It needs a body, a parent row and two counts. So it lives
   here, importing only thread.ts, which imports nothing. Same reasoning and same shape as
-  disaster-rows.ts and profile-fields.ts.
+  profile-fields.ts.
 
   comments.ts itself cannot be imported by a test: it reaches ./supabase, which is a
   directory, and node refuses a directory import before any assertion runs.

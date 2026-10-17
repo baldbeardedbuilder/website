@@ -18,7 +18,7 @@
 import { useEffect, useState } from 'preact/hooks';
 
 interface Props {
-  kind: 'content' | 'disaster' | 'comment';
+  kind: 'content' | 'comment';
   targetKey: string;
   /** The build time count, used until the live one arrives. */
   initial: number;

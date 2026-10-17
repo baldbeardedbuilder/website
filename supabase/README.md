@@ -57,16 +57,18 @@ Both tables arrive empty. Michael loads them. `docs/backfill.md` is the spec.
 | `20260710001200_badge_backfill_schedule` | Nightly `pg_cron` sweep at 01:30 UTC |
 | `20260710001300_video_transcripts` | Transcripts and chapters, read at build time |
 | `20260801000000_featured` | `disasters.featured_at`, its index, and the trigger that grants the Featured badge |
-| `20260806000000_notifications` | Durable email queue, atomic claims, notification triggers, and unsubscribe RPC |
+| `20260806000000_notifications` | Legacy email queue, atomic claims, notification triggers, and unsubscribe RPC. The website no longer drains or sends these messages |
 
 `supabase/reversal/` is not part of the chain and `db push` never sees it. That is
 deliberate: a file that drops the whole v2 schema must not be able to run against the new
 project by accident.
 
 `supabase/deferred/` is not part of the chain. It is reserved for complete migrations that
-are intentionally held from production. Email notifications moved into the applied chain
-as `20260806000000_notifications.sql`. `docs/notifications.md` describes its rollout and
-operating model.
+are intentionally held from production. The disaster and notification schema remains in
+the applied chain for existing database records and migration history, but the website no
+longer reads or writes those features. Database notification triggers may still add rows
+to `email_outbox`; there is no site function or endpoint to deliver or unsubscribe from
+those messages.
 
 `pnpm check:migrations` proves the chain is self contained, which matters now that the
 baseline no longer carries the rest of the legacy schema.
@@ -91,8 +93,8 @@ it.
 
 So the policies in `20260710000100_v2_rls` are read only, with exactly two exceptions,
 both called out in the file: a person editing their own profile, and a person changing
-their own notification preferences. Both are safe to do directly and would otherwise cost
-a route each for nothing.
+their own notification preferences. The latter is retained with the legacy notification
+schema but is no longer used by the website.
 
 ## Environment
 
@@ -104,10 +106,6 @@ The build and the routes need these. Never commit them.
 | `PUBLIC_SUPABASE_ANON_KEY` | Netlify, local `.env` | Client reads |
 | `SUPABASE_SERVICE_ROLE_KEY` | Netlify only, never `PUBLIC_` | Route writes |
 | `LIKE_IP_SECRET` | Netlify only | HMAC key for `likes.ip_hash` |
-| `RESEND_API_KEY` | Netlify production only | Resend delivery credential |
-| `MAIL_DELIVERY_ENABLED` | Netlify production only | Must be exactly `true` to allow delivery |
-| `MAIL_FROM` / `MAIL_REPLY_TO` | Netlify production only | Notification sender and reply inbox |
-| `NOTIFY_SECRET` | Netlify production only | Scheduled drain bearer secret |
 | `SUPABASE_AUTH_GITHUB_CLIENT_ID` / `_SECRET` | Supabase dashboard | Sign in |
 | `SUPABASE_AUTH_DISCORD_CLIENT_ID` / `_SECRET` | Supabase dashboard | Sign in |
 | `SUPABASE_AUTH_TWITCH_CLIENT_ID` / `_SECRET` | Supabase dashboard | Sign in, and the badge shelf link |
@@ -116,30 +114,11 @@ The build and the routes need these. Never commit them.
 people who already liked something could like it once more. That is the intended
 tradeoff: the column is a dedupe token with a shelf life, not a stored IP address.
 
-## Draining the email queue
-
-`20260806000000_notifications.sql` fills `email_outbox` from triggers. It does not empty
-it, and it deliberately does not schedule anything.
-
-The drain is `POST /api/notifications/` on the site, guarded by `NOTIFY_SECRET` as a
-bearer token. It lives there rather than in a database function because the emails are
-rendered from the same content helpers the pages use, and rebuilding topic first URLs in
-SQL would guarantee that an email and a page eventually disagree about where something
-is.
-
-The Netlify scheduled function calls it every five minutes on published deploys. Queue rows
-are claimed atomically with `FOR UPDATE SKIP LOCKED`, and every settle checks the claim
-token. Resend receives the queue dedupe key as an idempotency key.
-
-Delivery also requires `MAIL_DELIVERY_ENABLED=true` and `RESEND_API_KEY`, both scoped to
-Netlify's Production context. Without both, the drain does not claim anything. See
-`docs/notifications.md` for retry, expiry, unsubscribe, and rollout details.
-
 ## Things worth knowing
 
-**Disasters have no topic column, on purpose.** Decision 35 says severity and the
-diagnostic id are the whole classification. Adding a topic later would undo that quietly
-rather than loudly.
+**Disaster tables and notification database objects are retained but dormant from the
+website's perspective.** They remain in the migration chain; no site routes, scheduled
+functions, or email delivery code use them.
 
 **Comments are keyed by collection id, never by URL.** A URL contains a topic, topics are
 a judgement recorded in `src/config/taxonomy.json`, and that judgement will get revised.
@@ -156,4 +135,5 @@ need signing off before launch.
 
 **Moderation happens in Studio.** Decision 7. There is no admin UI in v1, which is why
 `disasters.status`, `comments.status` and `reports.status` are plain text columns with
-readable values rather than integers or enums.
+readable values rather than integers or enums. Disaster moderation is no longer exposed
+by the website.

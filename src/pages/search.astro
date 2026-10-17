@@ -402,9 +402,7 @@ import Base from '../layouts/Base.astro';
       counts: Record<string, number>
     ) => {
       const container = root.querySelector<HTMLElement>(`[data-filter-group="${group}"]`)!;
-      const values = Object.entries(counts)
-        .filter(([value]) => value !== 'disaster')
-        .sort(([left], [right]) => {
+      const values = Object.entries(counts).sort(([left], [right]) => {
         if (group === 'kind') {
           const order = ['article', 'video', 'short', 'page'];
           return order.indexOf(left) - order.indexOf(right);
@@ -440,9 +438,7 @@ import Base from '../layouts/Base.astro';
         const counts = await pagefind.filters();
 
         for (const group of ['kind', 'topic'] as const) {
-          const groupCounts = Object.fromEntries(
-            Object.entries(counts[group] ?? {}).filter(([value]) => value !== 'disaster')
-          );
+          const groupCounts = counts[group] ?? {};
           if (selected[group] && !(selected[group]! in groupCounts)) selected[group] = null;
           renderFilterGroup(group, groupCounts);
         }

@@ -12,9 +12,8 @@
 
 /*
   A sign in, not an integration. Every one of these asks for the profile and the email
-  address and nothing else, because the profile is what the site shows and the email is
-  where a notification needs somewhere to go. None of them can read a repository, join a
-  server, or touch a stream.
+  address and nothing else, because those are the account details the site displays.
+  None of them can read a repository, join a server, or touch a stream.
 */
 export const PROVIDER_SCOPES = {
   github: 'read:user user:email',

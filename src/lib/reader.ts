@@ -12,18 +12,17 @@ import { createHmac, randomUUID } from 'node:crypto';
 import type { APIContext } from 'astro';
 
 /*
-  Two kinds, matching the target_kind enum in the schema.
-
   Content covers articles and videos together because target_key already carries the
   collection prefix, so splitting them would put the same fact in two columns and let them
-  disagree. A disaster is its own kind because it is keyed by a number rather than a path.
+  disagree.
 */
-export type TargetKind = 'content' | 'disaster';
+export type TargetKind = 'content';
 
-export const KINDS: TargetKind[] = ['content', 'disaster'];
+export const KINDS: TargetKind[] = ['content'];
 
 /*
-  What a like can point at, matching the like_target enum.
+  What the site lets a like point at. The database enum also retains the retired disaster
+  target for existing rows, but the website no longer exposes it.
 
   Wider than TargetKind by exactly one: a comment can be liked but cannot be commented on.
   Two types rather than one, because letting the wider one stand in everywhere would allow
@@ -31,7 +30,7 @@ export const KINDS: TargetKind[] = ['content', 'disaster'];
 */
 export type LikeTarget = TargetKind | 'comment';
 
-export const LIKE_TARGETS: LikeTarget[] = ['content', 'disaster', 'comment'];
+export const LIKE_TARGETS: LikeTarget[] = ['content', 'comment'];
 
 export const TOKEN_COOKIE = 'bbb_t';
 
@@ -47,7 +46,7 @@ export function isLikeTarget(value: unknown): value is LikeTarget {
 }
 
 /*
-  A key is a content key like "blog:some-post", a disaster id, or a slug.
+  A key is a content key like "blog:some-post", or a comment id.
 
   The colon and the slash are allowed because content keys are "collection:id" and some
   ids are nested paths. The bound is what makes this a validator rather than decoration:

@@ -244,7 +244,7 @@ export async function renderComment(markdown: string): Promise<string> {
   return renderBlocks(tokens);
 }
 
-/** The plain text of a comment, for a notification email or a moderation list. */
+/** The plain text of a comment, for moderation tools. */
 export function commentExcerpt(markdown: string, max = 160): string {
   const flat = markdown
     .replace(/```[\s\S]*?```/g, ' code ')

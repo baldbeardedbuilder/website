@@ -319,7 +319,7 @@ function resolve(theme) {
     c['button.background'], c['focusBorder']
   ), S, TARGET);
 
-  // Diagnostic severities. These are the dev disaster scale, so all four must exist
+  // Status tones. All four must exist because conduct pages use them
   // and, more importantly, must not collapse into each other.
   const err = enforce(firstColorful(
     c['editorError.foreground'], c['errorForeground'], c['list.errorForeground'],

@@ -17,7 +17,6 @@ const retiredRoutes = [
   ['src', 'pages', 'auth', 'signin.ts'],
   ['src', 'pages', 'auth', 'signout.ts'],
   ['src', 'pages', 'auth', 'link', '[provider].ts'],
-  ['src', 'pages', 'api', 'disasters.ts'],
   ['src', 'pages', 'api', 'report.ts'],
   ['src', 'pages', 'report.astro'],
   ['src', 'components', 'SubmissionList.astro'],
@@ -32,10 +31,8 @@ test('retired account, submission, and report routes stay retired', () => {
 
 test('shared navigation and bylines do not link to retired account routes', () => {
   const footer = read('src', 'components', 'SiteFooter.astro');
-  const teller = read('src', 'components', 'Teller.astro');
 
   assert.doesNotMatch(footer, /\/account\/|\/signin\/|\/builders\/|\/submit\//);
-  assert.doesNotMatch(teller, /\/builders\//);
 });
 
 test('anonymous likes never attach retired account ids', () => {

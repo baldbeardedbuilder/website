@@ -75,10 +75,7 @@ test('a parent on another page and a parent that is not there read the same', ()
   const want = { kind: 'content', key: 'post-one' };
   const missing = parentProblem(null, want);
   const elsewhere = parentProblem(parent({ target_key: 'post-two' }), want);
-  const otherKind = parentProblem(parent({ target_kind: 'disaster' }), want);
-
   assert.equal(missing.error, elsewhere.error);
-  assert.equal(missing.error, otherKind.error);
   assert.equal(missing.status, elsewhere.status);
 });
 

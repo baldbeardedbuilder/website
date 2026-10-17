@@ -21,7 +21,7 @@
   4. Earned badges sort first. The shelf is a record of what somebody did, not a checklist.
 */
 
-import type { SeverityId } from '../config/site';
+import type { StatusTone } from '../config/site';
 
 export interface ShelfBadge {
   id: string;
@@ -30,7 +30,7 @@ export interface ShelfBadge {
   name: string;
   description: string;
   category: 'presence' | 'craft' | 'care';
-  tone: SeverityId;
+  tone: StatusTone;
   earned: boolean;
   /** Roman numeral for tiered families, null for a badge that has only one step. */
   numeral: string | null;
@@ -89,8 +89,6 @@ export interface NextStep {
 const UNITS: Record<string, string> = {
   'site:comment': 'reply',
   'site:comment-thread': 'thread',
-  'site:disaster': 'disaster',
-  'site:disaster-error': 'disaster',
   'stream:attended': 'stream',
   onChatMessage: 'message'
 };
@@ -186,7 +184,7 @@ export function shapeShelf(shelf: ShelfRow[], progress: ProgressRow[]): ShelfBad
         name: row.name!,
         description: row.description!,
         category: (row.category ?? 'presence') as ShelfBadge['category'],
-        tone: (row.tone ?? 'info') as SeverityId,
+        tone: (row.tone ?? 'info') as StatusTone,
         earned: earned.has(id),
         numeral: numeral(row.tier, familySizes.get(row.family ?? '') ?? 1),
         progress: show ? { n: Number(p!.n), threshold: p!.threshold } : null
