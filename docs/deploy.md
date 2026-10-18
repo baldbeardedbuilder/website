@@ -6,6 +6,18 @@ thing that looks risky.
 Netlify serves the static Astro build only. Likes, comment reads, and share-intent tracking
 run in Supabase Edge Functions; deploy them with the steps in `docs/new-project.md`.
 
+The `.NET Drip` signup posts JSON from the browser to the existing Hookdeck webhook,
+which continues forwarding to Kit.com. Set `PUBLIC_HOOKDECK_WEBHOOK_URL` in each Netlify
+deploy context that should accept signups, including production and any branch deploys
+used for testing. Without this value the signup displays an unavailable message; there
+is no form-processing fallback. This is a public build variable and its value is visible
+in the deployed page; configure the Hookdeck source for browser CORS from those site
+origins and ensure it is safe for public requests. A successful 2xx response triggers
+the existing `/?subscribed=true#drip` redirect; HTTP or network failure leaves the
+visitor on the page with an error. The Hookdeck source must accept a JSON body containing
+`email` and `utm_source`; verify the configured Hookdeck-to-Kit mapping still matches
+that request shape before setting the variable in production.
+
 ## The change nobody asked for
 
 `netlify.toml` moved from `public/` to the repository root. That part is a tidy up.
