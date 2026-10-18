@@ -8,6 +8,7 @@ import {
   isTargetKey,
   isTargetKind
 } from '../supabase/functions/_shared/request.ts';
+import { submitNewsletterSignup } from '../src/lib/newsletter.ts';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const read = (file) => fs.readFileSync(path.join(ROOT, file), 'utf8');
@@ -69,4 +70,40 @@ test('Edge Functions use Supabase injected service keys and a rotatable IP secre
   const request = read('supabase/functions/_shared/request.ts');
   assert.match(client, /SUPABASE_SECRET_KEYS/);
   assert.match(request, /Deno\.env\.get\('LIKE_IP_SECRET'\)/);
+});
+
+test('the newsletter form has no Netlify Forms markers and submits only through Hookdeck', () => {
+  const form = read('src/components/Drip.astro');
+  assert.match(form, /PUBLIC_HOOKDECK_WEBHOOK_URL/);
+  assert.match(form, /data-hookdeck-webhook/);
+  assert.doesNotMatch(form, /data-netlify|netlify-honeypot|form-name|name="net-drip"/);
+  assert.match(form, /if \(!form\.dataset\.hookdeckWebhook\)/);
+  assert.match(form, /Signup is temporarily unavailable/);
+  assert.match(form, /window\.location\.assign\('\/\?subscribed=true#drip'\)/);
+});
+
+test('newsletter signup sends the email and source as JSON and rejects non-2xx responses', async () => {
+  const signup = { email: 'reader@example.com', utm_source: 'baldbeardedbuilder' };
+  let request;
+
+  await submitNewsletterSignup('https://hookdeck.example/webhook', signup, async (...args) => {
+    request = args;
+    return new Response(null, { status: 202 });
+  });
+
+  assert.equal(request[0], 'https://hookdeck.example/webhook');
+  assert.equal(request[1].method, 'POST');
+  assert.equal(request[1].headers['Content-Type'], 'application/json');
+  assert.deepEqual(JSON.parse(request[1].body), signup);
+
+  await assert.rejects(
+    submitNewsletterSignup('https://hookdeck.example/webhook', signup, async () =>
+      new Response(null, { status: 503 })
+    ),
+    /rejected the signup/
+  );
+  await assert.rejects(
+    submitNewsletterSignup('', signup, async () => new Response(null, { status: 202 })),
+    /not configured/
+  );
 });

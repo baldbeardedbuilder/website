@@ -2,8 +2,8 @@
 /*
   The .NET Drip signup.
 
-  Still a Netlify Form, still posting to the same `net-drip` form the current site uses,
-  so nothing on the subscriber side changes. Restyled only.
+  Signup data is posted as JSON to the existing Hookdeck webhook. The endpoint must be
+  configured for the form to accept submissions.
 
   Deliberately no issue count and no subscriber count. The archive in the content
   submodule holds the recent run, not the whole history, so any number built from it
@@ -22,6 +22,7 @@ interface Props {
 
 const { uid } = Astro.props;
 const inputId = `drip-${uid}`;
+const hookdeckWebhookUrl = import.meta.env.PUBLIC_HOOKDECK_WEBHOOK_URL ?? '';
 ---
 
 <section class="drip" aria-labelledby={`drip-title-${uid}`}>
@@ -33,13 +34,10 @@ const inputId = `drip-${uid}`;
   </div>
   <form
     class="drip-form"
-    name="net-drip"
     method="POST"
     action="/?subscribed=true#drip"
-    data-netlify="true"
-    netlify-honeypot="bot-field"
+    data-hookdeck-webhook={hookdeckWebhookUrl}
   >
-    <input type="hidden" name="form-name" value="net-drip" />
     <input type="hidden" name="utm_source" value="baldbeardedbuilder" />
     <p class="skip">
       <label>Leave this empty if you are a person <input name="bot-field" tabindex="-1" /></label>
@@ -50,6 +48,48 @@ const inputId = `drip-${uid}`;
       <button type="submit">Get The Drip</button>
     </div>
     <p class="form-message">Free to join. Unsubscribe whenever.</p>
+    <p class="form-message drip-status" role="status" aria-live="polite"></p>
     <p class="drip-archive"><a href={EXTERNAL.drip}>Read the archive.</a></p>
   </form>
 </section>
+
+<script>
+  import { submitNewsletterSignup } from '../lib/newsletter';
+
+  document.querySelectorAll<HTMLFormElement>('.drip-form').forEach((form) => {
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+
+      const status = form.querySelector<HTMLElement>('.drip-status');
+      const button = form.querySelector<HTMLButtonElement>('button[type="submit"]');
+      const data = new FormData(form);
+      const email = data.get('email');
+      const source = data.get('utm_source');
+      const honeypot = data.get('bot-field');
+
+      if (typeof honeypot === 'string' && honeypot.trim()) return;
+      if (typeof email !== 'string' || typeof source !== 'string') return;
+
+      if (!form.dataset.hookdeckWebhook) {
+        if (status) status.textContent = 'Signup is temporarily unavailable. Please try again later.';
+        return;
+      }
+
+      if (button) button.disabled = true;
+      if (status) status.textContent = 'Submitting…';
+
+      try {
+        await submitNewsletterSignup(form.dataset.hookdeckWebhook ?? '', {
+          email,
+          utm_source: source
+        });
+        window.location.assign('/?subscribed=true#drip');
+      } catch {
+        if (status) {
+          status.textContent = 'We could not submit your signup. Please try again.';
+        }
+        if (button) button.disabled = false;
+      }
+    });
+  });
+</script>
