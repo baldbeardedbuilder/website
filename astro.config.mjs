@@ -3,6 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { defineConfig } from 'astro/config';
+import { unified } from '@astrojs/markdown-remark';
 import expressiveCode from 'astro-expressive-code';
 import sitemap from '@astrojs/sitemap';
 import preact from '@astrojs/preact';
@@ -84,7 +85,9 @@ export default defineConfig({
     would otherwise put a second h1 on a page that already has one.
   */
   markdown: {
-    rehypePlugins: [rehypeDemoteHeadings]
+    processor: unified({
+      rehypePlugins: [rehypeDemoteHeadings]
+    })
   },
   integrations: [
     // Options live in ec.config.mjs. See the comment at the top of that file.
